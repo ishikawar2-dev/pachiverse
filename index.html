@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Web3 Hero</title>
+<link rel="preconnect" href="https://api.fontshare.com" />
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: #000000;
+    font-family: 'General Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .hero {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: #000000;
+    overflow: hidden;
+  }
+
+  .bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+
+  /* Arcade cabinet — floats in front of video, behind UI */
+  .cabinet {
+    position: absolute;
+    top: 18%;
+    left: 50%;
+    width: clamp(200px, 20vw, 400px);
+    height: auto;
+    z-index: 2;
+    animation: cabinet-float 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 40px rgba(0, 229, 255, 0.35))
+            drop-shadow(0 0 80px rgba(255, 0, 229, 0.2))
+            brightness(0.75) contrast(1.05);
+    pointer-events: none;
+    will-change: transform;
+  }
+  @keyframes cabinet-float {
+    0%, 100% {
+      transform: translateX(-50%) translateY(0) rotate(-8deg);
+    }
+    50% {
+      transform: translateX(-50%) translateY(-18px) rotate(-7deg);
+    }
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Navbar */
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 120px;
+  }
+
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .logo {
+    width: 187px;
+    height: auto;
+    display: block;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .nav-link svg {
+    width: 14px;
+    height: 14px;
+    color: #ffffff;
+  }
+
+  /* Pill buttons (layered construction) */
+  .pill-button {
+    position: relative;
+    display: inline-block;
+    border-radius: 9999px;
+    border: 0.6px solid #ffffff;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    font-family: inherit;
+  }
+
+  .pill-inner {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    padding: 11px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    z-index: 1;
+  }
+
+  /* Ghost pill (secondary nav button): transparent inside, white text */
+  .btn-ghost {
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+  .btn-ghost .pill-inner {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    backdrop-filter: blur(6px);
+    gap: 8px;
+  }
+  .btn-ghost .pill-inner svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Group for nav-right buttons */
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Navbar button: black inside, white text */
+  .btn-nav .pill-inner {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  /* CTA button: white inside, black text */
+  .btn-cta .pill-inner {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  /* White glow streak along the top edge */
+  .pill-glow {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 14px;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 70%);
+    filter: blur(4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Hero content */
+  .hero-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 280px 24px 102px;
+    gap: 40px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffffff;
+  }
+
+  .badge-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Live phase: green pulsing dot */
+  .badge[data-phase="live"] .badge-dot {
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.8); }
+    50% { box-shadow: 0 0 14px rgba(34, 197, 94, 1); }
+  }
+
+  .badge-label {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .badge-date {
+    color: #ffffff;
+  }
+
+  .heading {
+    max-width: 613px;
+    font-size: 56px;
+    font-weight: 500;
+    line-height: 1.28;
+    background: linear-gradient(90deg, #4DD9FF 0%, #FF59FF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .subtitle {
+    margin-top: -16px; /* compensate so gap between heading and subtitle equals 24px (40 - 16) */
+    max-width: 680px;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Countdown */
+  .countdown {
+    margin-top: -16px;
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 18px;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 64px;
+  }
+
+  .countdown-value {
+    font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    text-shadow: 0 0 24px rgba(255, 255, 255, 0.25);
+  }
+
+  .countdown-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .countdown-sep {
+    font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+    font-size: 36px;
+    font-weight: 300;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.3);
+    padding-top: 2px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1280px) {
+    .navbar {
+      padding: 20px 48px;
+    }
+    .nav-left {
+      gap: 28px;
+    }
+    .nav-links {
+      gap: 22px;
+    }
+  }
+
+  /* Hamburger button (hidden by default on desktop) */
+  .hamburger {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 0.6px solid rgba(255, 255, 255, 0.35);
+    border-radius: 9999px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    z-index: 20;
+  }
+  .hamburger-icon,
+  .hamburger-icon::before,
+  .hamburger-icon::after {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.2s ease, top 0.25s ease;
+    position: relative;
+  }
+  .hamburger-icon::before {
+    position: absolute;
+    top: -5px;
+    left: 0;
+  }
+  .hamburger-icon::after {
+    position: absolute;
+    top: 5px;
+    left: 0;
+  }
+  .hamburger[aria-expanded="true"] .hamburger-icon {
+    background: transparent;
+  }
+  .hamburger[aria-expanded="true"] .hamburger-icon::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+  .hamburger[aria-expanded="true"] .hamburger-icon::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  /* Mobile menu overlay */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .mobile-menu[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mobile-menu a {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+  .mobile-menu .mobile-portal {
+    margin-top: 12px;
+  }
+
+  /* Hide/show nav links via phase flag (pre-launch: hidden) */
+  .nav-links[data-phase="pre"] { display: none; }
+  .mobile-menu-links[data-phase="pre"] { display: none; }
+
+  @media (max-width: 1100px) {
+    .navbar {
+      padding: 20px 32px;
+    }
+    .nav-links {
+      display: none !important;
+    }
+    .hamburger {
+      display: inline-flex;
+    }
+    /* Hide hamburger during pre-launch phase (no links to show) */
+    .hamburger[data-phase="pre"] {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .navbar {
+      padding: 20px 20px;
+    }
+    .nav-right {
+      gap: 8px;
+    }
+    .btn-ghost .pill-inner {
+      padding: 11px 14px;
+    }
+    .btn-ghost .pill-label {
+      display: none;
+    }
+    .hero-content {
+      padding: 200px 20px 102px;
+    }
+    .heading {
+      font-size: 36px;
+    }
+    .countdown {
+      gap: 10px;
+    }
+    .countdown-unit {
+      min-width: 52px;
+    }
+    .countdown-value {
+      font-size: 30px;
+    }
+    .countdown-sep {
+      font-size: 26px;
+    }
+  }
+</style>
+</head>
+<body>
+  <section class="hero">
+    <video
+      class="bg-video"
+      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260217_030345_246c0224-10a4-422c-b324-070b7c0eceda.mp4"
+      autoplay
+      muted
+      loop
+      playsinline
+    ></video>
+    <div class="overlay"></div>
+
+    <img
+      class="cabinet"
+      src="https://members.pachiverse.com/wp-content/uploads/2026/04/machine_trans-scaled.png"
+      alt=""
+      aria-hidden="true"
+    />
+
+    <div class="hero-inner">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-left">
+          <!-- Pachiverse logo -->
+          <img class="logo" src="https://members.pachiverse.com/wp-content/uploads/2026/03/Pachiverse_logo_trans.png" alt="Pachiverse" />
+
+          <div class="nav-links" id="nav-links" data-phase="pre">
+            <a class="nav-link" href="#about">
+              About
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </a>
+            <a class="nav-link" href="#roadmap">
+              Roadmap
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </a>
+            <a class="nav-link" href="#docs">
+              Docs
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"></path><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </a>
+            <a class="nav-link" href="#community">
+              Community
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-right">
+          <a class="pill-button btn-ghost" href="https://members.pachiverse.com/login/" aria-label="Member Portal">
+            <span class="pill-inner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span class="pill-label">Member Portal</span>
+            </span>
+          </a>
+          <button class="hamburger" id="hamburger" data-phase="pre" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+            <span class="hamburger-icon"></span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Mobile menu overlay -->
+      <div class="mobile-menu" id="mobile-menu" data-open="false" aria-hidden="true">
+        <div class="mobile-menu-links" id="mobile-menu-links" data-phase="pre" style="display:flex;flex-direction:column;align-items:center;gap:28px;">
+          <a href="#about">About</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#docs">Docs</a>
+          <a href="#community">Community</a>
+        </div>
+      </div>
+
+      <!-- Hero content -->
+      <div class="hero-content">
+        <div class="badge" id="status-badge" data-phase="pre">
+          <span class="badge-dot"></span>
+          <span>
+            <span class="badge-label" id="badge-label">Early access available from</span><span class="badge-date" id="badge-date"> June 1, 2026</span>
+          </span>
+        </div>
+
+        <h1 class="heading">Spin the Verse.</h1>
+
+        <div class="countdown" id="countdown" aria-label="Countdown to launch">
+          <div class="countdown-unit">
+            <span class="countdown-value" id="cd-days">--</span>
+            <span class="countdown-label">Days</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-unit">
+            <span class="countdown-value" id="cd-hours">--</span>
+            <span class="countdown-label">Hours</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-unit">
+            <span class="countdown-value" id="cd-minutes">--</span>
+            <span class="countdown-label">Minutes</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-unit">
+            <span class="countdown-value" id="cd-seconds">--</span>
+            <span class="countdown-label">Seconds</span>
+          </div>
+        </div>
+
+        <p class="subtitle">A new playground where the culture of play meets the power of Web3 — and every spin belongs to you.</p>
+
+        <a class="pill-button btn-ghost" id="hero-cta" href="https://members.pachiverse.com/login/">
+          <span class="pill-inner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span class="pill-label" id="hero-cta-label">Member Portal</span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+<script>
+  (function () {
+    // Launch target: 2026-06-01 00:00 JST
+    var target = new Date('2026-06-01T00:00:00+09:00').getTime();
+
+    var el = {
+      badge: document.getElementById('status-badge'),
+      badgeLabel: document.getElementById('badge-label'),
+      badgeDate: document.getElementById('badge-date'),
+      countdown: document.getElementById('countdown'),
+      cta: document.getElementById('hero-cta'),
+      ctaLabel: document.getElementById('hero-cta-label'),
+      d: document.getElementById('cd-days'),
+      h: document.getElementById('cd-hours'),
+      m: document.getElementById('cd-minutes'),
+      s: document.getElementById('cd-seconds')
+    };
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    var isLive = false;
+    var timerId = null;
+
+    function switchToLive() {
+      if (isLive) return;
+      isLive = true;
+      // Badge: green dot + "Early access now live"
+      el.badge.setAttribute('data-phase', 'live');
+      el.badgeLabel.textContent = 'Early access now live';
+      el.badgeDate.textContent = '';
+      // Hide countdown
+      if (el.countdown) el.countdown.style.display = 'none';
+      // Swap CTA → Join Waitlist (launched → waitlist opens for next phase / new users)
+      el.ctaLabel.textContent = 'Join Waitlist';
+      if (el.cta) el.cta.setAttribute('href', '#');
+      // Reveal nav links (desktop) + hamburger (mobile)
+      var navLinks = document.getElementById('nav-links');
+      var mobileLinks = document.getElementById('mobile-menu-links');
+      var ham = document.getElementById('hamburger');
+      if (navLinks) navLinks.setAttribute('data-phase', 'live');
+      if (mobileLinks) mobileLinks.setAttribute('data-phase', 'live');
+      if (ham) ham.setAttribute('data-phase', 'live');
+      if (timerId) { clearInterval(timerId); timerId = null; }
+    }
+
+    // Hamburger toggle
+    var ham = document.getElementById('hamburger');
+    var menu = document.getElementById('mobile-menu');
+    if (ham && menu) {
+      ham.addEventListener('click', function () {
+        var open = ham.getAttribute('aria-expanded') === 'true';
+        var next = !open;
+        ham.setAttribute('aria-expanded', String(next));
+        menu.setAttribute('data-open', String(next));
+        menu.setAttribute('aria-hidden', String(!next));
+        document.body.style.overflow = next ? 'hidden' : '';
+      });
+      menu.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          ham.setAttribute('aria-expanded', 'false');
+          menu.setAttribute('data-open', 'false');
+          menu.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        });
+      });
+    }
+
+    function tick() {
+      var diff = target - Date.now();
+      if (diff <= 0) {
+        switchToLive();
+        return;
+      }
+      var days = Math.floor(diff / 86400000);
+      var hours = Math.floor((diff % 86400000) / 3600000);
+      var mins = Math.floor((diff % 3600000) / 60000);
+      var secs = Math.floor((diff % 60000) / 1000);
+      el.d.textContent = pad(days);
+      el.h.textContent = pad(hours);
+      el.m.textContent = pad(mins);
+      el.s.textContent = pad(secs);
+    }
+
+    tick();
+    if (!isLive) timerId = setInterval(tick, 1000);
+  })();
+</script>
+</body>
+</html>
