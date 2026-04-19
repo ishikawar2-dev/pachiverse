@@ -208,6 +208,106 @@
     color: #000000;
   }
 
+  /* ============================================================
+     Neon glass CTA (hero center)
+     - Inherits heading gradient (Cyan #4DD9FF → Magenta #FF59FF)
+     - Glass body with backdrop blur + gradient border
+     ============================================================ */
+  .neon-cta {
+    --grad: linear-gradient(90deg, #4DD9FF 0%, #FF59FF 100%);
+    position: relative;
+    display: inline-block;
+    padding: 2px; /* thickness of the gradient border */
+    background: var(--grad);
+    border-radius: 9999px;
+    text-decoration: none;
+    color: #ffffff;
+    font-family: inherit;
+    isolation: isolate;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 8px 24px rgba(77, 217, 255, 0.25),
+      0 16px 48px rgba(255, 89, 255, 0.18);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+  }
+
+  /* Ambient glow behind the button */
+  .neon-cta::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 9999px;
+    background: var(--grad);
+    filter: blur(18px);
+    opacity: 0.35;
+    z-index: -1;
+    transition: opacity 0.25s ease;
+  }
+
+  .neon-cta-inner {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 40px;
+    border-radius: 9999px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+    /* Glass body: dark translucent + blur */
+    background:
+      linear-gradient(180deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0) 45%),
+      linear-gradient(180deg,
+        rgba(6, 6, 14, 0.72) 0%,
+        rgba(6, 6, 14, 0.82) 100%);
+    backdrop-filter: blur(12px) saturate(1.1);
+    -webkit-backdrop-filter: blur(12px) saturate(1.1);
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(77, 217, 255, 0.35);
+  }
+
+  /* Top-edge glass highlight */
+  .neon-cta-inner::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 10%;
+    right: 10%;
+    height: 40%;
+    border-radius: 9999px 9999px 40% 40% / 9999px 9999px 100% 100%;
+    background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+  }
+
+  /* Label: gradient fill so it reads as "light" coming from the border */
+  .neon-cta-label {
+    position: relative;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    /* Subtle outer stroke via drop-shadow in white at low alpha */
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+  }
+
+  .neon-cta:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08) saturate(1.1);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      0 14px 32px rgba(77, 217, 255, 0.35),
+      0 22px 60px rgba(255, 89, 255, 0.28);
+  }
+  .neon-cta:hover::before { opacity: 0.55; }
+  .neon-cta:active { transform: translateY(0); }
+
   /* White glow streak along the top edge */
   .pill-glow {
     position: absolute;
@@ -486,6 +586,10 @@
     .countdown-sep {
       font-size: 26px;
     }
+    .neon-cta-inner {
+      padding: 14px 32px;
+      font-size: 14px;
+    }
   }
 
   /* ============================================================
@@ -700,9 +804,9 @@
 
         <p class="subtitle">A new playground where the culture of play meets the power of Web3 — and every spin belongs to you.</p>
 
-        <a class="pill-button btn-ghost" id="hero-cta" href="https://members.pachiverse.com/login/">
-          <span class="pill-inner">
-            <span class="pill-label" id="hero-cta-label">Member Portal</span>
+        <a class="neon-cta" id="hero-cta" href="https://members.pachiverse.com/login/">
+          <span class="neon-cta-inner">
+            <span class="neon-cta-label" id="hero-cta-label">Member Portal</span>
           </span>
         </a>
       </div>
