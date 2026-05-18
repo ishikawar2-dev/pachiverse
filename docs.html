@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Documentation — Pachiverse</title>
+<meta name="description" content="Technical documentation and ecosystem reference for the Pachiverse infrastructure, NFT system, and reveal architecture." />
+<link rel="icon" type="image/png" href="/assets/logo-square.png" />
+<link rel="apple-touch-icon" href="/assets/logo-square.png" />
+<link rel="preconnect" href="https://api.fontshare.com" />
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #000; min-height: 100vh; }
+  html, body { width: 100%; min-height: 100vh; font-family: 'General Sans', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { background: transparent; }
+  :root { --fx-scanline: 1; --fx-vignette: 1; --scroll-y: 0; }
+  ::selection { background: rgba(77,217,255,0.35); }
+
+  /* Starfield */
+  .starfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background-color: #000; }
+  .starfield::before {
+    content: ''; position: absolute; inset: -10%;
+    background: radial-gradient(ellipse 800px 500px at 80% 25%, rgba(77,217,255,0.07), transparent 65%),
+                radial-gradient(ellipse 900px 600px at 15% 70%, rgba(255,89,255,0.06), transparent 65%),
+                radial-gradient(ellipse 600px 400px at 55% 95%, rgba(157,93,255,0.05), transparent 65%);
+    animation: nebula-shift 40s ease-in-out infinite alternate;
+  }
+  @keyframes nebula-shift { 0% { transform: translate(0,0); } 100% { transform: translate(40px,-30px); } }
+  .starfield-back {
+    position: absolute; inset: -10%;
+    background-image: radial-gradient(1px 1px at 20px 80px,#fff 50%,transparent 51%),
+                      radial-gradient(1px 1px at 130px 30px,#fff 50%,transparent 51%),
+                      radial-gradient(1.5px 1.5px at 240px 90px,#fff 50%,transparent 51%),
+                      radial-gradient(1px 1px at 380px 200px,#fff 50%,transparent 51%);
+    background-size: 420px 320px; background-repeat: repeat;
+    opacity: 0.7; animation: star-drift 240s linear infinite;
+  }
+  @keyframes star-drift { to { background-position-x: 420px; } }
+
+  .fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 50; mix-blend-mode: screen; }
+  .fx-scanlines { background-image: repeating-linear-gradient(to bottom,rgba(255,255,255,0.06) 0px,rgba(255,255,255,0.06) 1px,transparent 1px,transparent 3px); opacity: var(--fx-scanline); mix-blend-mode: overlay; animation: scanline-drift 8s linear infinite; }
+  @keyframes scanline-drift { 0% { background-position: 0 0; } 100% { background-position: 0 120px; } }
+  .fx-vignette { background: radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.55) 90%,rgba(0,0,0,0.9) 100%); opacity: var(--fx-vignette); }
+
+  /* Navbar */
+  .navbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 120px; }
+  .nav-left { display: flex; align-items: center; gap: 40px; }
+  .logo { width: 187px; height: auto; display: block; }
+  .nav-links { display: flex; align-items: center; gap: 30px; }
+  .nav-link { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer; white-space: nowrap; position: relative; }
+  .nav-link svg { width: 14px; height: 14px; }
+  .nav-link[aria-current="page"] { color: #4DD9FF; }
+  .nav-link[aria-current="page"]::after { content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px; background: linear-gradient(90deg, transparent, #4DD9FF, transparent); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .pill-button { position: relative; display: inline-block; border-radius: 9999px; border: 0.6px solid rgba(255,255,255,0.35); padding: 0; background: transparent; cursor: pointer; overflow: hidden; text-decoration: none; color: inherit; font-family: inherit; }
+  .pill-inner { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 9999px; padding: 11px 24px; font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; z-index: 1; background: rgba(255,255,255,0.06); color: #fff; backdrop-filter: blur(6px); }
+  .pill-inner svg { width: 14px; height: 14px; }
+  .hamburger { display: none; width: 40px; height: 40px; background: transparent; border: 0.6px solid rgba(255,255,255,0.35); border-radius: 9999px; cursor: pointer; align-items: center; justify-content: center; padding: 0; position: relative; z-index: 20; }
+  .hamburger-icon, .hamburger-icon::before, .hamburger-icon::after { content: ''; display: block; width: 16px; height: 1.5px; background: #fff; border-radius: 2px; transition: transform 0.25s ease; position: relative; }
+  .hamburger-icon::before { position: absolute; top: -5px; left: 0; }
+  .hamburger-icon::after  { position: absolute; top: 5px; left: 0; }
+  .hamburger[aria-expanded="true"] .hamburger-icon { background: transparent; }
+  .hamburger[aria-expanded="true"] .hamburger-icon::before { top: 0; transform: rotate(45deg); }
+  .hamburger[aria-expanded="true"] .hamburger-icon::after { top: 0; transform: rotate(-45deg); }
+  .mobile-menu { position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(14px); z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  .mobile-menu[data-open="true"] { opacity: 1; pointer-events: auto; }
+  .mobile-menu a { color: #fff; font-size: 24px; font-weight: 500; text-decoration: none; }
+
+  /* Trust Bar */
+  .trust-bar-wrapper { position: relative; border-top: 1px solid rgba(77,217,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow: hidden; z-index: 40; transition: padding 0.3s ease, background 0.3s ease; }
+  .trust-bar-wrapper::before, .trust-bar-wrapper::after { content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; pointer-events: none; }
+  .trust-bar-wrapper::before { left: 0;  background: linear-gradient(90deg, rgba(0,0,0,0.85), transparent); }
+  .trust-bar-wrapper::after  { right: 0; background: linear-gradient(-90deg, rgba(0,0,0,0.85), transparent); }
+  .trust-bar-wrapper.is-sticky { position: fixed; top: 0; left: 0; right: 0; background: rgba(5,5,9,0.82); border-top: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: trust-sticky-in 0.4s ease-out; }
+  @keyframes trust-sticky-in { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .trust-bar { padding: 14px 0; transition: padding 0.3s ease; }
+  .trust-bar-wrapper.is-sticky .trust-bar { padding: 6px 0; }
+  .trust-bar-marquee { display: flex; align-items: center; gap: 36px; white-space: nowrap; width: max-content; animation: trust-marquee 36s linear infinite; }
+  .trust-bar-wrapper:hover .trust-bar-marquee { animation-play-state: paused; }
+  @keyframes trust-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .trust-bar-label { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 0.18em; text-transform: uppercase; flex-shrink: 0; }
+  .trust-bar-label::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #6BE19E; box-shadow: 0 0 8px rgba(107,225,158,0.9); animation: pulse-live 1.8s ease-in-out infinite; }
+  @keyframes pulse-live { 0%, 100% { opacity: 0.7; box-shadow: 0 0 6px rgba(107,225,158,0.6); } 50% { opacity: 1; box-shadow: 0 0 12px rgba(107,225,158,1); } }
+  .trust-bar-divider { width: 1px; height: 12px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+  .trust-bar-item { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; font-size: 11px; color: rgba(255,255,255,0.65); letter-spacing: 0.04em; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .trust-bar-item svg { width: 12px; height: 12px; color: #4DD9FF; flex-shrink: 0; }
+  .trust-bar-spacer { display: none; }
+  .trust-bar-spacer.is-active { display: block; }
+
+  /* Page header */
+  .page-content { padding-top: 40px; }
+  .page-header { padding: 80px 48px 56px; max-width: 1080px; margin: 0 auto; }
+  .page-header-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 20px;
+    background: rgba(77,217,255,0.06);
+    border: 1px solid rgba(77,217,255,0.3);
+    box-shadow: 0 0 12px rgba(77,217,255,0.15) inset;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4DD9FF;
+    margin-bottom: 24px;
+  }
+  .page-header-tag::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #4DD9FF; box-shadow: 0 0 8px rgba(77,217,255,0.9); animation: pulse-live 1.8s ease-in-out infinite; }
+  .page-header-title { font-size: 52px; font-weight: 500; line-height: 1.15; background: linear-gradient(90deg,#4DD9FF 0%,#FF59FF 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; margin-bottom: 20px; text-shadow: 0 0 20px rgba(77,217,255,0.12); letter-spacing: -0.01em; }
+  .page-header-subtitle { font-size: 15px; line-height: 1.75; color: rgba(255,255,255,0.55); max-width: 720px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.4); font-size: 13px;
+    text-decoration: none; transition: color 0.2s ease, gap 0.2s ease;
+    margin-bottom: 32px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.06em;
+  }
+  .back-link:hover { color: rgba(255,255,255,0.85); gap: 12px; }
+  .back-link svg { width: 14px; height: 14px; }
+
+  /* Page shell */
+  .section-inner { max-width: 1080px; margin: 0 auto; padding: 0 48px; }
+
+  /* Release progress strip */
+  .release-strip {
+    margin-bottom: 48px;
+    padding: 22px 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(135deg, rgba(77,217,255,0.04), rgba(255,89,255,0.02));
+    position: relative;
+    overflow: hidden;
+  }
+  .release-strip-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .release-strip-title {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.16em;
+    color: #4DD9FF;
+    text-transform: uppercase;
+  }
+  .release-strip-title::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #4DD9FF; box-shadow: 0 0 8px rgba(77,217,255,0.9); animation: pulse-live 1.8s ease-in-out infinite; }
+  .release-strip-meta {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.4);
+  }
+  .release-strip-meta strong { color: #fff; font-weight: 500; }
+  .release-strip-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .release-strip-fill {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    width: 14%;
+    background: linear-gradient(90deg, #4DD9FF, #FF59FF);
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(77,217,255,0.4);
+  }
+  .release-strip-quarters {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .release-quarter {
+    display: flex; flex-direction: column;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .release-quarter.live { border-color: rgba(77,217,255,0.35); background: rgba(77,217,255,0.05); }
+  .release-quarter-q {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.4); text-transform: uppercase;
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .release-quarter-q::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+  }
+  .release-quarter.live .release-quarter-q { color: #4DD9FF; }
+  .release-quarter.live .release-quarter-q::before { background: #4DD9FF; box-shadow: 0 0 8px rgba(77,217,255,0.9); animation: pulse-live 1.8s ease-in-out infinite; }
+  .release-quarter-title { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 2px; }
+  .release-quarter-desc { font-size: 11px; line-height: 1.45; color: rgba(255,255,255,0.4); }
+
+  /* Section heads (ct-block pattern) */
+  .ct-block { margin-bottom: 48px; }
+  .ct-block-head {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  .ct-block-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: #4DD9FF;
+    padding: 4px 10px; border-radius: 20px;
+    background: rgba(77,217,255,0.06);
+    border: 1px solid rgba(77,217,255,0.25);
+  }
+  .ct-block-tag.tag-overview { color: #FF59FF; background: rgba(255,89,255,0.06); border-color: rgba(255,89,255,0.25); }
+  .ct-block-tag.tag-tech { color: #4DD9FF; background: rgba(77,217,255,0.06); border-color: rgba(77,217,255,0.25); }
+  .ct-block-tag.tag-ref { color: #6BE19E; background: rgba(107,225,158,0.06); border-color: rgba(107,225,158,0.25); }
+  .ct-block-title { font-size: 19px; font-weight: 500; color: #fff; letter-spacing: -0.005em; flex: 1; }
+  .ct-block-meta { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; }
+
+  /* Doc cards */
+  .docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+  }
+  .doc-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 22px 24px;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 200px;
+  }
+  .doc-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform 0.7s ease;
+    pointer-events: none;
+  }
+  .doc-card.is-available:hover {
+    border-color: rgba(77,217,255,0.4);
+    background: rgba(77,217,255,0.04);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.3), 0 0 24px rgba(77,217,255,0.12);
+  }
+  .doc-card.is-available:hover::after { transform: translateX(100%); }
+  .doc-card.is-planned { opacity: 0.85; cursor: default; }
+  .doc-card.is-planned:hover { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.035); }
+  .doc-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .doc-card-tag {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(77,217,255,0.75);
+  }
+  .doc-card-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(77,217,255,0.08);
+    border: 1px solid rgba(77,217,255,0.2);
+    color: rgba(77,217,255,0.8);
+    flex-shrink: 0;
+  }
+  .doc-card-icon svg { width: 14px; height: 14px; }
+  .doc-card.is-planned .doc-card-icon { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.3); }
+  .doc-card.is-planned .doc-card-tag { color: rgba(255,255,255,0.3); }
+  .doc-card-title {
+    font-size: 16px; font-weight: 600;
+    color: rgba(255,255,255,0.95);
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+  }
+  .doc-card.is-planned .doc-card-title { color: rgba(255,255,255,0.55); font-weight: 500; }
+  .doc-card-desc {
+    font-size: 13px; line-height: 1.6;
+    color: rgba(255,255,255,0.5);
+    flex: 1;
+  }
+  .doc-card.is-planned .doc-card-desc { color: rgba(255,255,255,0.32); }
+  .doc-card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 6px;
+    border-top: 1px dashed rgba(255,255,255,0.06);
+  }
+  .doc-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .doc-status.available {
+    background: rgba(107,225,158,0.08);
+    border: 1px solid rgba(107,225,158,0.3);
+    color: #6BE19E;
+  }
+  .doc-status.available::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #6BE19E; box-shadow: 0 0 6px rgba(107,225,158,0.9); animation: pulse-live 1.8s ease-in-out infinite; }
+  .doc-status.draft {
+    background: rgba(77,217,255,0.08);
+    border: 1px solid rgba(77,217,255,0.3);
+    color: #4DD9FF;
+  }
+  .doc-status.draft::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #4DD9FF; box-shadow: 0 0 6px rgba(77,217,255,0.7); }
+  .doc-status.planned {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.45);
+  }
+  .doc-status.planned::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+  .doc-status.scheduled {
+    background: rgba(255,180,84,0.06);
+    border: 1px solid rgba(255,180,84,0.25);
+    color: rgba(255,180,84,0.75);
+  }
+  .doc-status.scheduled::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,180,84,0.7); }
+  .doc-card-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+  }
+  .doc-card.is-available .doc-card-cta { color: #4DD9FF; }
+  .doc-card-cta svg { width: 11px; height: 11px; transition: transform 0.25s ease; }
+  .doc-card.is-available:hover .doc-card-cta svg { transform: translate(2px, -2px); }
+  .doc-card.is-planned .doc-card-cta { display: none; }
+
+  /* Subscribe callout */
+  .docs-cta {
+    margin-top: 64px;
+    padding: 36px 40px;
+    border-radius: 16px;
+    border: 1px solid rgba(77,217,255,0.25);
+    background: linear-gradient(135deg, rgba(77,217,255,0.06), rgba(255,89,255,0.04));
+    display: grid; grid-template-columns: 1fr auto; gap: 32px;
+    align-items: center;
+    position: relative; overflow: hidden;
+  }
+  .docs-cta::before {
+    content: ''; position: absolute; top: -1px; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #4DD9FF, #FF59FF, transparent);
+    opacity: 0.7;
+  }
+  .docs-cta-title { font-size: 22px; font-weight: 500; color: #fff; margin-bottom: 8px; letter-spacing: -0.005em; }
+  .docs-cta-body { font-size: 13.5px; line-height: 1.65; color: rgba(255,255,255,0.6); max-width: 540px; }
+  .docs-cta-body a { color: #4DD9FF; text-decoration: none; }
+  .docs-cta-body a:hover { text-decoration: underline; }
+  .docs-cta-actions { display: flex; flex-direction: column; gap: 10px; }
+  .docs-cta-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px;
+    border-radius: 999px;
+    background: rgba(77,217,255,0.1);
+    border: 1px solid rgba(77,217,255,0.35);
+    color: #4DD9FF;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.1em; font-weight: 500;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s ease, gap 0.2s ease;
+    white-space: nowrap;
+    justify-content: center;
+  }
+  .docs-cta-btn:hover { background: rgba(77,217,255,0.2); gap: 12px; }
+  .docs-cta-btn.alt { background: transparent; border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.7); }
+  .docs-cta-btn.alt:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.35); color: #fff; }
+  .docs-cta-btn svg { width: 12px; height: 12px; }
+
+  /* Footer */
+  .site-footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 56px 48px; max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
+  .site-footer img { width: 110px; height: auto; opacity: 0.45; }
+  .footer-copy { font-size: 12px; color: rgba(255,255,255,0.28); letter-spacing: 0.04em; }
+  .footer-legal { font-size: 11px; color: rgba(255,255,255,0.22); line-height: 1.85; max-width: 640px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 16px; margin-top: 6px; }
+
+  /* Responsive */
+  @media (max-width: 1280px) { .navbar { padding: 20px 48px; } .nav-left { gap: 28px; } .nav-links { gap: 22px; } }
+  @media (max-width: 1100px) { .navbar { padding: 20px 32px; } .nav-links { display: none !important; } .hamburger { display: inline-flex; } }
+  @media (max-width: 880px) {
+    .page-header { padding: 60px 24px 48px; }
+    .page-header-title { font-size: 38px; }
+    .section-inner { padding: 0 24px; }
+    .site-footer { padding: 48px 24px; }
+    .docs-grid { grid-template-columns: 1fr; }
+    .ct-block-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .docs-cta { grid-template-columns: 1fr; }
+    .release-strip-quarters { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .navbar { padding: 20px 20px; }
+    .page-header-title { font-size: 30px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .starfield-back, .starfield::before, .trust-bar-marquee, .fx-scanlines { animation: none !important; }
+    .trust-bar-label::before, .page-header-tag::before, .release-strip-title::before, .release-quarter.live .release-quarter-q::before, .doc-status.available::before { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="starfield" aria-hidden="true">
+  <div class="starfield-back"></div>
+</div>
+
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="nav-left">
+    <a href="index.html" aria-label="Pachiverse home">
+      <img src="https://members.pachiverse.com/wp-content/uploads/2026/03/Pachiverse_logo_trans.png" alt="Pachiverse" class="logo" />
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html#about">About</a>
+      <a class="nav-link" href="index.html#reveal">Reveal</a>
+      <a class="nav-link" href="docs.html" aria-current="page">Docs</a>
+      <a class="nav-link" href="faq.html">FAQ</a>
+      <a class="nav-link" href="transparency.html">Transparency</a>
+      <a class="nav-link" href="contracts.html">Contracts</a>
+      <a class="nav-link" href="https://opensea.io/PachiverseFoundation" target="_blank" rel="noopener">
+        OpenSea
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a class="pill-button" href="https://members.pachiverse.com/login/" aria-label="Member Portal">
+      <span class="pill-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Member Portal
+      </span>
+    </a>
+    <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span class="hamburger-icon"></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true">
+  <a href="index.html#about">About</a>
+  <a href="index.html#reveal">Reveal</a>
+  <a href="docs.html">Docs</a>
+  <a href="faq.html">FAQ</a>
+  <a href="transparency.html">Transparency</a>
+  <a href="contracts.html">Contracts</a>
+  <a href="https://opensea.io/PachiverseFoundation" target="_blank" rel="noopener">OpenSea</a>
+  <a class="pill-button" href="https://members.pachiverse.com/login/"><span class="pill-inner">Member Portal</span></a>
+</div>
+
+<!-- Trust Bar -->
+<div class="trust-bar-spacer"></div>
+<div class="trust-bar-wrapper" id="trust-bar">
+  <div class="trust-bar">
+    <div class="trust-bar-marquee">
+      <span class="trust-bar-label">Built for verifiable Web3 entertainment</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>Polygon Network</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>ERC-1155 / ERC-721</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>IPFS Metadata</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M3 17h18v4H3z"/><path d="M3 10h18v4H3z"/></svg>Fixed 500 Machine Collection</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2c2.5 3 4 6.5 4 10s-1.5 7-4 10c-2.5-3-4-6.5-4-10s1.5-7 4-10z"/></svg>OpenSea Profile Available</span>
+      <span class="trust-bar-divider"></span>
+      <!-- duplicate -->
+      <span class="trust-bar-label">Built for verifiable Web3 entertainment</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>Polygon Network</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>ERC-1155 / ERC-721</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>IPFS Metadata</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M3 17h18v4H3z"/><path d="M3 10h18v4H3z"/></svg>Fixed 500 Machine Collection</span>
+      <span class="trust-bar-divider"></span>
+      <span class="trust-bar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2c2.5 3 4 6.5 4 10s-1.5 7-4 10c-2.5-3-4-6.5-4-10s1.5-7 4-10z"/></svg>OpenSea Profile Available</span>
+      <span class="trust-bar-divider"></span>
+    </div>
+  </div>
+</div>
+
+<main class="page-content">
+
+  <div class="page-header">
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Pachiverse
+    </a>
+    <div class="page-header-tag">Documentation · phased release</div>
+    <h1 class="page-header-title">Pachiverse Docs</h1>
+    <p class="page-header-subtitle">Technical and ecosystem documentation for the Pachiverse infrastructure, NFT architecture, and platform systems. Released progressively in alignment with development milestones.</p>
+  </div>
+
+  <div style="padding-bottom: 80px;">
+    <div class="section-inner">
+
+      <!-- Release progress strip -->
+      <div class="release-strip">
+        <div class="release-strip-head">
+          <span class="release-strip-title">Documentation Release</span>
+          <span class="release-strip-meta"><strong>1/9</strong> documents available · full release <strong>Q3 2026</strong></span>
+        </div>
+        <div class="release-strip-bar"><div class="release-strip-fill"></div></div>
+        <div class="release-strip-quarters">
+          <div class="release-quarter live">
+            <div class="release-quarter-q">Q2 2026 · current</div>
+            <div class="release-quarter-title">Foundation drafts</div>
+            <div class="release-quarter-desc">Litepaper draft · reference pages live</div>
+          </div>
+          <div class="release-quarter">
+            <div class="release-quarter-q">Q3 2026 · scheduled</div>
+            <div class="release-quarter-title">Full documentation</div>
+            <div class="release-quarter-desc">Protocol, NFT structure, reveal, metadata, security</div>
+          </div>
+          <div class="release-quarter">
+            <div class="release-quarter-q">Q4 2026 · scheduled</div>
+            <div class="release-quarter-title">Ecosystem specs</div>
+            <div class="release-quarter-desc">PVC specification · Companion NFT integration</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ecosystem Overview -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag tag-overview">Ecosystem Overview</span>
+          <span class="ct-block-title">Project structure &amp; asset categories</span>
+          <span class="ct-block-meta">01 DRAFT · 02 PLANNED</span>
+        </div>
+        <div class="docs-grid">
+
+          <a href="litepaper.html" class="doc-card is-available">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Litepaper</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="9" y1="13" x2="15" y2="13"/>
+                  <line x1="9" y1="17" x2="15" y2="17"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Pachiverse Litepaper</div>
+            <div class="doc-card-desc">Draft overview of the Pachiverse ecosystem structure, NFT categories, reveal system, and ecosystem assets.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status draft">Draft Available</span>
+              <span class="doc-card-cta">
+                Read
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+              </span>
+            </div>
+          </a>
+
+          <div class="doc-card is-planned">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Protocol Overview</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.08 7.08 4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.08-7.08 4.24-4.24"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Protocol Overview</div>
+            <div class="doc-card-desc">Full overview of the Pachiverse ecosystem structure, NFT categories, Mystery Pack architecture, and gameplay systems.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status scheduled">Q3 2026</span>
+            </div>
+          </div>
+
+          <div class="doc-card is-planned">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Ecosystem Assets</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M10 7h4a2.5 2.5 0 0 1 0 5h-4V7zM10 12v5"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Ecosystem Assets</div>
+            <div class="doc-card-desc">Overview of PVC, PV Coin systems, Companion NFTs, Mystery Packs, and future gameplay integrations.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status scheduled">Q4 2026</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Technical Reference -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag tag-tech">Technical Reference</span>
+          <span class="ct-block-title">Architecture, reveal, metadata, security</span>
+          <span class="ct-block-meta">04 PLANNED</span>
+        </div>
+        <div class="docs-grid">
+
+          <div class="doc-card is-planned">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">NFT Structure</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M9 9h6v6H9z"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">NFT Structure</div>
+            <div class="doc-card-desc">ERC-1155 and ERC-721 asset architecture, token categories, supply mechanics, and on-chain structure.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status scheduled">Q3 2026</span>
+            </div>
+          </div>
+
+          <div class="doc-card is-planned">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Reveal System</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 3v18M3 12h18"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Reveal System</div>
+            <div class="doc-card-desc">Technical overview of the fixed-assignment reveal mechanism, integrity guarantees, replay protection, and inventory architecture.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status scheduled">Q3 2026</span>
+            </div>
+          </div>
+
+          <div class="doc-card is-planned">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Metadata Standards</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 7l9-4 9 4-9 4-9-4z"/>
+                  <path d="M3 12l9 4 9-4"/>
+                  <path d="M3 17l9 4 9-4"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Metadata Standards</div>
+            <div class="doc-card-desc">ERC-1155 and ERC-721 metadata specifications, IPFS structure rules, and on-chain asset formatting standards.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status scheduled">Q3 2026</span>
+            </div>
+          </div>
+
+          <div class="doc-card is-planned">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Security &amp; Integrity</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2 L4 5v6c0 5 3.5 9.5 8 11 c4.5-1.5 8-6 8-11 V5 l-8-3 z"/>
+                  <path d="M9 12l2 2 4-4"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Security &amp; Infrastructure</div>
+            <div class="doc-card-desc">Deterministic assignment architecture, inventory consistency controls, audit logging design, and multi-phase environment separation.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status scheduled">Q3 2026</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Reference -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag tag-ref">Reference Pages</span>
+          <span class="ct-block-title">Live now · cross-page references</span>
+          <span class="ct-block-meta">03 LIVE</span>
+        </div>
+        <div class="docs-grid">
+
+          <a href="contracts.html" class="doc-card is-available">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Contracts</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Smart Contract Addresses</div>
+            <div class="doc-card-desc">On-chain contract addresses and verification information for Pachiverse NFT infrastructure on Polygon.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status available">Live</span>
+              <span class="doc-card-cta">
+                View
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+              </span>
+            </div>
+          </a>
+
+          <a href="transparency.html" class="doc-card is-available">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">Transparency</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Transparency Notice</div>
+            <div class="doc-card-desc">Phased disclosure status, operational systems overview, and regulatory/legal notices.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status available">Live</span>
+              <span class="doc-card-cta">
+                View
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+              </span>
+            </div>
+          </a>
+
+          <a href="faq.html" class="doc-card is-available">
+            <div class="doc-card-head">
+              <span class="doc-card-tag">FAQ</span>
+              <span class="doc-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </span>
+            </div>
+            <div class="doc-card-title">Frequently Asked Questions</div>
+            <div class="doc-card-desc">Common questions about Pachiverse NFTs, ecosystem assets, the reveal system, and the platform.</div>
+            <div class="doc-card-footer">
+              <span class="doc-status available">Live</span>
+              <span class="doc-card-cta">
+                View
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+              </span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Subscribe CTA -->
+      <div class="docs-cta">
+        <div>
+          <div class="docs-cta-title">Get notified when docs ship</div>
+          <div class="docs-cta-body">Documentation releases align with development milestones. Subscribe to the development feed on the main page to be notified as drafts move to public release, or check <a href="transparency.html">Transparency</a> for the current disclosure status.</div>
+        </div>
+        <div class="docs-cta-actions">
+          <a class="docs-cta-btn" href="index.html#updates">
+            Subscribe
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </a>
+          <a class="docs-cta-btn alt" href="transparency.html">View Transparency</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <img src="https://members.pachiverse.com/wp-content/uploads/2026/03/Pachiverse_logo_trans.png" alt="Pachiverse" />
+  <span class="footer-copy">© 2026 Pachiverse. All rights reserved.</span>
+  <p class="footer-legal">Pachiverse is an evolving digital entertainment ecosystem.<br>Documentation is released progressively in alignment with development milestones.<br>Nothing on this website constitutes financial advice, investment solicitation, or guaranteed asset value.</p>
+</footer>
+
+<div class="fx-layer fx-scanlines" aria-hidden="true"></div>
+<div class="fx-layer fx-vignette" aria-hidden="true"></div>
+
+<script>
+(function() {
+  // Hamburger menu
+  var ham = document.querySelector('.hamburger');
+  var menu = document.getElementById('mobile-menu');
+  if (ham && menu) {
+    ham.addEventListener('click', function() {
+      var open = ham.getAttribute('aria-expanded') === 'true';
+      ham.setAttribute('aria-expanded', String(!open));
+      menu.setAttribute('data-open', String(!open));
+    });
+    menu.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        ham.setAttribute('aria-expanded', 'false');
+        menu.setAttribute('data-open', 'false');
+      });
+    });
+  }
+
+  // Trust bar sticky
+  var trustBar = document.getElementById('trust-bar');
+  var trustSpacer = document.querySelector('.trust-bar-spacer');
+  if (trustBar && trustSpacer) {
+    var trustAnchor = null, trustHeight = 0;
+    function measureTrust() {
+      if (trustBar.classList.contains('is-sticky')) return;
+      var rect = trustBar.getBoundingClientRect();
+      trustAnchor = rect.top + (window.scrollY || window.pageYOffset || 0);
+      trustHeight = rect.height;
+      trustSpacer.style.height = trustHeight + 'px';
+    }
+    function updateTrustSticky() {
+      if (trustAnchor === null) return;
+      var y = window.scrollY || window.pageYOffset || 0;
+      var shouldStick = y > trustAnchor;
+      if (shouldStick && !trustBar.classList.contains('is-sticky')) {
+        trustBar.classList.add('is-sticky');
+        trustSpacer.classList.add('is-active');
+      } else if (!shouldStick && trustBar.classList.contains('is-sticky')) {
+        trustBar.classList.remove('is-sticky');
+        trustSpacer.classList.remove('is-active');
+      }
+    }
+    measureTrust();
+    window.addEventListener('scroll', updateTrustSticky, { passive: true });
+    window.addEventListener('resize', function () { if (!trustBar.classList.contains('is-sticky')) measureTrust(); });
+    updateTrustSticky();
+  }
+})();
+</script>
+</body>
+</html>
