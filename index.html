@@ -486,6 +486,44 @@
     gap: 40px;
   }
 
+  /* Scroll-down cue — anchored to the bottom of the hero */
+  .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    transition: color 0.3s ease, opacity 0.5s ease;
+    animation: scroll-cue-bob 2.2s ease-in-out infinite;
+  }
+  .scroll-cue:hover { color: rgba(77, 217, 255, 0.95); }
+  .scroll-cue-chevron {
+    width: 11px;
+    height: 11px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+  }
+  @keyframes scroll-cue-bob {
+    0%, 100% { transform: translateX(-50%) translateY(0);   opacity: 0.8; }
+    50%      { transform: translateX(-50%) translateY(7px); opacity: 1; }
+  }
+  /* Fades out once the user has scrolled away from the top */
+  .scroll-cue.is-hidden { opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-cue { animation: none; }
+  }
+
   .badge {
     display: inline-flex;
     align-items: center;
@@ -720,8 +758,11 @@
     .btn-ghost .pill-label {
       display: none;
     }
+    .hero, .hero-inner {
+      min-height: 85vh;
+    }
     .hero-content {
-      padding: 140px 20px 72px;
+      padding: 132px 20px 64px;
       justify-content: center;
     }
     .heading {
@@ -2346,6 +2387,12 @@
           </a>
         </div>
       </div>
+
+      <!-- Scroll-down cue -->
+      <a class="scroll-cue" id="scroll-cue" href="#about" aria-label="Scroll down to explore">
+        <span class="scroll-cue-text">Scroll</span>
+        <span class="scroll-cue-chevron" aria-hidden="true"></span>
+      </a>
     </div>
   </section>
 
@@ -3569,6 +3616,20 @@
         success.classList.add('is-active');
       }
     } catch (e) {}
+  })();
+</script>
+
+<script>
+  /* Hide the scroll cue once the user has scrolled past the top */
+  (function () {
+    var cue = document.getElementById('scroll-cue');
+    if (!cue) return;
+    function update() {
+      var y = window.scrollY || window.pageYOffset || 0;
+      cue.classList.toggle('is-hidden', y > 40);
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
   })();
 </script>
 </body>
