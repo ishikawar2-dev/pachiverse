@@ -44,6 +44,7 @@
   html, body {
     width: 100%;
     min-height: 100vh;
+    overflow-x: clip;
     font-family: 'General Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -720,7 +721,8 @@
       display: none;
     }
     .hero-content {
-      padding: 200px 20px 102px;
+      padding: 140px 20px 72px;
+      justify-content: center;
     }
     .heading {
       font-size: 36px;
@@ -1515,6 +1517,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
     margin-top: 48px;
+    overflow-x: clip;
   }
   .security-item {
     display: flex;
