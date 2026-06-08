@@ -1637,6 +1637,10 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     overflow: hidden;
+    /* Isolate the very wide marquee so iOS Safari does not count its
+       width when picking the layout viewport (which broke mobile media
+       queries and left the hero at full height). */
+    contain: layout paint;
     z-index: 40;
     transition: padding 0.3s ease, background 0.3s ease;
   }
