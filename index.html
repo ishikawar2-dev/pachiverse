@@ -3186,6 +3186,8 @@
           </p>
           <form class="updates-form" id="updates-form" novalidate>
             <input class="updates-input" type="email" id="updates-email" placeholder="you@email.com" autocomplete="email" required />
+            <!-- Honeypot: hidden from users, bots tend to fill it -->
+            <input type="text" id="updates-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" />
             <button class="updates-submit" type="submit">Subscribe</button>
           </form>
           <div class="updates-success" id="updates-success">Subscribed — you will receive milestone updates as they ship.</div>
@@ -3599,25 +3601,46 @@
     }
   })();
 
-  /* Updates Feed — subscribe form (client-side stub) */
+  /* Updates Feed — subscribe form (posts to /api/subscribe -> Redis) */
   (function () {
     var form = document.getElementById('updates-form');
     var success = document.getElementById('updates-success');
     var email = document.getElementById('updates-email');
+    var hp = document.getElementById('updates-website');
     if (!form || !success || !email) return;
+    var btn = form.querySelector('.updates-submit');
+
+    function flagError() {
+      email.style.color = '#FF7A7A';
+      email.focus();
+      setTimeout(function () { email.style.color = ''; }, 1500);
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var v = (email.value || '').trim();
       if (!v || v.indexOf('@') === -1 || v.indexOf('.') === -1) {
-        email.style.color = '#FF7A7A';
-        email.focus();
-        setTimeout(function () { email.style.color = ''; }, 1500);
+        flagError();
         return;
       }
-      form.classList.add('is-hidden');
-      success.classList.add('is-active');
-      try { localStorage.setItem('pv_updates_subscribed', '1'); } catch (e) {}
+      var prevLabel = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Subscribing…'; }
+
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: v, ref: 'index', website: hp ? hp.value : '' }),
+      }).then(function (r) {
+        if (!r.ok) throw new Error('request failed');
+        form.classList.add('is-hidden');
+        success.classList.add('is-active');
+        try { localStorage.setItem('pv_updates_subscribed', '1'); } catch (e) {}
+      }).catch(function () {
+        if (btn) { btn.disabled = false; btn.textContent = prevLabel || 'Subscribe'; }
+        flagError();
+      });
     });
+
     try {
       if (localStorage.getItem('pv_updates_subscribed') === '1') {
         form.classList.add('is-hidden');
