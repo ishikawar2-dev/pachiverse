@@ -44,7 +44,7 @@
   html, body {
     width: 100%;
     min-height: 100vh;
-    overflow-x: clip;
+    overflow-x: hidden;
     font-family: 'General Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -1664,11 +1664,15 @@
     to   { transform: translateY(0); opacity: 1; }
   }
   .trust-bar {
-    padding: 14px 0;
-    transition: padding 0.3s ease;
+    height: 38px;
+    transition: height 0.3s ease;
   }
-  .trust-bar-wrapper.is-sticky .trust-bar { padding: 6px 0; }
+  .trust-bar-wrapper.is-sticky .trust-bar { height: 26px; }
   .trust-bar-marquee {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
     display: flex;
     align-items: center;
     gap: 36px;
