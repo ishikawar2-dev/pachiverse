@@ -110,26 +110,34 @@
   デプロイされていないのか、デプロイ済みだが記録が残っていないのかは**未確認**。
   公開サイトが掲載している 3 アドレスはいずれも旧世代のコントラクトである点に注意。
 
-### アート生成（pvm-art）
+### アート生成（pvm-art）— 2026-09-01 夜時点の実態で全面更新（メインがファイルベースで検証）
 
-- **`traits.yaml` が v0.2 ドラフトで未承認。**
-  値リスト・編集指示文がドラフト段階。素材確定後に v1.0 へ昇格し、
-  **以後は変更禁止**（Artwork Commitment で sha256 凍結されるため）。
+**完了済み**（初期化時の記載から大幅前進。正本は `pvm-art/README.md` の状態チェックリスト）:
 
-- **未決裁事項が残っている**（`pvm-art/README.md` より）:
-  - LEGEND 5 体の個体名・attributes 表記（1/1 制作時に決める）
-  - metadata description 文言（資料内で 3 種不統一。metadata 生成前に決める）
-  - **公開文面（trait 5 要素表記）と実装（8 レイヤー）の不一致の扱い**（リリースまでに）
-  - 横長高解像度版ロゴ素材の有無（ユーザー確認中）
+- 生成方式・アンカー・量産方式の確定（5.0 Pro edit @2048 → Real-ESRGAN 4096 化。02_ONCHAIN §10）
+- **trait 素材 38 枚確定**（`art-src/layers/`。probe 候補 139 枚から選定。旧課題の
+  `FRAME_MATTE_BLACK` は再生成・選定済みで QC PASS を確認）
+- **LEGEND 1/1 ×5 確定**（`art-src/legend/LEGEND_01..05.png`。ワードマーク焼き込み除外を決裁済み）
+- **スクリプト一式実装・レビュー済み**（assign / compose / place_legends / qc / upscale /
+  metadata_gen / batch_gen + 本番一括の `run_production.sh`。selftest 4 本 PASS）
+- **サンプル 24 体の通し試験合格**（品質は本番級と確認）+ **500 体のリハーサル合成済み**
+  （`out/rehearsal2048/` に 500 枚。QC レポートの `FAIL rarity distribution` 1 件は
+  サンプル 24 体実行に対する 500 体分布チェックの予定調和で、実欠陥ではない）
+- **本番 assignment 確定**（`out/machines-prod.csv` 500 行 → `out/assignments-prod.csv` 500 行生成済み）
 
-- **テストコード 2 ファイルに古い Background 名 `Neon City` が残っている。**
-  資料全一致で **`Night City` が正**と決裁済みだが、「後で修正」とされたまま。
+**残作業**（9/9 公開の起点。RELEASE_RUNBOOK_20260909 §1 に接続）:
 
-- **`FRAME_MATTE_BLACK` はプロンプトが弱く変化が出なかった。**
-  指示文は強化済みだが**要再生成**（`PIPELINE.md` の既知課題）。
+- `run_production.sh` の本番一括実行（約 4 時間・ESRGAN 費用数ドル）→ 500 体 QC
+- IPFS アップロード → `machines` 投入 → `wp uni-pack-reveal verify-artwork`
+  → Artwork Commitment lock → pre-mint → Signer 稼働
 
-- **成果物が未完。** trait 素材 44 枚 + LEGEND 1/1 ×5、assignment / compose / metadata スクリプトの
-  完成、検品 → IPFS → machines 投入 → verify-artwork が未了（`README.md` のチェックリスト）。
+**残決裁（軽微・登録作業までに）**:
+
+- LEGEND 5 体の個体名・attributes 表記 / metadata description 文言（3 種不統一の解消）/
+  公開文面（trait 5 要素表記）と実装（8 レイヤー）の不一致の扱い
+
+**残る技術メモ**: テストコード 2 ファイルの古い Background 名 `Neon City`（正は `Night City`）は
+「後で修正」のまま。
 
 ### 事業・法務
 

@@ -421,7 +421,16 @@ Logo / Overlay は `code=''` のとき attributes 自体を省略。`image` = `i
 
 ### LEGEND 5 体
 
-**合成対象外**。1/1 フルアートを個別生成する（別途）。
+**合成対象外**。1/1 フルアートを個別生成し、`place_legends.py` が compose 後に
+assignments の LEGEND 行へ配置する（2026-09-01 に最終版 `art-src/legend/LEGEND_01..05.png` 確定）。
+**LEGEND にはワードマークを焼き込まない**（1/1 の特権として除外。ユーザー決裁）。
+教訓: プロンプトに『called "名前"』を入れるとヘッダーに文字が湧くため、呼称は入れない。
+
+### 本番一括実行
+
+`run_production.sh` = assign → compose（ワードマーク焼き込み）→ LEGEND 配置 → QC →
+Real-ESRGAN 4096 化 → WEBP → 最終確認（約 4 時間・ログは `out/production.log`）。
+前提は `out/machines-prod.csv`（本番 machines テーブルの export、500 行）。
 
 ### pvm-art の実行環境
 
