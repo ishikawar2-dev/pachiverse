@@ -165,6 +165,39 @@
   .cx-card-traits span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .cx-card-undiscovered .cx-card-name { color: rgba(255,255,255,0.52); font-family: 'JetBrains Mono', ui-monospace, monospace; }
   .cx-card-undiscovered .cx-rarity { color: rgba(255,255,255,0.28); }
+
+  /* === a案: UNDISCOVERED プレースホルダー (追加ここから) ============== */
+  /* 通常カード: パックのシルエット + シアンの「?」バッジ */
+  .cx-card-undiscovered { position: relative; }
+  .cx-card-undiscovered::before {
+    content: '?';
+    position: absolute; top: 10px; right: 10px; z-index: 1;
+    display: grid; place-items: center;
+    min-width: 22px; height: 22px; padding: 0 7px;
+    border: 1px solid rgba(77,217,255,0.42); border-radius: 999px;
+    background: rgba(6,10,16,0.66);
+    color: rgba(77,217,255,0.9);
+    font: 500 11px/1 'JetBrains Mono', ui-monospace, monospace;
+    box-shadow: 0 0 10px rgba(77,217,255,0.16);
+    pointer-events: none;
+    transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cx-card-undiscovered:hover::before {
+    border-color: rgba(77,217,255,0.78); color: #4DD9FF;
+    box-shadow: 0 0 14px rgba(77,217,255,0.34);
+  }
+
+  /* LEGEND 未発見: 金色の「?」と金→マゼンタ枠は維持。背景に金味のパックを敷く */
+  .cx-legend-placeholder {
+    background:
+      radial-gradient(circle at 50% 46%, rgba(255,213,74,0.16), rgba(255,120,40,0.05) 46%, transparent 70%),
+      linear-gradient(rgba(6,6,11,0.45), rgba(6,6,11,0.45)),
+      url('/assets/machines/undiscovered-pack.webp') center/cover no-repeat,
+      #07070c;
+    color: rgba(255,213,74,0.42);
+    text-shadow: 0 0 18px rgba(0,0,0,0.85);
+  }
+  /* === a案 追加ここまで ============================================== */
   .cx-grid-empty { display: none; max-width: 1160px; margin: 0 auto; padding: 56px 48px; text-align: center; color: rgba(255,255,255,0.4); font: 11px/1.5 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.1em; }
   .cx-grid-empty.is-visible { display: block; }
   .cx-load-wrap { max-width: 1160px; margin: 22px auto 72px; padding: 0 48px; text-align: center; }
@@ -523,7 +556,7 @@
     card.setAttribute('data-rarity', slot.undiscovered ? 'UNDISCOVERED' : slot.rarity);
     card.setAttribute('aria-label', slot.undiscovered ? 'View undiscovered Machine #' + slot.token_id : 'View ' + slot.name);
     var image = element('img');
-    image.src = slot.undiscovered ? '/assets/machines/undiscovered.svg' : slot.thumb;
+    image.src = slot.undiscovered ? '/assets/machines/undiscovered-pack.webp' : slot.thumb;
     image.alt = slot.undiscovered ? '' : slot.name;
     image.width = 512;
     image.height = 512;
