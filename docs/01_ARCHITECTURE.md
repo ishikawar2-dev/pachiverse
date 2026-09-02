@@ -298,9 +298,13 @@ broadcast
 - **公開サイト + api/** — ホスティングは Vercel（2026-09-02 実測で確定）。静的 HTML と
   `module.exports = async (req, res)` 形式の Vercel Serverless Function を同じプロジェクトで配信する。
   `vercel.json` が Collection Explorer の rewrite・派生画像 cache header・Function includeFiles を定義する。
-  Vercel プロジェクト `pachiverse` は Git 連携ではなく **CLI（`vercel --prod`）からの手動デプロイ**で運用されており、
-  本番の内容は `redesign/unified-design-language` ブランチ由来（2026-09-02 時点で `origin/main` はそれより古い）。
-  環境変数 `MACHINE_ASSET_KEY` は Production / Development に設定済み（Preview は未設定）。
+  Vercel プロジェクト `pachiverse` は GitHub リポジトリ `ishikawar2-dev/pachiverse` と連携しており、
+  **`main` への push（PR マージ）で Production、他ブランチへの push で Preview が自動デプロイされる**
+  （2026-09-02 に PR #8 / #9 のマージで実測確認。`vercel project inspect` には Git 情報が表示されないので注意）。
+  CLI からの `vercel deploy` も可能だが、同一ディレクトリ内の別リポジトリを巻き込まないよう `.vercelignore` が必須
+  （無いと 5.8GB をアップロードし Hobby プランの 24h 5000 ファイル上限に達する）。
+  環境変数 `MACHINE_ASSET_KEY` は Production / Preview / Development に設定済み。
+  `www.pachiverse.com` は 2026-09-02 にプロジェクトへ追加（それ以前は証明書が失効していた）。
 - **contracts** — Foundry スクリプトで Amoy → mainnet の順にデプロイする手順が README に明記されている。
   秘密鍵は `.env` に置かず keystore / ハードウェアウォレットを使う運用。
 - **signer** — **ローリング更新禁止**。旧インスタンスを停止してから新インスタンスを起動する（`recreate` / `maxSurge: 0` 相当）。
