@@ -343,6 +343,14 @@
 
 ---
 
+### 星空（.starfield 3 層）は transform 以外で動かさない（2026-09-02 実測）
+
+- 以前は `background-position-x` のキーフレームと `background-position-y: calc(var(--scroll-y) …)` の視差で動かしており、画面全体（Retina で 2 倍）のグラデーション背景を毎フレーム再描画していた。トップページは **静止 9fps / スクロール 8fps**（1680px・dpr 2 の Mac 実測。6/1 版から同じ）
+- PR #15 で、外側要素が視差を `transform: translate3d(0, calc(var(--scroll-y) * -k px), 0)`、`::before` がタイル背景とドリフト（`transform: translate3d(±tile-width, 0, 0)` のキーフレーム）を担当する構造に変更 → **静止 45fps / スクロール 35fps**。見た目・速度・タイルは同一
+- 触る際の注意: 星の層に `background-position` / `background-size` のアニメーション、`filter`、巨大な `will-change` 昇格（グラデーション面そのものを昇格すると逆に悪化: 実測 8fps）を入れない。`::before` の `inset: 0 -600px` はドリフト幅（最大 520px）を吸収するための余白なので縮めない
+- 残りのスクロール負荷は視差エンジン（`[data-pfx]` を毎フレーム `getBoundingClientRect`）と `pfx-noise-jitter` ×17。必要なら間引き・削減で更に改善できる（未実施）
+- `design-preview.html` は旧方式の星空 CSS を複製したまま（社内プレビュー用のため未修正）
+
 ## 未確認事項
 
 **推測で埋めないこと。** 以下は調査時点で確認できなかった。
