@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/collection", "destination": "/collection.html" },
+    { "source": "/transparency", "destination": "/transparency.html" },
     { "source": "/collection/:id(\\d{1,3})", "destination": "/api/machine-page?id=:id" },
     { "source": "/collection/:id(\\d{1,3})/", "destination": "/api/machine-page?id=:id" }
   ],

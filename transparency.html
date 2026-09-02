@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Transparency — Pachiverse</title>
-<meta name="description" content="Transparency notice and phased disclosure information for the Pachiverse ecosystem, smart contracts, and ecosystem assets." />
+<title>Provable Fairness — Pachiverse</title>
+<meta name="description" content="Provable fairness for Pachiverse Machines (PVM): the SHA-256 commitments frozen before the reveal, contract addresses, IPFS CIDs, rarity distribution, and how to verify them yourself." />
 <link rel="icon" type="image/png" href="/assets/logo-square.png" />
 <link rel="apple-touch-icon" href="/assets/logo-square.png" />
 <link rel="preconnect" href="https://api.fontshare.com" />
@@ -489,6 +489,76 @@
     .starfield-back, .starfield::before, .trust-bar-marquee, .fx-scanlines { animation: none !important; }
     .trust-bar-label::before, .page-header-tag::before, .disclosure-status-pill.live::before, .status-badge.operational::before, .status-badge.pending::before, .pvc-pill.live::before { animation: none !important; }
   }
+
+  /* ============================================================
+     Provable fairness (PVM) — hashes, code samples, prose lists
+     ============================================================ */
+  .pf-mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px; letter-spacing: 0.01em;
+    color: rgba(255,255,255,0.82);
+    word-break: break-all; overflow-wrap: anywhere;
+  }
+  .pf-mono a { color: #4DD9FF; text-decoration: none; }
+  .pf-mono a:hover { text-decoration: underline; }
+  .pf-code {
+    display: block;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px; line-height: 1.7;
+    color: rgba(255,255,255,0.78);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 10px 0 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .pf-code-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-top: 16px;
+  }
+  .pf-list { list-style: none; display: grid; gap: 10px; margin-top: 4px; }
+  .pf-list li {
+    position: relative; padding-left: 18px;
+    font-size: 13.5px; line-height: 1.7; color: rgba(255,255,255,0.6);
+  }
+  .pf-list li::before {
+    content: ''; position: absolute; left: 2px; top: 9px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(77,217,255,0.55);
+  }
+  .pf-list li strong { color: rgba(255,255,255,0.88); font-weight: 500; }
+  .pf-steps { list-style: none; counter-reset: pf-step; display: grid; gap: 10px; margin-top: 4px; }
+  .pf-steps li {
+    counter-increment: pf-step;
+    position: relative; padding-left: 30px;
+    font-size: 13.5px; line-height: 1.7; color: rgba(255,255,255,0.6);
+  }
+  .pf-steps li::before {
+    content: counter(pf-step);
+    position: absolute; left: 0; top: 1px;
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; color: #4DD9FF;
+    background: rgba(77,217,255,0.08);
+    border: 1px solid rgba(77,217,255,0.24);
+  }
+  .pf-steps li strong { color: rgba(255,255,255,0.88); font-weight: 500; }
+  .pf-prose { font-size: 13.5px; line-height: 1.75; color: rgba(255,255,255,0.6); }
+  .pf-prose strong { color: rgba(255,255,255,0.88); font-weight: 500; }
+  .pf-prose + .pf-prose { margin-top: 10px; }
+  .status-table td.pf-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; }
+  .status-table tr.pf-total td { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.9); font-weight: 500; }
+  @media (max-width: 720px) {
+    .pf-code { font-size: 10.5px; padding: 12px 13px; }
+    .pf-mono { font-size: 10.5px; }
+    /* wide tables scroll inside their own frame instead of widening the page */
+    .status-table-wrap { overflow-x: auto; }
+  }
 </style>
 </head>
 <body>
@@ -584,13 +654,166 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       Back to Pachiverse
     </a>
-    <div class="page-header-tag">Transparency · phased disclosure</div>
-    <h1 class="page-header-title">Transparency Notice</h1>
-    <p class="page-header-subtitle">Pachiverse operates under phased disclosure. This page documents the current state of ecosystem transparency, what has been published, and what will be progressively disclosed as development advances.</p>
+    <div class="page-header-tag">Provable fairness · Pachiverse Machines</div>
+    <h1 class="page-header-title">Provable Fairness</h1>
+    <p class="page-header-subtitle">Pachiverse Machines is a generative collection of 500 NFTs on Polygon. This page explains — and lets anyone independently verify — that we did not and cannot manipulate what comes out of a pack.</p>
   </div>
 
   <div style="padding: 0 0 100px;">
     <div class="section-inner">
+
+      <!-- What this page is -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Provable Fairness</span>
+          <span class="ct-block-title">What this page is</span>
+          <span class="ct-block-meta">LAST UPDATED — 2026-09-02</span>
+        </div>
+        <p class="pf-prose">Pachiverse Machines (PVM) is a generative collection of <strong>500 NFTs on Polygon</strong>. This page explains — and lets anyone independently verify — that <strong>we did not and cannot manipulate what comes out of a pack.</strong></p>
+        <p class="pf-prose">It is written in two parts: a plain-language explanation, and a technical appendix with commands you can run yourself.</p>
+        <div class="disclosure-list" style="margin-top: 18px;">
+          <div class="disclosure-card">
+            <div class="disclosure-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="disclosure-body">
+              <div class="disclosure-title">Published in two stages<span class="disclosure-status-pill planned">Stage 1 of 2</span></div>
+              <div class="disclosure-text">Before the reveal opens, we publish only the <strong>SHA-256 commitments</strong> — the fingerprints of the frozen data. <strong>The seed and the full manifests will be published on this page after the reveal opens on 2026-09-09 00:00 JST.</strong> Publishing the fingerprint first, and the data afterwards, is what makes the result verifiable: we cannot change the data later without breaking the fingerprint.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commitments -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Commitments</span>
+          <span class="ct-block-title">What was fixed, and when</span>
+          <span class="ct-block-meta">SHA-256 — FROZEN</span>
+        </div>
+        <p class="pf-prose"><strong>Nothing is drawn at the moment you open a pack.</strong> Both the contents of all 500 Machines and the pack-to-Machine assignment table were finalized and frozen <em>before</em> the reveal opened.</p>
+        <p class="pf-prose">When we froze them, we published a SHA-256 fingerprint of each — a 64-character value computed from the entire data set.</p>
+        <div class="status-table-wrap" style="margin-top: 18px;">
+          <table class="status-table">
+            <thead>
+              <tr>
+                <th>Commitment</th>
+                <th>SHA-256</th>
+                <th>Frozen at</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">Artwork Commitment<br><span class="disclosure-text">The artwork, rarity, and the eight trait layers of all 500 Machines, plus the SHA-256 of every image and metadata file</span></td>
+                <td><span class="pf-mono">aacc48d0f736925054fd4f9e5acdb5299b3ba6f5830a81483a0daab59cc77efc</span></td>
+                <td><span class="pf-mono">2026-09-02 08:30 JST<br>(2026-09-01 23:30:31 UTC)</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">Allocation Commitment<br><span class="disclosure-text">Which pack contains which Machine, for all 500 packs</span></td>
+                <td><span class="pf-mono">87ebeb172cc6fa7004d664ef3922c06e034eada5ebadcaf4c1647d580f3208be</span></td>
+                <td><span class="pf-mono">2026-09-02 09:37 JST<br>(2026-09-02 00:37:34 UTC)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="pf-prose" style="margin-top: 16px;">The assignment was derived from a fixed seed that was chosen and recorded before the commitment was frozen. <strong>The seed itself will be published on this page after the reveal opens on 2026-09-09 00:00 JST</strong>, together with the full manifests, so that the assignment can be reproduced from scratch.</p>
+        <p class="pf-prose">All 500 Machines were minted on-chain <strong>before</strong> the reveal began. They are not minted on demand.</p>
+      </div>
+
+      <!-- On-chain identifiers -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">On-chain</span>
+          <span class="ct-block-title">Contracts &amp; content identifiers</span>
+          <span class="ct-block-meta">POLYGON MAINNET — CHAIN ID 137</span>
+        </div>
+        <div class="status-table-wrap">
+          <table class="status-table">
+            <tbody>
+              <tr>
+                <td class="col-name">Network</td>
+                <td><span class="pf-mono">Polygon mainnet (chain ID 137)</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">Pachiverse Machines (ERC-721)</td>
+                <td><span class="pf-mono"><a href="https://polygonscan.com/address/0x55E3A05eaAc41aAeB596227CD4076e91033541b3" target="_blank" rel="noopener">0x55E3A05eaAc41aAeB596227CD4076e91033541b3</a></span></td>
+              </tr>
+              <tr>
+                <td class="col-name">Pachiverse Mystery Packs (ERC-1155)</td>
+                <td><span class="pf-mono"><a href="https://polygonscan.com/address/0x2B5DaC082f664986e77b4f075617D1908BBd109C" target="_blank" rel="noopener">0x2B5DaC082f664986e77b4f075617D1908BBd109C</a></span></td>
+              </tr>
+              <tr>
+                <td class="col-name">Image CID (IPFS)</td>
+                <td><span class="pf-mono">bafybeidv6b46q4n2pn4tnrrgsq3bhb7penpumgkelteqsntga3r3z26jki</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">Metadata CID (IPFS)</td>
+                <td><span class="pf-mono">bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Why we cannot manipulate -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Integrity</span>
+          <span class="ct-block-title">Why we cannot manipulate your result</span>
+        </div>
+        <p class="pf-prose">What you get is not decided when you open a pack — the full assignment table was fixed before the reveal opened, and we published a SHA-256 fingerprint of that table at the moment we froze it. Changing even one character of the contents or the assignments would produce a completely different fingerprint, and matching the published one while altering the data underneath is not computationally feasible. So once the reveal is open and we publish the table itself, anyone can recompute the fingerprint and confirm that nothing was swapped in between.</p>
+        <p class="pf-prose">The table also identifies each pack by an <strong>anonymous, permanent reference rather than by its owner</strong>, so &ldquo;give this particular Machine to this particular person&rdquo; is not an operation the system can express in the first place — transferring a pack to a different holder does not change the committed hash at all.</p>
+      </div>
+
+      <!-- Rarity distribution -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Rarity</span>
+          <span class="ct-block-title">Rarity distribution</span>
+          <span class="ct-block-meta">500 MACHINES — FROZEN</span>
+        </div>
+        <p class="pf-prose">All 500 Machines break down as follows. This distribution is part of the frozen allocation data.</p>
+        <div class="status-table-wrap" style="margin-top: 18px;">
+          <table class="status-table">
+            <thead>
+              <tr>
+                <th>Rarity</th>
+                <th>Total</th>
+                <th>Pool A (token 1101, 300 packs)</th>
+                <th>Pool B (token 1202, 200 packs)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-name">R</td><td class="pf-num">270</td><td class="pf-num">229</td><td class="pf-num">41</td></tr>
+              <tr><td class="col-name">SR</td><td class="pf-num">120</td><td class="pf-num">40</td><td class="pf-num">80</td></tr>
+              <tr><td class="col-name">SSR</td><td class="pf-num">60</td><td class="pf-num">20</td><td class="pf-num">40</td></tr>
+              <tr><td class="col-name">SSSR</td><td class="pf-num">30</td><td class="pf-num">10</td><td class="pf-num">20</td></tr>
+              <tr><td class="col-name">UR</td><td class="pf-num">15</td><td class="pf-num">1</td><td class="pf-num">14</td></tr>
+              <tr><td class="col-name">LEGEND</td><td class="pf-num">5</td><td class="pf-num">0</td><td class="pf-num">5</td></tr>
+              <tr class="pf-total"><td class="col-name">Total</td><td class="pf-num">500</td><td class="pf-num">300</td><td class="pf-num">200</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="pf-prose" style="margin-top: 16px;">The five LEGEND Machines are one-of-one pieces, each with its own name.</p>
+      </div>
+
+      <!-- After opening a pack -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Reveal Flow</span>
+          <span class="ct-block-title">What happens after you open a pack</span>
+        </div>
+        <ol class="pf-steps">
+          <li><strong>One Machine is assigned to you immediately.</strong> Its image, name, rarity, and traits appear on your member page right away.</li>
+          <li><strong>Your claim to that Machine is settled at that moment.</strong> It persists across reloads.</li>
+          <li>The Machine is <strong>held on your behalf</strong> at this stage. It does not yet appear in your own wallet (MetaMask, OpenSea, and so on).</li>
+          <li>To move it into a wallet you control, a separate <strong>withdrawal request</strong> is required. Withdrawal requests will open at a later date after launch; until then, Machines stay safely in the custody wallet and are fully visible on your member page.</li>
+          <li>Opened packs are <strong>burned on-chain in periodic batches.</strong> Because batches run on a schedule, there is a delay — but <strong>your claim to the Machine is settled without waiting for the burn.</strong></li>
+        </ol>
+      </div>
 
       <!-- Phased Development -->
       <div class="ct-block">
@@ -608,7 +831,7 @@
             </div>
             <div class="disclosure-body">
               <div class="disclosure-title">Progressive disclosure</div>
-              <div class="disclosure-text">Pachiverse is currently under phased development. Smart contract addresses, metadata references, technical documentation, and ecosystem utility specifications will be progressively disclosed through <strong>official project updates and documentation releases</strong>.</div>
+              <div class="disclosure-text">Pachiverse is under phased development. The PVM and Mystery Pack contract addresses, the IPFS content identifiers, and the fairness commitments above are <strong>published</strong>. The seed, the full manifests, and the remaining ecosystem utility specifications will be disclosed through <strong>official project updates and documentation releases</strong> as each milestone is reached.</div>
             </div>
           </div>
           <div class="disclosure-card">
@@ -641,8 +864,8 @@
               </svg>
             </div>
             <div class="disclosure-body">
-              <div class="disclosure-title">Polygon · ERC-1155 / ERC-721<span class="disclosure-status-pill live">3/4 LIVE</span></div>
-              <div class="disclosure-text">Pachiverse NFT infrastructure is deployed on the Polygon network using ERC-1155 and ERC-721 standards. Once published, addresses appear on the <a href="contracts.html">Contracts page</a> and are verifiable on Polygonscan.</div>
+              <div class="disclosure-title">Polygon · ERC-721 / ERC-1155<span class="disclosure-status-pill live">2/3 LIVE</span></div>
+              <div class="disclosure-text">Pachiverse NFT infrastructure is deployed on the Polygon network using ERC-721 and ERC-1155 standards. Both live contracts are <strong>verified on Polygonscan</strong>, and their addresses also appear on the <a href="contracts.html">Contracts page</a>.</div>
             </div>
           </div>
         </div>
@@ -657,14 +880,14 @@
             </thead>
             <tbody>
               <tr>
-                <td class="col-name">Machine NFT Collection</td>
-                <td><span class="std-text">ERC-1155</span></td>
-                <td><span class="status-badge pending">Pending Disclosure</span></td>
+                <td class="col-name">Pachiverse Machines (PVM)</td>
+                <td><span class="std-text std-721">ERC-721</span></td>
+                <td><span class="status-badge operational">Verified</span></td>
               </tr>
               <tr>
-                <td class="col-name">Mystery Pack Contract</td>
+                <td class="col-name">Pachiverse Mystery Packs</td>
                 <td><span class="std-text">ERC-1155</span></td>
-                <td><span class="status-badge pending">Pending Disclosure</span></td>
+                <td><span class="status-badge operational">Verified</span></td>
               </tr>
               <tr>
                 <td class="col-name">Companion NFT Collection</td>
@@ -674,6 +897,86 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Appendix A -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Appendix A</span>
+          <span class="ct-block-title">Verifying this yourself</span>
+          <span class="ct-block-meta">NO TRUST IN OUR SYSTEMS REQUIRED</span>
+        </div>
+        <p class="pf-prose">Everything below can be done without trusting or querying our systems. The steps that require the seed and the full manifests are listed under <a href="#phase-2">Published after the reveal opens</a>.</p>
+
+        <div class="pf-code-label">A.1 — What you need</div>
+        <ul class="pf-list">
+          <li>A Polygon mainnet RPC endpoint (<span class="pf-mono">export POLYGON_RPC_URL=...</span>)</li>
+          <li><span class="pf-mono">cast</span> (Foundry), or any Web3 client</li>
+          <li>Python 3, for recomputing hashes</li>
+          <li>An IPFS gateway — the examples below use <span class="pf-mono">https://ipfs.filebase.io/ipfs/</span>; substitute your own gateway or node</li>
+        </ul>
+
+        <div class="pf-code-label">A.2 — The contracts</div>
+        <p class="pf-prose">Both contracts are <strong>verified</strong> on Polygonscan.</p>
+        <ul class="pf-list">
+          <li>PVM (ERC-721): <span class="pf-mono"><a href="https://polygonscan.com/address/0x55E3A05eaAc41aAeB596227CD4076e91033541b3" target="_blank" rel="noopener">polygonscan.com/address/0x55E3A05eaAc41aAeB596227CD4076e91033541b3</a></span></li>
+          <li>Mystery Packs (ERC-1155): <span class="pf-mono"><a href="https://polygonscan.com/address/0x2B5DaC082f664986e77b4f075617D1908BBd109C" target="_blank" rel="noopener">polygonscan.com/address/0x2B5DaC082f664986e77b4f075617D1908BBd109C</a></span></li>
+        </ul>
+        <p class="pf-prose" style="margin-top: 14px;">Total supply minted — expected <span class="pf-mono">500</span>:</p>
+        <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "totalMinted()(uint256)" --rpc-url "$POLYGON_RPC_URL"</code>
+        <p class="pf-prose" style="margin-top: 14px;">Token URI (<span class="pf-mono">&lt;n&gt;</span> = 1..500) — expected <span class="pf-mono">ipfs://bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json</span>:</p>
+        <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "tokenURI(uint256)(string)" 1 --rpc-url "$POLYGON_RPC_URL"</code>
+        <p class="pf-prose" style="margin-top: 14px;">Two further locks are applied on a published schedule: <strong><span class="pf-mono">finalizeMinting()</span> is executed on 2026-09-08</strong> (before the reveal opens), and <strong><span class="pf-mono">freezeMetadata()</span> on 2026-09-10</strong> (after the first day of reveals has confirmed that images and metadata display correctly). Until each is executed, the corresponding call below returns <span class="pf-mono">false</span>; afterwards it returns <span class="pf-mono">true</span> permanently. The base URI is unchanged since deployment and is committed by the Artwork Commitment above.</p>
+        <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "mintingFinalized()(bool)" --rpc-url "$POLYGON_RPC_URL"
+cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "metadataFrozen()(bool)"  --rpc-url "$POLYGON_RPC_URL"</code>
+
+        <div class="pf-code-label">A.3 — Metadata and images on IPFS</div>
+        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json</code>
+        <p class="pf-prose" style="margin-top: 14px;">Each metadata file contains <span class="pf-mono">name</span>, a lore <span class="pf-mono">description</span>, <span class="pf-mono">external_url</span>, an <span class="pf-mono">image</span> field of the form <span class="pf-mono">ipfs://bafybeidv6b.../&lt;filename&gt;</span>, and <span class="pf-mono">attributes</span> covering Rarity plus eight trait layers: <span class="pf-mono">Background</span>, <span class="pf-mono">Body</span>, <span class="pf-mono">Frame</span>, <span class="pf-mono">Reel</span>, <span class="pf-mono">Light</span>, <span class="pf-mono">Effect</span>, <span class="pf-mono">Logo</span>, <span class="pf-mono">Overlay</span>.</p>
+        <p class="pf-prose"><span class="pf-mono">Logo</span> and <span class="pf-mono">Overlay</span> are <strong>optional layers and are omitted for Machines that do not have them.</strong> The five LEGEND Machines additionally carry a <span class="pf-mono">Legend</span> trait (the piece&rsquo;s own name) and <span class="pf-mono">Edition: 1 of 1</span>.</p>
+        <p class="pf-prose">You can hash any file now and keep the result. Once the artwork manifest is published, each value must match the <span class="pf-mono">metadata_sha256</span> / <span class="pf-mono">image_sha256</span> recorded there.</p>
+        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json | shasum -a 256</code>
+
+        <div class="pf-code-label">A.4 — How the commitments are computed</div>
+        <p class="pf-prose">Each commitment is the SHA-256 of <strong>one canonical JSON string</strong> — the manifest. The Artwork Commitment covers a manifest listing all 500 Machines (token id, serial, rarity, the eight trait codes, the image and metadata filenames, the SHA-256 of each file, and the IPFS URIs). The Allocation Commitment covers a manifest listing all 500 packs and the Machine each one contains.</p>
+        <code class="pf-code">Artwork Commitment    = SHA256( compact_json(artwork_manifest) )
+Allocation Commitment = SHA256( compact_json(allocation_manifest) )</code>
+        <p class="pf-prose" style="margin-top: 14px;">Canonicalization is fixed in advance so the hash is reproducible: keys appear in a defined order, entries are sorted by a defined field, numbers and strings have defined types, and the JSON is serialized <strong>compactly — no whitespace, no newlines</strong> (separators <span class="pf-mono">,</span> and <span class="pf-mono">:</span>), with forward slashes unescaped and non-ASCII emitted as UTF-8 rather than <span class="pf-mono">\uXXXX</span>. The complete rules, and the manifests themselves, are published in stage 2 below.</p>
+        <code class="pf-code">python3 -c "import json,hashlib;m=json.load(open('artwork_manifest.json'));print(hashlib.sha256(json.dumps(m,separators=(',',':'),ensure_ascii=False).encode('utf-8')).hexdigest())"</code>
+        <p class="pf-prose" style="margin-top: 14px;">The result must equal the corresponding value in the commitments table above. <strong>An important property:</strong> the allocation manifest identifies packs only by an anonymous, immutable reference. <strong>No user identity is included</strong> — so transferring a pack from our reserve to a member does not change the Allocation Commitment hash.</p>
+
+        <div class="pf-code-label">A.5 — Verifying pack burns</div>
+        <p class="pf-prose">Opened packs are burned in batches via <span class="pf-mono">burnBatchFromCustody</span> on the Mystery Packs contract. For Pool A (<span class="pf-mono">1101</span>), remaining + burned = 300. For Pool B (<span class="pf-mono">1202</span>), remaining + burned = 200. Because burns are batched, <strong>there is a lag between a reveal and its on-chain burn.</strong></p>
+        <code class="pf-code">cast call 0x2B5DaC082f664986e77b4f075617D1908BBd109C "balanceOf(address,uint256)(uint256)" \
+  0x502cef1173c162a39d8b23fa69579d862c2c728a 1101 --rpc-url "$POLYGON_RPC_URL"
+
+cast call 0x2B5DaC082f664986e77b4f075617D1908BBd109C "burnedOf(uint256)(uint256)" 1101 --rpc-url "$POLYGON_RPC_URL"</code>
+      </div>
+
+      <!-- Stage 2 placeholder -->
+      <div class="ct-block" id="phase-2">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Stage 2</span>
+          <span class="ct-block-title">Published after the reveal opens</span>
+          <span class="ct-block-meta">2026-09-09 00:00 JST</span>
+        </div>
+        <div class="disclosure-list">
+          <div class="disclosure-card planned">
+            <div class="disclosure-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div class="disclosure-body">
+              <div class="disclosure-title">Seed &amp; manifests<span class="disclosure-status-pill planned">Pending reveal</span></div>
+              <div class="disclosure-text"><strong>The seed and the full manifests will be published on this page after the reveal opens on 2026-09-09 00:00 JST.</strong> That release will add: the seed string used to derive the assignment, the complete artwork and allocation manifests as downloadable JSON, the full canonicalization rules for reproducing each hash, the procedure for regenerating the rarity layout from the seed, and a cross-check between the two manifests. Until then, the SHA-256 commitments above are the record that fixes what those files must contain.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHASE2: seed & manifests -->
+
       </div>
 
       <!-- Ecosystem Assets -->
@@ -737,47 +1040,12 @@
         </div>
       </div>
 
-      <!-- Metadata & IPFS -->
-      <div class="ct-block">
-        <div class="ct-block-head">
-          <span class="ct-block-tag">Metadata &amp; IPFS</span>
-          <span class="ct-block-title">Asset metadata structure</span>
-        </div>
-        <div class="disclosure-list">
-          <div class="disclosure-card">
-            <div class="disclosure-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 7l9-4 9 4-9 4-9-4z"/>
-                <path d="M3 12l9 4 9-4"/>
-                <path d="M3 17l9 4 9-4"/>
-              </svg>
-            </div>
-            <div class="disclosure-body">
-              <div class="disclosure-title">IPFS-based metadata</div>
-              <div class="disclosure-text">NFT metadata is structured according to IPFS-based metadata standards. Metadata references and IPFS content identifiers (CIDs) will be disclosed alongside contract address publication.</div>
-            </div>
-          </div>
-          <div class="disclosure-card">
-            <div class="disclosure-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </div>
-            <div class="disclosure-body">
-              <div class="disclosure-title">Integrity guarantees</div>
-              <div class="disclosure-text">Metadata integrity is maintained through <strong>fixed-supply verification and ERC-1155 quantity management controls</strong>. Metadata will not be modified after the reveal system is finalized.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Operational Status -->
       <div class="ct-block">
         <div class="ct-block-head">
           <span class="ct-block-tag">Operational Status</span>
           <span class="ct-block-title">Live system check</span>
-          <span class="ct-block-meta">3/7 OPERATIONAL</span>
+          <span class="ct-block-meta">4/8 OPERATIONAL</span>
         </div>
         <div class="verify-grid">
           <div class="verify-item">
@@ -794,20 +1062,90 @@
           </div>
           <div class="verify-item">
             <div class="verify-item-label">Reveal Assignment System</div>
-            <span class="status-badge pending">Finalising</span>
+            <span class="status-badge operational">Committed</span>
           </div>
           <div class="verify-item scheduled">
             <div class="verify-item-label">Public Generative Collection</div>
-            <span class="status-badge scheduled">Q3 2026</span>
+            <span class="status-badge scheduled">Reveal 2026-09-09</span>
           </div>
           <div class="verify-item scheduled">
             <div class="verify-item-label">Ecosystem Documentation</div>
             <span class="status-badge scheduled">Q3 2026</span>
           </div>
+          <div class="verify-item scheduled">
+            <div class="verify-item-label">Seed &amp; Manifest Disclosure</div>
+            <span class="status-badge scheduled">After 2026-09-09</span>
+          </div>
           <div class="verify-item scheduled" style="grid-column: 1 / -1;">
             <div class="verify-item-label">PVC Ecosystem Specification</div>
             <span class="status-badge scheduled">Q4 2026</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Notes & disclaimers -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Notes</span>
+          <span class="ct-block-title">Notes and disclaimers</span>
+        </div>
+        <ul class="pf-list">
+          <li><strong>Opening a pack is irreversible.</strong> A pack cannot be un-opened, and a reveal cannot be re-rolled.</li>
+          <li><strong>Withdrawal to your own wallet is irreversible.</strong> If you supply an incorrect destination address, we cannot recover, restore, or re-issue the NFT. Please verify the address yourself.</li>
+          <li>Withdrawal is <strong>request-based and processed manually.</strong> It is not instant.</li>
+          <li><strong>No fees for members.</strong> Gas for the withdrawal transaction is paid by the operator&rsquo;s custody wallet; we do not charge a withdrawal fee.</li>
+          <li>Withdrawal requests open at a later date after launch, and each request is <strong>reviewed and approved by the operator</strong> before the transfer is sent.</li>
+          <li>Images are stored off-chain on IPFS. <strong>Display may be delayed or temporarily unavailable</strong> depending on gateway conditions. <strong>Your ownership is not affected.</strong></li>
+          <li>We take no part in, and accept no responsibility for, secondary-market pricing or trading.</li>
+          <li>Every value published on this page (SHA-256 commitments, CIDs, contract addresses) is frozen and will not change. Should circumstances ever require a change, we will disclose the change and the reason for it.</li>
+        </ul>
+      </div>
+
+      <!-- Glossary -->
+      <div class="ct-block">
+        <div class="ct-block-head">
+          <span class="ct-block-tag">Glossary</span>
+          <span class="ct-block-title">Terms used on this page</span>
+        </div>
+        <div class="status-table-wrap">
+          <table class="status-table">
+            <thead>
+              <tr>
+                <th>Term</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">SHA-256</td>
+                <td>A one-way function producing a 64-character hex value. A single-bit change in the input produces a completely different output.</td>
+              </tr>
+              <tr>
+                <td class="col-name">Commitment</td>
+                <td>Publishing only the SHA-256 of a data set up front. Releasing the data later and matching the published hash proves nothing was substituted.</td>
+              </tr>
+              <tr>
+                <td class="col-name">Manifest</td>
+                <td>The full data set (500 Machines, or 500 packs) that the SHA-256 is computed over.</td>
+              </tr>
+              <tr>
+                <td class="col-name">Seed</td>
+                <td>The fixed string used to derive the assignment. It was chosen before the commitment was frozen and will be published here after the reveal opens.</td>
+              </tr>
+              <tr>
+                <td class="col-name">IPFS / CID</td>
+                <td>Distributed file storage, and the identifier for a set of files within it. The same CID always means the same content.</td>
+              </tr>
+              <tr>
+                <td class="col-name">ERC-721 / ERC-1155</td>
+                <td>NFT standards for one-of-a-kind items and for multi-copy items, respectively.</td>
+              </tr>
+              <tr>
+                <td class="col-name">Burn</td>
+                <td>Permanently destroying a token. Here, applied to opened packs.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
