@@ -66,6 +66,7 @@
     content: '';
     position: absolute;
     inset: -10%;
+    will-change: transform;
     background:
       radial-gradient(ellipse 800px 500px at 80% 25%, rgba(77,217,255,0.07), transparent 65%),
       radial-gradient(ellipse 900px 600px at 15% 70%, rgba(255,89,255,0.06), transparent 65%),
@@ -76,9 +77,27 @@
     0%   { transform: translate(0, 0); }
     100% { transform: translate(40px, -30px); }
   }
-  .starfield-back {
+  /* 星の 3 層: ドリフト・視差とも transform（GPU 合成）で動かす。
+     background-position を動かすと画面全体のグラデーションを毎フレーム再描画して 10fps 程度まで落ちる（2026-09-02 実測）。
+     外側の要素が視差（--scroll-y）を、::before がタイル背景とドリフトを担当する。 */
+  .starfield-back, .starfield-mid, .starfield-front {
     position: absolute;
     inset: -10%;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  .starfield-back::before, .starfield-mid::before, .starfield-front::before {
+    content: '';
+    position: absolute;
+    inset: 0 -600px;
+    background-repeat: repeat;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  .starfield-back { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.12px), 0); opacity: 0.85; }
+  .starfield-mid { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.25px), 0); opacity: 0.7; animation: star-twinkle-a 6s ease-in-out infinite alternate; }
+  .starfield-front { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.4px), 0); opacity: 0.8; animation: star-twinkle-b 4s ease-in-out infinite alternate; }
+  .starfield-back::before {
     background-image:
       radial-gradient(1px 1px at 20px 80px,  #fff 50%, transparent 51%),
       radial-gradient(1px 1px at 60px 220px, rgba(255,255,255,0.8) 50%, transparent 51%),
@@ -89,15 +108,10 @@
       radial-gradient(1px 1px at 340px 50px, rgba(200,220,255,0.9) 50%, transparent 51%),
       radial-gradient(1px 1px at 380px 200px, #fff 50%, transparent 51%);
     background-size: 420px 320px;
-    background-repeat: repeat;
-    background-position-y: calc(var(--scroll-y) * -0.12px);
     animation: star-drift-back 240s linear infinite;
-    opacity: 0.85;
   }
-  @keyframes star-drift-back { to { background-position-x: 420px; } }
-  .starfield-mid {
-    position: absolute;
-    inset: -10%;
+  @keyframes star-drift-back { to { transform: translate3d(420px, 0, 0); } }
+  .starfield-mid::before {
     background-image:
       radial-gradient(1.5px 1.5px at 50px 60px, rgba(150,210,255,0.95) 50%, transparent 51%),
       radial-gradient(1px 1px at 140px 200px, #fff 50%, transparent 51%),
@@ -105,31 +119,23 @@
       radial-gradient(1.5px 1.5px at 310px 240px, #fff 50%, transparent 51%),
       radial-gradient(1px 1px at 390px 30px, rgba(180,200,255,0.9) 50%, transparent 51%);
     background-size: 480px 340px;
-    background-repeat: repeat;
-    background-position-y: calc(var(--scroll-y) * -0.25px);
-    animation: star-drift-mid 180s linear infinite, star-twinkle-a 6s ease-in-out infinite alternate;
-    opacity: 0.7;
+    animation: star-drift-mid 180s linear infinite;
   }
-  @keyframes star-drift-mid { to { background-position-x: 480px; } }
+  @keyframes star-drift-mid { to { transform: translate3d(480px, 0, 0); } }
   @keyframes star-twinkle-a { from { opacity: 0.45; } to { opacity: 0.85; } }
-  .starfield-front {
-    position: absolute;
-    inset: -10%;
+  .starfield-front::before {
     background-image:
       radial-gradient(2px 2px at 80px 120px, #fff 50%, transparent 51%),
       radial-gradient(1.5px 1.5px at 220px 60px, rgba(255,255,255,0.95) 50%, transparent 51%),
       radial-gradient(2.5px 2.5px at 340px 200px, rgba(180,220,255,0.9) 50%, transparent 51%),
       radial-gradient(1.5px 1.5px at 130px 280px, rgba(255,180,210,0.8) 50%, transparent 51%);
     background-size: 520px 360px;
-    background-repeat: repeat;
-    background-position-y: calc(var(--scroll-y) * -0.4px);
-    animation: star-drift-front 140s linear infinite, star-twinkle-b 4s ease-in-out infinite alternate;
-    opacity: 0.8;
+    animation: star-drift-front 140s linear infinite;
   }
-  @keyframes star-drift-front { to { background-position-x: -520px; } }
+  @keyframes star-drift-front { to { transform: translate3d(-520px, 0, 0); } }
   @keyframes star-twinkle-b { from { opacity: 0.5; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
-    .starfield-back, .starfield-mid, .starfield-front, .starfield::before, .shooting-star {
+    .starfield-back, .starfield-mid, .starfield-front, .starfield-back::before, .starfield-mid::before, .starfield-front::before, .starfield::before, .shooting-star {
       animation: none !important;
     }
     .shooting-star { display: none; }
