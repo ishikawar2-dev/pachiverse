@@ -631,6 +631,55 @@
     padding-top: 2px;
   }
 
+  .countdown-block {
+    margin-top: -16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .countdown-block .countdown {
+    margin-top: 0;
+  }
+
+  .countdown-caption {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #00e5ff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 229, 255, 0.32);
+    background: rgba(0, 229, 255, 0.06);
+    box-shadow: 0 0 16px -6px rgba(0, 229, 255, 0.9), 0 0 30px -14px rgba(255, 43, 214, 0.6);
+  }
+
+  .countdown-caption::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #00e5ff;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.95);
+    animation: pulse-dot-cyan 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot-cyan {
+    0%, 100% { opacity: 0.65; box-shadow: 0 0 6px rgba(0, 229, 255, 0.7); }
+    50% { opacity: 1; box-shadow: 0 0 14px rgba(0, 229, 255, 1); }
+  }
+
+  #hero-live-cta { display: none; }
+  .hero-content[data-phase="live"] #countdown-block { display: none; }
+  .hero-content[data-phase="live"] #hero-live-cta { display: inline-block; }
+  .hero-content[data-phase="live"] #hero-primary-cta { display: none; }
+
   /* Responsive */
   @media (max-width: 1280px) {
     .navbar {
@@ -783,6 +832,29 @@
     .neon-cta-inner {
       padding: 14px 32px;
       font-size: 14px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .countdown {
+      gap: 5px;
+    }
+    .countdown-unit {
+      min-width: 44px;
+    }
+    .countdown-value {
+      font-size: 25px;
+    }
+    .countdown-label {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+    }
+    .countdown-sep {
+      font-size: 21px;
+    }
+    .countdown-caption {
+      font-size: 10px;
+      letter-spacing: 0.14em;
     }
   }
 
@@ -2351,44 +2423,52 @@
       </div>
 
       <!-- Hero content -->
-      <div class="hero-content">
+      <div class="hero-content" id="hero-content" data-phase="pre">
         <div class="badge" id="status-badge" data-phase="pre">
           <span class="badge-dot"></span>
           <span>
-            <span class="badge-label" id="badge-label">Early Access Begins</span><span class="badge-date" id="badge-date"> June 1, 2026</span>
+            <span class="badge-label" id="badge-label">Pack Reveal Begins</span><span class="badge-date" id="badge-date"> September 9, 2026</span>
           </span>
         </div>
 
         <h1 class="heading" data-text="Spin the Verse.">Spin the Verse.</h1>
 
-        <div class="countdown" id="countdown" aria-label="Countdown to launch">
-          <div class="countdown-unit">
-            <span class="countdown-value" id="cd-days">--</span>
-            <span class="countdown-label">Days</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-unit">
-            <span class="countdown-value" id="cd-hours">--</span>
-            <span class="countdown-label">Hours</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-unit">
-            <span class="countdown-value" id="cd-minutes">--</span>
-            <span class="countdown-label">Minutes</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-unit">
-            <span class="countdown-value" id="cd-seconds">--</span>
-            <span class="countdown-label">Seconds</span>
+        <div class="countdown-block" id="countdown-block">
+          <span class="countdown-caption">REVEAL — 2026.09.09 00:00 JST</span>
+          <div class="countdown" id="countdown" aria-label="Countdown to reveal">
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-days">--</span>
+              <span class="countdown-label">Days</span>
+            </div>
+            <span class="countdown-sep">:</span>
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-hours">--</span>
+              <span class="countdown-label">Hours</span>
+            </div>
+            <span class="countdown-sep">:</span>
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-minutes">--</span>
+              <span class="countdown-label">Minutes</span>
+            </div>
+            <span class="countdown-sep">:</span>
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-seconds">--</span>
+              <span class="countdown-label">Seconds</span>
+            </div>
           </div>
         </div>
 
         <p class="subtitle">A Web3 entertainment ecosystem inspired by Japanese pachinko culture — combining collectible NFTs, Mystery Packs, generative machine designs, and on-chain gameplay infrastructure.</p>
 
         <div class="hero-cta-group">
-          <a class="neon-cta" id="hero-cta" href="https://members.pachiverse.com/login/">
+          <a class="neon-cta" id="hero-primary-cta" href="https://members.pachiverse.com/login/">
             <span class="neon-cta-inner">
-              <span class="neon-cta-label" id="hero-cta-label">Enter Member Portal</span>
+              <span class="neon-cta-label">Enter Member Portal</span>
+            </span>
+          </a>
+          <a class="neon-cta" id="hero-live-cta" href="/collection">
+            <span class="neon-cta-inner">
+              <span class="neon-cta-label">REVEAL IS LIVE →</span>
             </span>
           </a>
           <a class="neon-cta-secondary" href="https://opensea.io/PachiverseFoundation" target="_blank" rel="noopener">
@@ -3228,16 +3308,17 @@
 
 <script>
   (function () {
-    // Launch target: 2026-06-01 00:00 JST
-    var target = new Date('2026-06-01T00:00:00+09:00').getTime();
+    // Reveal target: 2026-09-09 00:00 JST（ヒーローのカウントダウン用）
+    var target = new Date('2026-09-09T00:00:00+09:00').getTime();
+    // Launch target: 2026-06-01 00:00 JST（ナビ・本体セクションの表示ゲート。到達済み）
+    var launchTarget = new Date('2026-06-01T00:00:00+09:00').getTime();
 
     var el = {
+      heroContent: document.getElementById('hero-content'),
       badge: document.getElementById('status-badge'),
       badgeLabel: document.getElementById('badge-label'),
       badgeDate: document.getElementById('badge-date'),
       countdown: document.getElementById('countdown'),
-      cta: document.getElementById('hero-cta'),
-      ctaLabel: document.getElementById('hero-cta-label'),
       d: document.getElementById('cd-days'),
       h: document.getElementById('cd-hours'),
       m: document.getElementById('cd-minutes'),
@@ -3249,26 +3330,18 @@
     var isLive = false;
     var timerId = null;
 
-    function switchToLive() {
-      if (isLive) return;
-      isLive = true;
-      // Badge: green dot + "Early access now live"
-      el.badge.setAttribute('data-phase', 'live');
-      el.badgeLabel.textContent = 'Early access now live';
-      el.badgeDate.textContent = '';
-      // Hide countdown
-      if (el.countdown) el.countdown.style.display = 'none';
-      // Swap CTA → Explore Pachiverse
-      el.ctaLabel.textContent = 'Explore Pachiverse';
-      if (el.cta) el.cta.setAttribute('href', '#about');
-      // Reveal nav links (desktop) + hamburger (mobile)
+    var siteOpened = false;
+
+    // ローンチ（2026-06-01）到達後の状態: ナビ・本体セクションを表示する。Reveal のカウントダウンとは独立。
+    function openSite() {
+      if (siteOpened) return;
+      siteOpened = true;
       var navLinks = document.getElementById('nav-links');
       var mobileLinks = document.getElementById('mobile-menu-links');
       var ham = document.getElementById('hamburger');
       if (navLinks) navLinks.setAttribute('data-phase', 'live');
       if (mobileLinks) mobileLinks.setAttribute('data-phase', 'live');
       if (ham) ham.setAttribute('data-phase', 'live');
-      // Reveal project content sections with fade-in
       var projectContent = document.getElementById('project-content');
       if (projectContent) {
         projectContent.style.display = 'block';
@@ -3279,6 +3352,17 @@
           });
         });
       }
+    }
+
+    // Reveal（2026-09-09）到達後の状態: ヒーローのカウントダウンを "REVEAL IS LIVE →" に切り替える。
+    function switchToLive() {
+      if (isLive) return;
+      isLive = true;
+      openSite();
+      el.heroContent.setAttribute('data-phase', 'live');
+      el.badge.setAttribute('data-phase', 'live');
+      el.badgeLabel.textContent = 'Pack Reveal now live';
+      el.badgeDate.textContent = '';
       if (timerId) { clearInterval(timerId); timerId = null; }
     }
 
@@ -3330,6 +3414,7 @@
       document.head.appendChild(noindex);
       switchToLive();
     } else {
+      if (Date.now() >= launchTarget) openSite();
       tick();
       if (!isLive) timerId = setInterval(tick, 1000);
     }

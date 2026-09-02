@@ -94,6 +94,18 @@
   .trust-bar-spacer { display: none; }
   .trust-bar-spacer.is-active { display: block; }
 
+  .reveal-bar { position: relative; border-top: 1px solid rgba(0,229,255,0.16); border-bottom: 1px solid rgba(0,229,255,0.16); background: linear-gradient(90deg,rgba(0,229,255,0.10) 0%,rgba(0,229,255,0.03) 45%,rgba(255,43,214,0.05) 100%), rgba(4,7,14,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .reveal-bar__inner { max-width: 1160px; margin: 0 auto; padding: 10px 48px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.08em; }
+  .reveal-bar__left { display: flex; align-items: center; gap: 10px; min-width: 0; color: rgba(255,255,255,0.72); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reveal-bar__left::before { content: ''; flex: none; width: 5px; height: 5px; border-radius: 50%; background: #00e5ff; box-shadow: 0 0 8px rgba(0,229,255,0.95); animation: pulse-dot-cyan 1.8s ease-in-out infinite; }
+  @keyframes pulse-dot-cyan { 0%,100% { opacity: 0.65; box-shadow: 0 0 6px rgba(0,229,255,0.7); } 50% { opacity: 1; box-shadow: 0 0 14px rgba(0,229,255,1); } }
+  .reveal-bar__title { color: #fff; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+  .reveal-bar__sep { color: rgba(255,255,255,0.25); }
+  .reveal-bar__time { color: #00e5ff; font-variant-numeric: tabular-nums; }
+  .reveal-bar__link { flex: none; color: rgba(255,255,255,0.6); text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s ease; white-space: nowrap; }
+  .reveal-bar__link:hover { color: #00e5ff; }
+  .reveal-bar.is-hidden { display: none; }
+
   .page-content { padding-top: 40px; }
   .page-header { padding: 80px 48px 36px; max-width: 1160px; margin: 0 auto; }
   .page-header-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 20px; background: rgba(77,217,255,0.06); border: 1px solid rgba(77,217,255,0.3); box-shadow: 0 0 12px rgba(77,217,255,0.15) inset; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: #4DD9FF; margin-bottom: 24px; }
@@ -193,6 +205,7 @@
   @media (min-width: 1024px) { .cx-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   @media (min-width: 1400px) { .cx-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
   @media (max-width: 1280px) { .navbar { padding: 20px 48px; } .nav-left { gap: 28px; } .nav-links { gap: 22px; } }
+  @media (max-width: 900px) { .reveal-bar__inner { padding: 9px 20px; font-size: 11px; gap: 10px; } }
   @media (max-width: 1100px) { .navbar { padding: 20px 32px; } .nav-links { display: none !important; } .hamburger { display: inline-flex; } .cx-legends { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 880px) {
     .page-header { padding: 60px 24px 24px; } .page-header-title { font-size: 38px; }
@@ -212,6 +225,8 @@
     .cx-detail { padding: 0; } .cx-detail-panel { min-height: 100vh; max-height: 100vh; border-radius: 0; }
     .cx-undiscovered-copy { padding: 90px 24px; }
   }
+  @media (max-width: 560px) { .reveal-bar__title, .reveal-bar__sep { display: none; } .reveal-bar__link { font-size: 10px; } }
+  @media (max-width: 400px) { .reveal-bar__inner { padding: 9px 14px; font-size: 10px; gap: 8px; } }
   @media (prefers-reduced-motion: reduce) {
     .starfield-back, .starfield::before, .trust-bar-marquee, .fx-scanlines, .trust-bar-label::before, .page-header-tag::before { animation: none !important; }
     .trust-bar-wrapper.is-sticky { animation: none !important; }
@@ -247,6 +262,17 @@
 
 <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true">
   <a href="/#about">About</a><a href="/#reveal">Reveal</a><a href="/collection">Machines</a><a href="/docs.html">Docs</a><a href="/faq.html">FAQ</a><a href="/transparency.html">Transparency</a><a href="/contracts.html">Contracts</a><a href="https://opensea.io/PachiverseFoundation" target="_blank" rel="noopener">OpenSea</a><a class="pill-button" href="https://members.pachiverse.com/login/"><span class="pill-inner">Member Portal</span></a>
+</div>
+
+<div class="reveal-bar" id="reveal-bar" data-target="2026-09-09T00:00:00+09:00">
+  <div class="reveal-bar__inner">
+    <div class="reveal-bar__left">
+      <span class="reveal-bar__title">THE 500 MACHINES</span>
+      <span class="reveal-bar__sep">·</span>
+      <span>Reveal opens in <span class="reveal-bar__time" id="reveal-remaining">--d --h --m</span></span>
+    </div>
+    <a class="reveal-bar__link" href="/transparency">Provable Fairness →</a>
+  </div>
 </div>
 
 <div class="trust-bar-spacer"></div>
@@ -792,6 +818,31 @@
       updateUndiscoveredToggle();
       renderGrid();
     });
+})();
+
+(function () {
+  var target = new Date('2026-09-09T00:00:00+09:00').getTime();
+  var bar = document.getElementById('reveal-bar');
+  var remaining = document.getElementById('reveal-remaining');
+  var timerId = null;
+
+  function pad(number) { return number < 10 ? '0' + number : String(number); }
+
+  function tick() {
+    var diff = target - Date.now();
+    if (diff <= 0) {
+      bar.classList.add('is-hidden');
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      return;
+    }
+    var days = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var mins = Math.floor((diff % 3600000) / 60000);
+    remaining.textContent = days + 'd ' + hours + 'h ' + pad(mins) + 'm';
+  }
+
+  tick();
+  if (!bar.classList.contains('is-hidden')) timerId = setInterval(tick, 30000);
 })();
 </script>
 </body>
