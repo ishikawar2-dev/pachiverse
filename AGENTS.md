@@ -1,3 +1,32 @@
+# AGENTS.md — Codex 実装ルール
+
+## 役割
+
+あなた（Codex）は**実装担当**。調査・設計は Claude Code が完了しており、渡された計画書（`.claude/plans/*.md`）がすべての仕様である。設計判断を独自に行わないこと。
+
+## 厳守事項
+
+1. 実装前に、計画書の「変更対象ファイル」「再利用する既存コード」に列挙された既存ファイルを**必ず読む**こと
+2. 新規ファイル作成は計画書の「新規作成を許可するファイル」リストにあるもの**のみ**。リストにないファイルは作らない
+3. 既存のユーティリティ・共通関数・コンポーネントを再利用する。同等機能の再実装・コピペによる重複コードは禁止
+4. 計画書に記載のない変更をしない: 無関係なリファクタリング、フォーマット一括変更、依存パッケージの追加・更新は禁止
+5. エラーを握り潰さない（空の catch / try-except-pass 禁止）
+6. `.env` / 鍵ファイル / 認証情報には読み書きとも触れない
+7. 計画書の記述で判断できない点があれば、推測で実装せず、その旨を最終メッセージに明記して停止する
+8. 完了条件に書かれたテスト・lint・型チェックのコマンドを実行し、結果（成功/失敗と出力要点）を最終メッセージで報告する
+
+## プロジェクト固有情報
+
+- 公式サイト pachiverse.com。**純静的 HTML + Vercel**（ビルド工程なし、package.json なし、フレームワークなし）。`vercel.json` は Collection Explorer 導入時に追加
+- CSS / JS は各 HTML の `<style>` / `<script>` にインライン。共通 CSS ファイルは存在しない（各ページに同じ navbar / trust-bar / footer / fx-layer の CSS が複製されているのが既存の作法）。JS は IIFE・`var`・ES5 相当で書く
+- `api/` は Vercel Serverless Function（Node 24、CommonJS `module.exports = async (req, res) => {}`）。npm 依存は無く、**追加禁止**（`fetch` / `crypto` / `fs` の組み込みのみ）
+- 検証コマンド: `node --check api/*.js` と `node scripts/check-collection.mjs`（計画書参照）
+- `assets/machines/t/` と `assets/machines/d/` の webp（各 500 枚）は Claude 側で生成済みの成果物。**読み書き・リネーム・削除禁止**
+- 同一ディレクトリ内の `members.pachiverse.com/` `pachiverse-contracts/` `pachiverse-signer/` `pvm-art/` `members-deploy-main/` `Pachiverse_NFT_mint _backup/` は**別リポジトリ**（.gitignore 済み）。読まない・触らない
+- 環境変数は名前のみ扱う（`MACHINE_ASSET_KEY`、`MEMBERS_API_BASE`）。値をコード・docs に書かない
+
+---
+
 # AGENTS.md — 全AI共通の作業ルール
 
 このリポジトリは「リポジトリ自体をAIの外部長期記憶として育てる」思想を採用する。

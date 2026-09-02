@@ -1,0 +1,13 @@
+.vercel/
+.DS_Store
+node_modules/
+members-deploy-main/
+Pachiverse_NFT_mint _backup/
+*.docx
+.vercel
+members.pachiverse.com/
+pachiverse-contracts/
+pachiverse-signer/
+pvm-art/
+pachiverse-hero-1600x900.png
+members-wt-collection/

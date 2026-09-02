@@ -35,12 +35,6 @@
 
 ### 公開サイト
 
-- **`contracts.html` が旧 Mystery Packs コントラクトを掲載している。**
-  掲載中の `0x9f3a5b10da36888f31a679f2f401eb9af27e2fe6` は、`pachiverse-contracts/README.md` が
-  **burn 機能を持たないことをバイトコードレベルで確定させた旧コントラクト**。
-  置き換え用の `PachiverseMysteryPacks`（PVPACK）が設計・実装済みだが、
-  **V2 稼働時に公開サイトの更新が必要**。更新漏れは対外的な誤情報になる。
-
 - **`index.html` のカウントダウンが `2026-06-01T00:00:00+09:00`。**
   現在日（2026-09-01）を既に過ぎており、Web3 セクションは常時表示状態のはず。
   意図した状態かどうかは**未確認**。
@@ -353,38 +347,34 @@
 
 **推測で埋めないこと。** 以下は調査時点で確認できなかった。
 
-1. **公開サイトのホスティング構成。**
-   `api/` は Vercel Serverless Function 形式で書かれ、コメントも Vercel ダッシュボードを前提としているが、
-   `vercel.json` が存在しない。実際のデプロイ先・設定は未確認。
-
-2. **PVM / PVPACK のデプロイ状況。** `deployments/` が空。Amoy / mainnet のどちらにも
+1. **PVM / PVPACK のデプロイ状況。** `deployments/` が空。Amoy / mainnet のどちらにも
    デプロイされていないのか、記録が残っていないだけかが不明。
 
-3. **Indexer の実装場所と実装有無。**（上記「未解決」参照）
+2. **Indexer の実装場所と実装有無。**（上記「未解決」参照）
 
-4. **公開サイト掲載の 3 コントラクトの現在の役割。**
+3. **公開サイト掲載の 2 つの既存 ERC-1155 コントラクトの現在の役割。**
    `Pachiverse Access & Companion Items`（`0x22acc4ac...`）と
    `Pachiverse Participation Units`（`0x852fbd87...`）が現在どう使われているかは、
    本リポジトリのコードからは判断できない。要件定義書は「Polygon Live 3 種」と記載するのみ。
 
-5. **`main` ブランチと `redesign/unified-design-language` の関係。**（マージ予定か、`main` が旧版か）
+4. **`main` ブランチと `redesign/unified-design-language` の関係。**（マージ予定か、`main` が旧版か）
 
-6. **`Pachiverse_NFT_mint _backup/` の内容と現行資産との関係。**（調査対象外としたため未確認）
+5. **`Pachiverse_NFT_mint _backup/` の内容と現行資産との関係。**（調査対象外としたため未確認）
 
-7. **要件定義書 §4 のテーブル名と実装の一致。**
+6. **要件定義書 §4 のテーブル名と実装の一致。**
    要件定義書自身が「テーブル名は既存 SPEC に基づく。実装で名称・構成が一部異なる場合があり」
    と注記している（§4 脚注 / §9）。members リポジトリ側で確認が必要。
 
-8. **members.pachiverse.com の実装詳細。**
+7. **members.pachiverse.com の実装詳細。**
    本 docs では調査対象外（別リポジトリで独自に知識基盤が初期化されている）。
    本 docs の会員システムに関する記述は、すべてルート直下の要件定義書 `.docx`（2026-07-07 版）に基づく
    **as-built 記述であり、その後の変更は反映されていない可能性がある**。
 
-9. **`api/subscribers.js` の JSON.parse 握り潰しが意図的かどうか。**（上記「未解決」参照）
+8. **`api/subscribers.js` の JSON.parse 握り潰しが意図的かどうか。**（上記「未解決」参照）
 
-10. **`index.html` のカウントダウン日（2026-06-01）を過ぎた現在の表示が意図どおりか。**
+9. **`index.html` のカウントダウン日（2026-06-01）を過ぎた現在の表示が意図どおりか。**
 
-11. **ROY Slot TMA との関係。**
+10. **ROY Slot TMA との関係。**
     ユーザーの過去セッションから「ROY Slot TMA の譲渡先は AKG 主体、ITO-japan は譲渡元」という
     前提知識があるが、**本リポジトリ内に ROY Slot TMA に関連するコード・記述は見つからなかった**。
     Pachiverse との関係は未確認。

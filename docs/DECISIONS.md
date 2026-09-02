@@ -454,3 +454,33 @@ Web3 ニュースの自動記事化に使う LLM の選定。当初は OpenAI（
 
 ### Status
 Active（会員システム側の判断。本リポジトリ対象外だが前提知識として記録）
+
+---
+
+## Decision: Collection Explorer は会員 API を正本とし、未 Reveal は演出として隠す（2026-09-02）
+
+### Context
+公式サイトに 500 体の Machine を探索する Collection Explorer を追加するにあたり、
+Reveal 状態と公開可能な trait・画像情報の正本をどこに置くかを決める必要があった。
+
+### Decision
+会員システムの公開 Collection API を正本とし、公式サイトは Reveal 済み Machine のみを取得する。
+未 Reveal の 500 スロットはクライアント側で `UNDISCOVERED` として生成し、rarity・trait・画像 URL・
+LEGEND の token_id を HTML・JS・API レスポンスに含めない。派生画像 URL は Vercel Function が
+環境変数の HMAC 鍵から実行時に計算して付与する。
+
+### Reason
+Reveal 前の情報をクライアントへ送らず、会員システムの Reveal 状態と公式サイト表示を一つの正本で整合させるため。
+既存の純静的 HTML + Vercel 構成を維持したまま、未発見の演出に必要な境界をサーバー側に置ける。
+
+### Alternatives
+- 500 件の静的 JSON を公式サイトに置く案: 未 Reveal 情報がクライアントに漏れるため不採用
+- Next.js へ移行する案: Collection Explorer のためだけに既存サイトの構成を変更する必要がないため不採用
+
+### Consequences
+- edge cache により Reveal 後の表示反映に最大 60 秒の遅延がある
+- IPFS に公開済みの原本は秘匿不能であり、この方式は公式サイト上の未発見演出を保つためのもの
+- Collection Explorer の可用性は会員システム公開 API に依存する
+
+### Status
+Active

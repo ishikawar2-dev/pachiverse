@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">Undiscovered machine</title>
+  <desc id="description">A dark placeholder with a faint pachinko machine silhouette and question mark.</desc>
+  <rect width="512" height="512" fill="#0a0a0f"/>
+  <g fill="rgba(255,255,255,0.08)">
+    <rect x="126" y="100" width="260" height="326" rx="22"/>
+    <circle cx="256" cy="226" r="96" fill="#0a0a0f" stroke="rgba(255,255,255,0.08)" stroke-width="24"/>
+    <rect x="166" y="338" width="180" height="48" rx="8" fill="#0a0a0f"/>
+  </g>
+  <text x="256" y="254" fill="rgba(77,217,255,0.35)" font-family="monospace" font-size="108" text-anchor="middle">?</text>
+</svg>

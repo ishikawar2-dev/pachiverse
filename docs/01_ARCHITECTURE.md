@@ -11,13 +11,15 @@ Pachiverse は、役割の異なる 4 つのシステムが疎結合で連携す
 ┌─────────────────────────────────────────────────────────────┐
 │ 公開サイト（本リポジトリのルート）                              │
 │  index.html / contracts.html / faq.html / litepaper.html      │
-│  docs.html / transparency.html / design-preview.html          │
+│  docs.html / transparency.html / collection.html              │
+│  design-preview.html（ナビ非掲載）                             │
 │  素の HTML・CSS・JS（ビルド工程なし）                           │
 │                                                               │
 │  api/subscribe.js    ─┐                                       │
 │  api/subscribers.js  ─┴→ Redis（Upstash 互換 REST）            │
+│  api/collection.js / api/machine-page.js                      │
 └──────────────┬──────────────────────────────────────────────┘
-               │ リンクのみ（プログラム連携なし）
+               │ 公開 Collection API / 会員ログインへのリンク
                ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ members.pachiverse.com（別 Git リポジトリ・調査対象外）        │
@@ -78,10 +80,12 @@ submodule ではないため、親からは単なる未追跡ディレクトリ�
 |---|---|
 | `index.html` | LP。約 150KB の単一ファイル。カウントダウン（`2026-06-01T00:00:00+09:00`）到達後に Web3 セクションを表示する |
 | `contracts.html` | 公開中のコントラクトアドレス一覧 |
+| `collection.html` | Reveal 済み Machine を探索する Collection Explorer |
 | `faq.html` / `litepaper.html` / `transparency.html` / `docs.html` | 各説明ページ |
 | `design-preview.html` | デザインプレビュー（約 128KB）。公開ナビゲーションからリンクされていない |
 | `api/subscribe.js` | 購読登録（POST）。honeypot + メール形式検証 + `HSETNX` |
 | `api/subscribers.js` | 購読者一覧・CSV 出力（GET）。`ADMIN_TOKEN` による共有シークレット認証 |
+| `api/collection.js` / `api/machine-page.js` | Collection 公開 API のプロキシと Machine 詳細ページの OGP 注入 |
 
 ### pachiverse-contracts
 
@@ -141,7 +145,30 @@ prompts/         生成プロンプト
   → Redis HGETALL → JSON または CSV
 ```
 
-### 2. NFT 発行から Reveal まで（設計上のフロー）
+### 2. Collection Explorer
+
+公開サイトの Collection Explorer は、Reveal 済み Machine のみを会員システムの公開 API から取得する。
+500 件の静的データは公開サイト側に保持しない。
+
+```
+ブラウザ
+  → /collection（collection.html。静的 HTML）
+  → /api/collection（Vercel Function。edge cache 60 秒）
+  → members.pachiverse.com/wp-json/pachiverse/v1/collection（公開 API）
+```
+
+Reveal 済み Machine の一覧には、Vercel Function が実行時に派生画像 URL を付与する。
+派生画像は `assets/machines/t/`（512px）と `assets/machines/d/`（1024px）に置き、
+ファイル名は `HMAC-SHA256(MACHINE_ASSET_KEY, "pvm:" + token_id)` の hex 先頭 40 文字とする。
+token_id とファイル名の対応表はリポジトリに置かない。未 Reveal の 500 スロット生成はブラウザ側で行い、
+未 Reveal Machine の rarity・trait・画像 URL は API と HTML のいずれにも含めない。
+
+使用する環境変数:
+
+- `MACHINE_ASSET_KEY` — 派生画像ファイル名を計算する HMAC 鍵
+- `MEMBERS_API_BASE` — 会員システム公開 API のベース URL
+
+### 3. NFT 発行から Reveal まで（設計上のフロー）
 
 ```
 [事前準備]
@@ -252,7 +279,7 @@ broadcast
 
 ### 公開サイト内の依存
 
-- 公開サイトから会員システムへは**リンクのみ**（`https://members.pachiverse.com/login/`）。プログラム連携はない。
+- 会員ログインは `https://members.pachiverse.com/login/` へのリンク。Collection Explorer は会員システムの公開 Collection API を参照する。
 - `contracts.html` は**公開中のコントラクトアドレスをハードコード**している（後述）。
 
 ## 公開されているコントラクトアドレス
@@ -261,19 +288,19 @@ broadcast
 
 | 表示名 | 規格 | アドレス |
 |---|---|---|
-| Pachiverse Mystery Packs | ERC-1155 | `0x9f3a5b10da36888f31a679f2f401eb9af27e2fe6` |
+| Pachiverse Mystery Packs (V2) | ERC-1155 | `0x2B5DaC082f664986e77b4f075617D1908BBd109C` |
 | Pachiverse Access & Companion Items | ERC-1155 | `0x22acc4ac862dcdf152b77984da254eb851daa3dd` |
 | Pachiverse Participation Units | ERC-1155 | `0x852fbd87cd43002ac95084f027051c6fbcb48405` |
-
-**重要**: `0x9f3a5b10...` は `pachiverse-contracts/README.md` が調査した**旧 PachiverseItems1155** であり、
-burn 機能を持たないことが確定している。新しい `PachiverseMysteryPacks`（PVPACK）はその置き換えとして設計されたが、
-**公開サイトは現在も旧アドレスを掲載している**。V2 稼働時にサイト更新が必要（KNOWN_ISSUES 参照）。
+| Pachiverse Machine Collection | ERC-721 | `0x55E3A05eaAc41aAeB596227CD4076e91033541b3` |
 
 ## デプロイ
 
-- **公開サイト + api/** — `api/` が Vercel Serverless Function 形式（`module.exports = async (req, res)`）で書かれており、
-  コメントも Vercel ダッシュボードでの環境変数設定を前提としている。ただし `vercel.json` は存在せず、
-  実際のホスティング設定は**未確認**。
+- **公開サイト + api/** — ホスティングは Vercel（2026-09-02 実測で確定）。静的 HTML と
+  `module.exports = async (req, res)` 形式の Vercel Serverless Function を同じプロジェクトで配信する。
+  `vercel.json` が Collection Explorer の rewrite・派生画像 cache header・Function includeFiles を定義する。
+  Vercel プロジェクト `pachiverse` は Git 連携ではなく **CLI（`vercel --prod`）からの手動デプロイ**で運用されており、
+  本番の内容は `redesign/unified-design-language` ブランチ由来（2026-09-02 時点で `origin/main` はそれより古い）。
+  環境変数 `MACHINE_ASSET_KEY` は Production / Development に設定済み（Preview は未設定）。
 - **contracts** — Foundry スクリプトで Amoy → mainnet の順にデプロイする手順が README に明記されている。
   秘密鍵は `.env` に置かず keystore / ハードウェアウォレットを使う運用。
 - **signer** — **ローリング更新禁止**。旧インスタンスを停止してから新インスタンスを起動する（`recreate` / `maxSurge: 0` 相当）。
