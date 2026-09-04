@@ -122,6 +122,13 @@
   .cx-trailer-play:hover, .cx-trailer-play:focus-visible { transform: scale(1.06); background: rgba(77,217,255,0.28); outline: none; }
   .cx-trailer-play svg { width: 36px; height: 36px; margin-left: 5px; }
   .cx-trailer-frame.is-playing .cx-trailer-play { display: none; }
+  .cx-trailer-mute { position: absolute; top: 14px; right: 14px; z-index: 2; display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(77,217,255,0.45); background: rgba(0,0,0,0.55); color: #fff; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: background 0.2s ease, transform 0.2s ease; }
+  .cx-trailer-mute:hover, .cx-trailer-mute:focus-visible { background: rgba(77,217,255,0.28); transform: scale(1.06); outline: none; }
+  .cx-trailer-mute svg { width: 20px; height: 20px; }
+  .cx-trailer-mute .ico-off { display: none; }
+  .cx-trailer-mute[aria-pressed="true"] .ico-on { display: none; }
+  .cx-trailer-mute[aria-pressed="true"] .ico-off { display: block; }
+  .cx-trailer-frame.is-playing .cx-trailer-mute { display: flex; }
   .cx-trailer-caption { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; font: 11px/1.5 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
   .cx-trailer-caption b { color: #4DD9FF; font-weight: 500; }
   .cx-section { max-width: 1160px; margin: 0 auto 68px; padding: 0 48px; }
@@ -265,6 +272,8 @@
     .cx-trailer-frame { border-radius: 10px; }
     .cx-trailer-play { width: 64px; height: 64px; }
     .cx-trailer-play svg { width: 26px; height: 26px; }
+    .cx-trailer-mute { width: 38px; height: 38px; top: 10px; right: 10px; }
+    .cx-trailer-mute svg { width: 17px; height: 17px; }
     .navbar { padding: 20px; } .pill-inner { padding: 11px 14px; } .nav-right .pill-inner svg { display: none; }
     .page-header-title { font-size: 30px; }
     .cx-legends { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
@@ -279,7 +288,7 @@
     .starfield-back, .starfield::before, .trust-bar-marquee, .fx-scanlines, .trust-bar-label::before, .page-header-tag::before { animation: none !important; }
     .trust-bar-wrapper.is-sticky { animation: none !important; }
     .cx-filter, .cx-card, .cx-detail * { transition: none !important; }
-    .cx-trailer-play { transition: none !important; }
+    .cx-trailer-play, .cx-trailer-mute { transition: none !important; }
     .mobile-menu { transition: none; }
     .cx-card:hover { transform: none; }
   }
@@ -349,6 +358,7 @@
     <div class="cx-trailer-frame" id="cx-trailer-frame">
       <video class="cx-trailer-video" id="cx-trailer" playsinline preload="none" poster="https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/PV_main_poster_1280.jpg" aria-label="Pachiverse Machines official trailer"></video>
       <button class="cx-trailer-play" id="cx-trailer-play" type="button" aria-label="Play the official trailer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="cx-trailer-mute" id="cx-trailer-mute" type="button" aria-label="Mute" aria-pressed="false" title="Mute / Unmute"><svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg><svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg></button>
     </div>
     <div class="cx-trailer-caption"><span id="cx-trailer-title"><b>Official trailer</b> · Pachiverse Machines</span><span>Pack Reveal <b>2026.09.09 00:00 JST</b></span></div>
   </section>
@@ -908,12 +918,38 @@
   var video = document.getElementById('cx-trailer');
   var btn = document.getElementById('cx-trailer-play');
   if (!frame || !video || !btn) return;
+  var mute = document.getElementById('cx-trailer-mute');
   var base = 'https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/';
+  var MUTE_KEY = 'pv-trailer-muted';
+  function readMutedPref() {
+    try { return window.localStorage.getItem(MUTE_KEY) === '1'; }
+    catch (err) { console.debug('trailer: localStorage unavailable', err); return false; }
+  }
+  function writeMutedPref(on) {
+    try { window.localStorage.setItem(MUTE_KEY, on ? '1' : '0'); }
+    catch (err) { console.debug('trailer: localStorage unavailable', err); }
+  }
+  function syncMuteUi() {
+    if (!mute) return;
+    var on = video.muted;
+    mute.setAttribute('aria-pressed', on ? 'true' : 'false');
+    mute.setAttribute('aria-label', on ? 'Unmute' : 'Mute');
+  }
   function ensureSrc() {
     if (video.getAttribute('src')) return;
     var small = window.matchMedia('(max-width: 767px)').matches;
     video.src = base + (small ? 'PV_main_720.mp4' : 'PV_main_1080.mp4');
     video.controls = true;
+    video.muted = readMutedPref();
+    syncMuteUi();
+  }
+  if (mute) {
+    mute.addEventListener('click', function () {
+      video.muted = !video.muted;
+      writeMutedPref(video.muted);
+      syncMuteUi();
+    });
+    video.addEventListener('volumechange', syncMuteUi);
   }
   btn.addEventListener('click', function () {
     ensureSrc();
