@@ -1705,6 +1705,31 @@
   }
   .neon-cta-secondary:hover { border-color: rgba(255,255,255,0.3); color: #fff; background: rgba(255,255,255,0.05); }
   .neon-cta-secondary svg { width: 15px; height: 15px; }
+  button.neon-cta-secondary { background: transparent; font-family: inherit; cursor: pointer; }
+  /* Official trailer lightbox（R2 配信・クリック再生・ESC/背景クリックで閉じる） */
+  .pv-lightbox { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+  .pv-lightbox[data-open="true"] { opacity: 1; pointer-events: auto; }
+  .pv-lightbox-inner { width: min(1100px, 100%); display: flex; flex-direction: column; gap: 12px; }
+  .pv-lightbox-panel { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(77,217,255,0.3); box-shadow: 0 0 60px rgba(77,217,255,0.15), 0 30px 80px rgba(0,0,0,0.6); }
+  .pv-lightbox-video { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; }
+  .pv-lightbox-close, .pv-lightbox-mute { position: absolute; top: 12px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(77,217,255,0.45); background: rgba(0,0,0,0.55); color: #fff; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: background 0.2s ease, transform 0.2s ease; }
+  .pv-lightbox-close { right: 12px; font-size: 24px; line-height: 1; }
+  .pv-lightbox-mute { right: 64px; }
+  .pv-lightbox-close:hover, .pv-lightbox-close:focus-visible, .pv-lightbox-mute:hover, .pv-lightbox-mute:focus-visible { background: rgba(77,217,255,0.28); transform: scale(1.06); outline: none; }
+  .pv-lightbox-mute svg { width: 20px; height: 20px; }
+  .pv-lightbox-mute .ico-off { display: none; }
+  .pv-lightbox-mute[aria-pressed="true"] .ico-on { display: none; }
+  .pv-lightbox-mute[aria-pressed="true"] .ico-off { display: block; }
+  .pv-lightbox-caption { display: flex; flex-wrap: wrap; gap: 8px 16px; font: 11px/1.5 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+  .pv-lightbox-caption b { color: #4DD9FF; font-weight: 500; }
+  @media (max-width: 640px) {
+    .pv-lightbox { padding: 12px; }
+    .pv-lightbox-panel { border-radius: 10px; }
+    .pv-lightbox-close, .pv-lightbox-mute { width: 38px; height: 38px; top: 10px; }
+    .pv-lightbox-close { right: 10px; font-size: 20px; }
+    .pv-lightbox-mute { right: 54px; }
+    .pv-lightbox-mute svg { width: 17px; height: 17px; }
+  }
 
   /* ── Trust / Status Bar — marquee + sticky ─────────────── */
   .trust-bar-wrapper {
@@ -2481,6 +2506,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             View on OpenSea
           </a>
+          <button class="neon-cta-secondary" id="hero-trailer-cta" type="button" aria-haspopup="dialog" aria-controls="pv-lightbox">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            Watch the trailer
+          </button>
         </div>
       </div>
 
@@ -3755,6 +3784,89 @@
     window.addEventListener('scroll', update, { passive: true });
     update();
   })();
+</script>
+
+<div class="pv-lightbox" id="pv-lightbox" data-open="false" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Pachiverse Machines official trailer">
+  <div class="pv-lightbox-inner">
+    <div class="pv-lightbox-panel">
+      <video class="pv-lightbox-video" id="pv-lightbox-video" playsinline preload="none" poster="https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/PV_main_poster_1280.jpg"></video>
+      <button class="pv-lightbox-mute" id="pv-lightbox-mute" type="button" aria-label="Mute" aria-pressed="false" title="Mute / Unmute"><svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg><svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg></button>
+      <button class="pv-lightbox-close" id="pv-lightbox-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="pv-lightbox-caption"><span><b>Official trailer</b> · Pachiverse Machines</span><span>Pack Reveal <b>2026.09.09 00:00 JST</b></span></div>
+  </div>
+</div>
+<script>
+// Official trailer lightbox: CTA クリックで開き、初めて src を設定して再生（767px 以下は 720p）。ESC / 背景 / × で閉じる
+(function () {
+  var box = document.getElementById('pv-lightbox');
+  var video = document.getElementById('pv-lightbox-video');
+  var closeBtn = document.getElementById('pv-lightbox-close');
+  var muteBtn = document.getElementById('pv-lightbox-mute');
+  var cta = document.getElementById('hero-trailer-cta');
+  if (!box || !video || !closeBtn || !cta) return;
+  var base = 'https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/';
+  var MUTE_KEY = 'pv-trailer-muted';
+  var prevOverflow = '';
+  var lastFocus = null;
+  function readMutedPref() {
+    try { return window.localStorage.getItem(MUTE_KEY) === '1'; }
+    catch (err) { console.debug('trailer: localStorage unavailable', err); return false; }
+  }
+  function writeMutedPref(on) {
+    try { window.localStorage.setItem(MUTE_KEY, on ? '1' : '0'); }
+    catch (err) { console.debug('trailer: localStorage unavailable', err); }
+  }
+  function syncMuteUi() {
+    if (!muteBtn) return;
+    var on = video.muted;
+    muteBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    muteBtn.setAttribute('aria-label', on ? 'Unmute' : 'Mute');
+  }
+  function ensureSrc() {
+    if (video.getAttribute('src')) return;
+    var small = window.matchMedia('(max-width: 767px)').matches;
+    video.src = base + (small ? 'PV_main_720.mp4' : 'PV_main_1080.mp4');
+    video.controls = true;
+    video.muted = readMutedPref();
+    syncMuteUi();
+  }
+  function isOpen() { return box.getAttribute('data-open') === 'true'; }
+  function open() {
+    lastFocus = document.activeElement;
+    ensureSrc();
+    box.setAttribute('data-open', 'true');
+    box.setAttribute('aria-hidden', 'false');
+    prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+    var p = video.play();
+    if (p) { p.catch(function (err) { console.warn('trailer: play() rejected', err); video.controls = true; }); }
+  }
+  function close() {
+    if (!isOpen()) return;
+    video.pause();
+    box.setAttribute('data-open', 'false');
+    box.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = prevOverflow;
+    var back = (lastFocus && lastFocus !== document.body && typeof lastFocus.focus === 'function') ? lastFocus : cta;
+    back.focus();
+  }
+  cta.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  box.addEventListener('click', function (e) {
+    if (e.target === box || (e.target.classList && e.target.classList.contains('pv-lightbox-inner'))) close();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen()) close(); });
+  if (muteBtn) {
+    muteBtn.addEventListener('click', function () {
+      video.muted = !video.muted;
+      writeMutedPref(video.muted);
+      syncMuteUi();
+    });
+    video.addEventListener('volumechange', syncMuteUi);
+  }
+})();
 </script>
 </body>
 </html>
