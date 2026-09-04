@@ -75,6 +75,7 @@ Pachiverse は、パチンコ／スロットを題材とした NFT（商品換�
 | PolygonScan | コントラクト verify・オンチェーン残高取得 | `POLYGONSCAN_API_KEY` |
 | fal.ai（Seedream） | NFT アート素材生成 | API キーは `~/.fal_key`（**コード・ログ・チャットに出さない**） |
 | IPFS | NFT メタデータ・画像のホスティング | `BASE_URI` / `PACK_BASE_URI`（`ipfs://<CID>/` 形式） |
+| Cloudflare R2（`ishikawar2@gmail.com` アカウント、バケット `pachiverse-media`） | 公式 PV 動画のホスティング（`/collection` のトレーラー枠。転送量無料）。公開 URL は `https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/`。独自ドメイン化には pachiverse.com の DNS を Cloudflare へ移す必要がある | なし（ダッシュボードで管理。元動画とWeb用書き出しは `pvm-art/pv/web/`） |
 | Anthropic API / Google Sheets / ブラストエンジン / IMAP | 会員システム側の外部連携（サポート AI・記事生成・メール） | 会員システム側で管理（本リポジトリ対象外） |
 
 Signer の環境変数一覧は [02_ONCHAIN.md](02_ONCHAIN.md) を参照。

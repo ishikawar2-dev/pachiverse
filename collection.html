@@ -114,6 +114,23 @@
   .page-header-subtitle { font-size: 15px; line-height: 1.75; color: rgba(255,255,255,0.55); max-width: 720px; }
   .cx-status { max-width: 1160px; margin: 0 auto 56px; padding: 0 48px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: rgba(255,255,255,0.5); }
   .cx-status b, .cx-status time { color: #4DD9FF; font-weight: 500; }
+  /* Official trailer (R2 配信・クリック再生。自動再生しない) */
+  .cx-trailer { max-width: 1160px; margin: 0 auto 44px; padding: 0 48px; }
+  .cx-trailer-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(77,217,255,0.28); box-shadow: 0 0 44px rgba(77,217,255,0.12), 0 24px 60px rgba(0,0,0,0.55); }
+  .cx-trailer-video { display: block; width: 100%; height: 100%; object-fit: cover; background: #000; }
+  .cx-trailer-play { position: absolute; inset: 0; margin: auto; width: 92px; height: 92px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.45); background: rgba(0,0,0,0.45); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: 0 0 30px rgba(77,217,255,0.35); transition: transform 0.2s ease, background 0.2s ease; }
+  .cx-trailer-play:hover, .cx-trailer-play:focus-visible { transform: scale(1.06); background: rgba(77,217,255,0.28); outline: none; }
+  .cx-trailer-play svg { width: 36px; height: 36px; margin-left: 5px; }
+  .cx-trailer-frame.is-playing .cx-trailer-play { display: none; }
+  .cx-trailer-mute { position: absolute; top: 14px; right: 14px; z-index: 2; display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(77,217,255,0.45); background: rgba(0,0,0,0.55); color: #fff; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: background 0.2s ease, transform 0.2s ease; }
+  .cx-trailer-mute:hover, .cx-trailer-mute:focus-visible { background: rgba(77,217,255,0.28); transform: scale(1.06); outline: none; }
+  .cx-trailer-mute svg { width: 20px; height: 20px; }
+  .cx-trailer-mute .ico-off { display: none; }
+  .cx-trailer-mute[aria-pressed="true"] .ico-on { display: none; }
+  .cx-trailer-mute[aria-pressed="true"] .ico-off { display: block; }
+  .cx-trailer-frame.is-playing .cx-trailer-mute { display: flex; }
+  .cx-trailer-caption { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; font: 11px/1.5 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .cx-trailer-caption b { color: #4DD9FF; font-weight: 500; }
   .cx-section { max-width: 1160px; margin: 0 auto 68px; padding: 0 48px; }
   .cx-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
   .cx-section-title { font-size: 20px; font-weight: 600; letter-spacing: 0.02em; }
@@ -241,6 +258,7 @@
   @media (max-width: 900px) { .reveal-bar__inner { padding: 9px 20px; font-size: 11px; gap: 10px; } }
   @media (max-width: 1100px) { .navbar { padding: 20px 32px; } .nav-links { display: none !important; } .hamburger { display: inline-flex; } .cx-legends { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 880px) {
+    .cx-trailer { padding: 0 24px; margin-bottom: 36px; }
     .page-header { padding: 60px 24px 24px; } .page-header-title { font-size: 38px; }
     .cx-status, .cx-section, .cx-controls, .cx-grid, .cx-load-wrap, .cx-note { padding-left: 24px; padding-right: 24px; }
     .cx-trait-controls { grid-template-columns: 1fr 1fr; }
@@ -250,6 +268,12 @@
     .site-footer { padding: 48px 24px; }
   }
   @media (max-width: 640px) {
+    .cx-trailer { padding: 0 16px; }
+    .cx-trailer-frame { border-radius: 10px; }
+    .cx-trailer-play { width: 64px; height: 64px; }
+    .cx-trailer-play svg { width: 26px; height: 26px; }
+    .cx-trailer-mute { width: 38px; height: 38px; top: 10px; right: 10px; }
+    .cx-trailer-mute svg { width: 17px; height: 17px; }
     .navbar { padding: 20px; } .pill-inner { padding: 11px 14px; } .nav-right .pill-inner svg { display: none; }
     .page-header-title { font-size: 30px; }
     .cx-legends { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
@@ -264,6 +288,7 @@
     .starfield-back, .starfield::before, .trust-bar-marquee, .fx-scanlines, .trust-bar-label::before, .page-header-tag::before { animation: none !important; }
     .trust-bar-wrapper.is-sticky { animation: none !important; }
     .cx-filter, .cx-card, .cx-detail * { transition: none !important; }
+    .cx-trailer-play, .cx-trailer-mute { transition: none !important; }
     .mobile-menu { transition: none; }
     .cx-card:hover { transform: none; }
   }
@@ -328,6 +353,15 @@
     <h1 class="page-header-title">THE 500 MACHINES</h1>
     <p class="page-header-subtitle">500 unique machines exist within Pachiverse. Each one is discovered when a Mystery Pack is revealed.</p>
   </header>
+
+  <section class="cx-trailer" aria-labelledby="cx-trailer-title">
+    <div class="cx-trailer-frame" id="cx-trailer-frame">
+      <video class="cx-trailer-video" id="cx-trailer" playsinline preload="none" poster="https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/PV_main_poster_1280.jpg" aria-label="Pachiverse Machines official trailer"></video>
+      <button class="cx-trailer-play" id="cx-trailer-play" type="button" aria-label="Play the official trailer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="cx-trailer-mute" id="cx-trailer-mute" type="button" aria-label="Mute" aria-pressed="false" title="Mute / Unmute"><svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg><svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg></button>
+    </div>
+    <div class="cx-trailer-caption"><span id="cx-trailer-title"><b>Official trailer</b> · Pachiverse Machines</span><span>Pack Reveal <b>2026.09.09 00:00 JST</b></span></div>
+  </section>
 
   <div class="cx-status" id="cx-status">DISCOVERED <b id="cx-discovered">—</b> / 500</div>
 
@@ -876,6 +910,54 @@
 
   tick();
   if (!bar.classList.contains('is-hidden')) timerId = setInterval(tick, 30000);
+})();
+
+// Official trailer: クリック時に初めて src を設定して読み込む（自動再生なし）。767px 以下は 720p、それ以外は 1080p
+(function () {
+  var frame = document.getElementById('cx-trailer-frame');
+  var video = document.getElementById('cx-trailer');
+  var btn = document.getElementById('cx-trailer-play');
+  if (!frame || !video || !btn) return;
+  var mute = document.getElementById('cx-trailer-mute');
+  var base = 'https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/';
+  var MUTE_KEY = 'pv-trailer-muted';
+  function readMutedPref() {
+    try { return window.localStorage.getItem(MUTE_KEY) === '1'; }
+    catch (err) { console.debug('trailer: localStorage unavailable', err); return false; }
+  }
+  function writeMutedPref(on) {
+    try { window.localStorage.setItem(MUTE_KEY, on ? '1' : '0'); }
+    catch (err) { console.debug('trailer: localStorage unavailable', err); }
+  }
+  function syncMuteUi() {
+    if (!mute) return;
+    var on = video.muted;
+    mute.setAttribute('aria-pressed', on ? 'true' : 'false');
+    mute.setAttribute('aria-label', on ? 'Unmute' : 'Mute');
+  }
+  function ensureSrc() {
+    if (video.getAttribute('src')) return;
+    var small = window.matchMedia('(max-width: 767px)').matches;
+    video.src = base + (small ? 'PV_main_720.mp4' : 'PV_main_1080.mp4');
+    video.controls = true;
+    video.muted = readMutedPref();
+    syncMuteUi();
+  }
+  if (mute) {
+    mute.addEventListener('click', function () {
+      video.muted = !video.muted;
+      writeMutedPref(video.muted);
+      syncMuteUi();
+    });
+    video.addEventListener('volumechange', syncMuteUi);
+  }
+  btn.addEventListener('click', function () {
+    ensureSrc();
+    var p = video.play();
+    if (p) { p.catch(function (err) { console.warn('trailer: play() rejected', err); video.controls = true; }); }
+  });
+  video.addEventListener('play', function () { frame.classList.add('is-playing'); });
+  video.addEventListener('ended', function () { frame.classList.remove('is-playing'); video.controls = false; });
 })();
 </script>
 </body>
