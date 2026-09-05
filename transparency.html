@@ -708,8 +708,11 @@
             <tbody>
               <tr>
                 <td class="col-name">Artwork Commitment<br><span class="disclosure-text">The artwork, rarity, and the eight trait layers of all 500 Machines, plus the SHA-256 of every image and metadata file</span></td>
-                <td><span class="pf-mono">aacc48d0f736925054fd4f9e5acdb5299b3ba6f5830a81483a0daab59cc77efc</span></td>
-                <td><span class="pf-mono">2026-09-02 08:30 JST<br>(2026-09-01 23:30:31 UTC)</span></td>
+                <td><span class="pf-mono">024a9f74b6f2a695fd6f6a4afa35489dd0aa9fa2d9fcae0eae59a924342ea6da</span></td>
+                <td><span class="pf-mono">2026-09-08 __HH:MM__ JST<br>(2026-09-08 __HH:MM:SS__ UTC)</span></td>
+              </tr>
+              <tr>
+                <td class="col-name" colspan="3"><span class="disclosure-text"><strong>Note (re-commit on 2026-09-08):</strong> Before the reveal opened, the images and metadata of all 500 Machines were replaced with the final designs and the artwork manifest was regenerated. The Artwork Commitment was therefore updated from <span class="pf-mono">aacc48d0f736925054fd4f9e5acdb5299b3ba6f5830a81483a0daab59cc77efc</span> (frozen 2026-09-02 08:30 JST) to the value above. The Allocation Commitment (which pack contains which Machine), the rarity of every Machine and every Machine name are unchanged. The previous hash is kept here for the record, and the base URI on the PVM contract was updated to the new metadata CID on the same day, before <span class="pf-mono">finalizeMinting()</span> and <span class="pf-mono">freezeMetadata()</span>.</span></td>
               </tr>
               <tr>
                 <td class="col-name">Allocation Commitment<br><span class="disclosure-text">Which pack contains which Machine, for all 500 packs</span></td>
@@ -926,7 +929,7 @@
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "totalMinted()(uint256)" --rpc-url "$POLYGON_RPC_URL"</code>
         <p class="pf-prose" style="margin-top: 14px;">Token URI (<span class="pf-mono">&lt;n&gt;</span> = 1..500) — expected <span class="pf-mono">ipfs://bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json</span>:</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "tokenURI(uint256)(string)" 1 --rpc-url "$POLYGON_RPC_URL"</code>
-        <p class="pf-prose" style="margin-top: 14px;">Two further locks are applied on a published schedule: <strong><span class="pf-mono">finalizeMinting()</span> is executed on 2026-09-08</strong> (before the reveal opens), and <strong><span class="pf-mono">freezeMetadata()</span> on 2026-09-10</strong> (after the first day of reveals has confirmed that images and metadata display correctly). Until each is executed, the corresponding call below returns <span class="pf-mono">false</span>; afterwards it returns <span class="pf-mono">true</span> permanently. The base URI is unchanged since deployment and is committed by the Artwork Commitment above.</p>
+        <p class="pf-prose" style="margin-top: 14px;">Two further locks are applied on a published schedule: <strong><span class="pf-mono">finalizeMinting()</span> is executed on 2026-09-08</strong> (before the reveal opens), and <strong><span class="pf-mono">freezeMetadata()</span> on 2026-09-10</strong> (after the first day of reveals has confirmed that images and metadata display correctly). Until each is executed, the corresponding call below returns <span class="pf-mono">false</span>; afterwards it returns <span class="pf-mono">true</span> permanently. The base URI was updated on 2026-09-08 together with the artwork re-commit (see the note in the commitments table) and is committed by the Artwork Commitment above.</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "mintingFinalized()(bool)" --rpc-url "$POLYGON_RPC_URL"
 cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "metadataFrozen()(bool)"  --rpc-url "$POLYGON_RPC_URL"</code>
 
