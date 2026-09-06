@@ -752,11 +752,11 @@
               </tr>
               <tr>
                 <td class="col-name">Image CID (IPFS)</td>
-                <td><span class="pf-mono">bafybeidv6b46q4n2pn4tnrrgsq3bhb7penpumgkelteqsntga3r3z26jki</span></td>
+                <td><span class="pf-mono">bafybeiarlh4sssrtpvzrrgmrnfowfrcych22qryee6ngxvbqnvr56qca2y</span></td>
               </tr>
               <tr>
                 <td class="col-name">Metadata CID (IPFS)</td>
-                <td><span class="pf-mono">bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem</span></td>
+                <td><span class="pf-mono">bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy</span></td>
               </tr>
             </tbody>
           </table>
@@ -929,18 +929,18 @@
         </ul>
         <p class="pf-prose" style="margin-top: 14px;">Total supply minted — expected <span class="pf-mono">500</span>:</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "totalMinted()(uint256)" --rpc-url "$POLYGON_RPC_URL"</code>
-        <p class="pf-prose" style="margin-top: 14px;">Token URI (<span class="pf-mono">&lt;n&gt;</span> = 1..500) — expected <span class="pf-mono">ipfs://bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json</span>:</p>
+        <p class="pf-prose" style="margin-top: 14px;">Token URI (<span class="pf-mono">&lt;n&gt;</span> = 1..500) — expected <span class="pf-mono">ipfs://bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy/1.json</span>:</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "tokenURI(uint256)(string)" 1 --rpc-url "$POLYGON_RPC_URL"</code>
         <p class="pf-prose" style="margin-top: 14px;">Two further locks are applied on a published schedule: <strong><span class="pf-mono">finalizeMinting()</span> is executed on 2026-09-08</strong> (before the reveal opens), and <strong><span class="pf-mono">freezeMetadata()</span> on 2026-09-10</strong> (after the first day of reveals has confirmed that images and metadata display correctly). Until each is executed, the corresponding call below returns <span class="pf-mono">false</span>; afterwards it returns <span class="pf-mono">true</span> permanently. The base URI was updated on 2026-09-06 together with the artwork re-commit (see the note in the commitments table) and is committed by the Artwork Commitment above.</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "mintingFinalized()(bool)" --rpc-url "$POLYGON_RPC_URL"
 cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "metadataFrozen()(bool)"  --rpc-url "$POLYGON_RPC_URL"</code>
 
         <div class="pf-code-label">A.3 — Metadata and images on IPFS</div>
-        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json</code>
-        <p class="pf-prose" style="margin-top: 14px;">Each metadata file contains <span class="pf-mono">name</span>, a lore <span class="pf-mono">description</span>, <span class="pf-mono">external_url</span>, an <span class="pf-mono">image</span> field of the form <span class="pf-mono">ipfs://bafybeidv6b.../&lt;filename&gt;</span>, and <span class="pf-mono">attributes</span> covering Rarity plus eight trait layers: <span class="pf-mono">Background</span>, <span class="pf-mono">Body</span>, <span class="pf-mono">Frame</span>, <span class="pf-mono">Reel</span>, <span class="pf-mono">Light</span>, <span class="pf-mono">Effect</span>, <span class="pf-mono">Logo</span>, <span class="pf-mono">Overlay</span>.</p>
+        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy/1.json</code>
+        <p class="pf-prose" style="margin-top: 14px;">Each metadata file contains <span class="pf-mono">name</span>, a lore <span class="pf-mono">description</span>, <span class="pf-mono">external_url</span>, an <span class="pf-mono">image</span> field of the form <span class="pf-mono">ipfs://bafybeiarlh4.../&lt;filename&gt;</span>, and <span class="pf-mono">attributes</span> covering Rarity plus eight trait layers: <span class="pf-mono">Background</span>, <span class="pf-mono">Body</span>, <span class="pf-mono">Frame</span>, <span class="pf-mono">Reel</span>, <span class="pf-mono">Light</span>, <span class="pf-mono">Effect</span>, <span class="pf-mono">Logo</span>, <span class="pf-mono">Overlay</span>.</p>
         <p class="pf-prose"><span class="pf-mono">Logo</span> and <span class="pf-mono">Overlay</span> are <strong>optional layers and are omitted for Machines that do not have them.</strong> The five LEGEND Machines additionally carry a <span class="pf-mono">Legend</span> trait (the piece&rsquo;s own name) and <span class="pf-mono">Edition: 1 of 1</span>.</p>
         <p class="pf-prose">Each value must match the <span class="pf-mono">metadata_sha256</span> / <span class="pf-mono">image_sha256</span> recorded for that Machine in the <a href="#phase-2">artwork manifest</a>.</p>
-        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json | shasum -a 256</code>
+        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy/1.json | shasum -a 256</code>
 
         <div class="pf-code-label">A.4 — How the commitments are computed</div>
         <p class="pf-prose">Each commitment is the SHA-256 of <strong>one canonical JSON string</strong> — the manifest. The Artwork Commitment covers a manifest listing all 500 Machines (token id, serial, rarity, the eight trait codes, the image and metadata filenames, the SHA-256 of each file, and the IPFS URIs). The Allocation Commitment covers a manifest listing all 500 packs and the Machine each one contains.</p>
