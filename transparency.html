@@ -550,6 +550,8 @@
   .pf-steps li strong { color: rgba(255,255,255,0.88); font-weight: 500; }
   .pf-prose { font-size: 13.5px; line-height: 1.75; color: rgba(255,255,255,0.6); }
   .pf-prose strong { color: rgba(255,255,255,0.88); font-weight: 500; }
+  .pf-prose a { color: #4DD9FF; text-decoration: none; }
+  .pf-prose a:hover { text-decoration: underline; }
   .pf-prose + .pf-prose { margin-top: 10px; }
   .status-table td.pf-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; }
   .status-table tr.pf-total td { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.9); font-weight: 500; }
@@ -680,8 +682,8 @@
               </svg>
             </div>
             <div class="disclosure-body">
-              <div class="disclosure-title">Published in two stages<span class="disclosure-status-pill planned">Stage 1 of 2</span></div>
-              <div class="disclosure-text">Before the reveal opens, we publish only the <strong>SHA-256 commitments</strong> — the fingerprints of the frozen data. <strong>The seed and the full manifests will be published on this page after the reveal opens on 2026-09-09 00:00 JST.</strong> Publishing the fingerprint first, and the data afterwards, is what makes the result verifiable: we cannot change the data later without breaking the fingerprint.</div>
+              <div class="disclosure-title">Published in two stages<span class="disclosure-status-pill live">Stage 2 of 2</span></div>
+              <div class="disclosure-text">Before the reveal opened, we published only the <strong>SHA-256 commitments</strong> — the fingerprints of the frozen data. <strong>The seed and the full manifests are now published below, in <a href="#phase-2">Stage 2</a>, as of 2026-09-09 00:00 JST.</strong> Publishing the fingerprint first, and the data afterwards, is what makes the result verifiable: we could not change the data in between without breaking the fingerprint.</div>
             </div>
           </div>
         </div>
@@ -722,7 +724,7 @@
             </tbody>
           </table>
         </div>
-        <p class="pf-prose" style="margin-top: 16px;">The assignment was derived from a fixed seed that was chosen and recorded before the commitment was frozen. <strong>The seed itself will be published on this page after the reveal opens on 2026-09-09 00:00 JST</strong>, together with the full manifests, so that the assignment can be reproduced from scratch.</p>
+        <p class="pf-prose" style="margin-top: 16px;">The assignment was derived from a fixed seed that was chosen and recorded before the commitment was frozen. <strong>The seed itself is published below, in <a href="#phase-2">Stage 2</a></strong>, together with the full manifests, so that the assignment can be reproduced from scratch.</p>
         <p class="pf-prose">All 500 Machines were minted on-chain <strong>before</strong> the reveal began. They are not minted on demand.</p>
       </div>
 
@@ -750,11 +752,11 @@
               </tr>
               <tr>
                 <td class="col-name">Image CID (IPFS)</td>
-                <td><span class="pf-mono">bafybeidv6b46q4n2pn4tnrrgsq3bhb7penpumgkelteqsntga3r3z26jki</span></td>
+                <td><span class="pf-mono">bafybeiarlh4sssrtpvzrrgmrnfowfrcych22qryee6ngxvbqnvr56qca2y</span></td>
               </tr>
               <tr>
                 <td class="col-name">Metadata CID (IPFS)</td>
-                <td><span class="pf-mono">bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem</span></td>
+                <td><span class="pf-mono">bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy</span></td>
               </tr>
             </tbody>
           </table>
@@ -767,7 +769,7 @@
           <span class="ct-block-tag">Integrity</span>
           <span class="ct-block-title">Why we cannot manipulate your result</span>
         </div>
-        <p class="pf-prose">What you get is not decided when you open a pack — the full assignment table was fixed before the reveal opened, and we published a SHA-256 fingerprint of that table at the moment we froze it. Changing even one character of the contents or the assignments would produce a completely different fingerprint, and matching the published one while altering the data underneath is not computationally feasible. So once the reveal is open and we publish the table itself, anyone can recompute the fingerprint and confirm that nothing was swapped in between.</p>
+        <p class="pf-prose">What you get is not decided when you open a pack — the full assignment table was fixed before the reveal opened, and we published a SHA-256 fingerprint of that table at the moment we froze it. Changing even one character of the contents or the assignments would produce a completely different fingerprint, and matching the published one while altering the data underneath is not computationally feasible. Now that the table itself is published, anyone can recompute the fingerprint and confirm that nothing was swapped in between.</p>
         <p class="pf-prose">The table also identifies each pack by an <strong>anonymous, permanent reference rather than by its owner</strong>, so &ldquo;give this particular Machine to this particular person&rdquo; is not an operation the system can express in the first place — transferring a pack to a different holder does not change the committed hash at all.</p>
       </div>
 
@@ -834,7 +836,7 @@
             </div>
             <div class="disclosure-body">
               <div class="disclosure-title">Progressive disclosure</div>
-              <div class="disclosure-text">Pachiverse is under phased development. The PVM and Mystery Pack contract addresses, the IPFS content identifiers, and the fairness commitments above are <strong>published</strong>. The seed, the full manifests, and the remaining ecosystem utility specifications will be disclosed through <strong>official project updates and documentation releases</strong> as each milestone is reached.</div>
+              <div class="disclosure-text">Pachiverse is under phased development. The PVM and Mystery Pack contract addresses, the IPFS content identifiers, and the fairness commitments above are <strong>published</strong>, and the seed and the full manifests were published in <a href="#phase-2">Stage 2</a> when the reveal opened. The remaining ecosystem utility specifications will be disclosed through <strong>official project updates and documentation releases</strong> as each milestone is reached.</div>
             </div>
           </div>
           <div class="disclosure-card">
@@ -909,7 +911,7 @@
           <span class="ct-block-title">Verifying this yourself</span>
           <span class="ct-block-meta">NO TRUST IN OUR SYSTEMS REQUIRED</span>
         </div>
-        <p class="pf-prose">Everything below can be done without trusting or querying our systems. The steps that require the seed and the full manifests are listed under <a href="#phase-2">Published after the reveal opens</a>.</p>
+        <p class="pf-prose">Everything below can be done without trusting or querying our systems. The steps that require the seed and the full manifests continue in <a href="#phase-2">Stage 2 — Seed &amp; manifests</a> below.</p>
 
         <div class="pf-code-label">A.1 — What you need</div>
         <ul class="pf-list">
@@ -927,24 +929,24 @@
         </ul>
         <p class="pf-prose" style="margin-top: 14px;">Total supply minted — expected <span class="pf-mono">500</span>:</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "totalMinted()(uint256)" --rpc-url "$POLYGON_RPC_URL"</code>
-        <p class="pf-prose" style="margin-top: 14px;">Token URI (<span class="pf-mono">&lt;n&gt;</span> = 1..500) — expected <span class="pf-mono">ipfs://bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json</span>:</p>
+        <p class="pf-prose" style="margin-top: 14px;">Token URI (<span class="pf-mono">&lt;n&gt;</span> = 1..500) — expected <span class="pf-mono">ipfs://bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy/1.json</span>:</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "tokenURI(uint256)(string)" 1 --rpc-url "$POLYGON_RPC_URL"</code>
         <p class="pf-prose" style="margin-top: 14px;">Two further locks are applied on a published schedule: <strong><span class="pf-mono">finalizeMinting()</span> is executed on 2026-09-08</strong> (before the reveal opens), and <strong><span class="pf-mono">freezeMetadata()</span> on 2026-09-10</strong> (after the first day of reveals has confirmed that images and metadata display correctly). Until each is executed, the corresponding call below returns <span class="pf-mono">false</span>; afterwards it returns <span class="pf-mono">true</span> permanently. The base URI was updated on 2026-09-06 together with the artwork re-commit (see the note in the commitments table) and is committed by the Artwork Commitment above.</p>
         <code class="pf-code">cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "mintingFinalized()(bool)" --rpc-url "$POLYGON_RPC_URL"
 cast call 0x55E3A05eaAc41aAeB596227CD4076e91033541b3 "metadataFrozen()(bool)"  --rpc-url "$POLYGON_RPC_URL"</code>
 
         <div class="pf-code-label">A.3 — Metadata and images on IPFS</div>
-        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json</code>
-        <p class="pf-prose" style="margin-top: 14px;">Each metadata file contains <span class="pf-mono">name</span>, a lore <span class="pf-mono">description</span>, <span class="pf-mono">external_url</span>, an <span class="pf-mono">image</span> field of the form <span class="pf-mono">ipfs://bafybeidv6b.../&lt;filename&gt;</span>, and <span class="pf-mono">attributes</span> covering Rarity plus eight trait layers: <span class="pf-mono">Background</span>, <span class="pf-mono">Body</span>, <span class="pf-mono">Frame</span>, <span class="pf-mono">Reel</span>, <span class="pf-mono">Light</span>, <span class="pf-mono">Effect</span>, <span class="pf-mono">Logo</span>, <span class="pf-mono">Overlay</span>.</p>
+        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy/1.json</code>
+        <p class="pf-prose" style="margin-top: 14px;">Each metadata file contains <span class="pf-mono">name</span>, a lore <span class="pf-mono">description</span>, <span class="pf-mono">external_url</span>, an <span class="pf-mono">image</span> field of the form <span class="pf-mono">ipfs://bafybeiarlh4.../&lt;filename&gt;</span>, and <span class="pf-mono">attributes</span> covering Rarity plus eight trait layers: <span class="pf-mono">Background</span>, <span class="pf-mono">Body</span>, <span class="pf-mono">Frame</span>, <span class="pf-mono">Reel</span>, <span class="pf-mono">Light</span>, <span class="pf-mono">Effect</span>, <span class="pf-mono">Logo</span>, <span class="pf-mono">Overlay</span>.</p>
         <p class="pf-prose"><span class="pf-mono">Logo</span> and <span class="pf-mono">Overlay</span> are <strong>optional layers and are omitted for Machines that do not have them.</strong> The five LEGEND Machines additionally carry a <span class="pf-mono">Legend</span> trait (the piece&rsquo;s own name) and <span class="pf-mono">Edition: 1 of 1</span>.</p>
-        <p class="pf-prose">You can hash any file now and keep the result. Once the artwork manifest is published, each value must match the <span class="pf-mono">metadata_sha256</span> / <span class="pf-mono">image_sha256</span> recorded there.</p>
-        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeicmfx247ojiqgtmpcn4rmw2tslqmipw6fj53a7gsvsbx2a5ry7yem/1.json | shasum -a 256</code>
+        <p class="pf-prose">Each value must match the <span class="pf-mono">metadata_sha256</span> / <span class="pf-mono">image_sha256</span> recorded for that Machine in the <a href="#phase-2">artwork manifest</a>.</p>
+        <code class="pf-code">curl -sS https://ipfs.filebase.io/ipfs/bafybeiazx7onunhlxvkxhfp4gv5iuvrqxzv3st6xfajrgjnebsoz2bkjwy/1.json | shasum -a 256</code>
 
         <div class="pf-code-label">A.4 — How the commitments are computed</div>
         <p class="pf-prose">Each commitment is the SHA-256 of <strong>one canonical JSON string</strong> — the manifest. The Artwork Commitment covers a manifest listing all 500 Machines (token id, serial, rarity, the eight trait codes, the image and metadata filenames, the SHA-256 of each file, and the IPFS URIs). The Allocation Commitment covers a manifest listing all 500 packs and the Machine each one contains.</p>
         <code class="pf-code">Artwork Commitment    = SHA256( compact_json(artwork_manifest) )
 Allocation Commitment = SHA256( compact_json(allocation_manifest) )</code>
-        <p class="pf-prose" style="margin-top: 14px;">Canonicalization is fixed in advance so the hash is reproducible: keys appear in a defined order, entries are sorted by a defined field, numbers and strings have defined types, and the JSON is serialized <strong>compactly — no whitespace, no newlines</strong> (separators <span class="pf-mono">,</span> and <span class="pf-mono">:</span>), with forward slashes unescaped and non-ASCII emitted as UTF-8 rather than <span class="pf-mono">\uXXXX</span>. The complete rules, and the manifests themselves, are published in stage 2 below.</p>
+        <p class="pf-prose" style="margin-top: 14px;">Canonicalization is fixed in advance so the hash is reproducible: keys appear in a defined order, entries are sorted by a defined field, numbers and strings have defined types, and the JSON is serialized <strong>compactly — no whitespace, no newlines</strong> (separators <span class="pf-mono">,</span> and <span class="pf-mono">:</span>), with forward slashes unescaped and non-ASCII emitted as UTF-8 rather than <span class="pf-mono">\uXXXX</span>. The complete rules, and the manifests themselves, are published in <a href="#phase-2">Stage 2</a> below.</p>
         <code class="pf-code">python3 -c "import json,hashlib;m=json.load(open('artwork_manifest.json'));print(hashlib.sha256(json.dumps(m,separators=(',',':'),ensure_ascii=False).encode('utf-8')).hexdigest())"</code>
         <p class="pf-prose" style="margin-top: 14px;">The result must equal the corresponding value in the commitments table above. <strong>An important property:</strong> the allocation manifest identifies packs only by an anonymous, immutable reference. <strong>No user identity is included</strong> — so transferring a pack from our reserve to a member does not change the Allocation Commitment hash.</p>
 
@@ -956,30 +958,117 @@ Allocation Commitment = SHA256( compact_json(allocation_manifest) )</code>
 cast call 0x2B5DaC082f664986e77b4f075617D1908BBd109C "burnedOf(uint256)(uint256)" 1101 --rpc-url "$POLYGON_RPC_URL"</code>
       </div>
 
-      <!-- Stage 2 placeholder -->
+      <!-- Stage 2 -->
       <div class="ct-block" id="phase-2">
         <div class="ct-block-head">
           <span class="ct-block-tag">Stage 2</span>
-          <span class="ct-block-title">Published after the reveal opens</span>
-          <span class="ct-block-meta">2026-09-09 00:00 JST</span>
+          <span class="ct-block-title">Seed &amp; manifests</span>
+          <span class="ct-block-meta">PUBLISHED — 2026-09-09 00:00 JST</span>
         </div>
         <div class="disclosure-list">
-          <div class="disclosure-card planned">
+          <div class="disclosure-card live">
             <div class="disclosure-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
               </svg>
             </div>
             <div class="disclosure-body">
-              <div class="disclosure-title">Seed &amp; manifests<span class="disclosure-status-pill planned">Pending reveal</span></div>
-              <div class="disclosure-text"><strong>The seed and the full manifests will be published on this page after the reveal opens on 2026-09-09 00:00 JST.</strong> That release will add: the seed string used to derive the assignment, the complete artwork and allocation manifests as downloadable JSON, the full canonicalization rules for reproducing each hash, the procedure for regenerating the rarity layout from the seed, and a cross-check between the two manifests. Until then, the SHA-256 commitments above are the record that fixes what those files must contain.</div>
+              <div class="disclosure-title">Seed &amp; manifests<span class="disclosure-status-pill live">Published 2026-09-09</span></div>
+              <div class="disclosure-text"><strong>Published on 2026-09-09 00:00 JST.</strong> The seed, both manifests, the canonicalization rules and the reproduction steps are all below. None of it can be adjusted after the fact: the SHA-256 of each file was frozen in the commitments table above <strong>before</strong> the reveal opened, so the files you download here have to hash to those exact values — or we have been caught.</div>
             </div>
           </div>
         </div>
 
-        <!-- PHASE2: seed & manifests -->
+        <p class="pf-prose" style="margin-top: 22px;">These steps continue Appendix A above. Together, A.1 through B.5 let you reproduce both commitments — and the rarity of every one of the 500 Machines — from the seed alone, without querying anything of ours.</p>
 
+        <div class="pf-code-label">B.1 — The seed</div>
+        <p class="pf-prose">One fixed string determines the rarity layout — which serial number carries which rarity — and the queue order in which Machines are handed out. It was chosen and recorded before the Allocation Commitment was frozen on 2026-09-02 09:37 JST.</p>
+        <code class="pf-code">Pachiverse_Pack_Reveal_v2026-03-25</code>
+        <p class="pf-prose" style="margin-top: 14px;">Every position is derived from it by hashing the seed together with the pool, the rarity and an index, then sorting on the result:</p>
+        <code class="pf-code">sort_key = SHA256( seed | pool_type | rarity_code | index )</code>
+        <p class="pf-prose" style="margin-top: 14px;">The four parts are joined with the pipe character <span class="pf-mono">|</span> and hashed as UTF-8. Entries are then sorted <strong>ascending by <span class="pf-mono">sort_key</span></strong>, ties broken by <span class="pf-mono">rarity_code</span>, and <span class="pf-mono">queue_position</span> is the resulting rank starting at 1. Pool A (pack token <span class="pf-mono">1101</span>) takes Machine ids 1–300 and Pool B (pack token <span class="pf-mono">1202</span>) takes 301–500, with <span class="pf-mono">machine_id = erc721_token_id = serial_no</span> throughout. The seed carries no counter, no timestamp and no user input, so the same string always produces the same layout — which is exactly why publishing it now proves nothing was steered later.</p>
+
+        <div class="pf-code-label">B.2 — The manifests</div>
+        <p class="pf-prose">Both files are served here in the exact canonical form that was hashed, so <strong>the SHA-256 of the file as you download it is the commitment</strong> — no reformatting step is required.</p>
+        <ul class="pf-list">
+          <li>Allocation manifest — 500 entries, 75 KB: <span class="pf-mono"><a href="/transparency/allocation-manifest.json">transparency/allocation-manifest.json</a></span></li>
+          <li>Artwork manifest — 500 entries, 347 KB: <span class="pf-mono"><a href="/transparency/artwork-manifest.json">transparency/artwork-manifest.json</a></span></li>
+        </ul>
+        <code class="pf-code">shasum -a 256 allocation-manifest.json artwork-manifest.json</code>
+        <p class="pf-prose" style="margin-top: 14px;">Expected — the same two values as in the commitments table above:</p>
+        <code class="pf-code">87ebeb172cc6fa7004d664ef3922c06e034eada5ebadcaf4c1647d580f3208be  allocation-manifest.json
+024a9f74b6f2a695fd6f6a4afa35489dd0aa9fa2d9fcae0eae59a924342ea6da  artwork-manifest.json</code>
+        <p class="pf-prose" style="margin-top: 14px;">If you re-save, pretty-print or otherwise reformat either file, the raw file hash stops matching. Re-serialize it canonically first (rules in B.3) and hash that string instead — which is also what you must do for a manifest obtained from anywhere other than this page:</p>
+        <code class="pf-code">python3 -c "import json,hashlib;m=json.load(open('artwork-manifest.json'));print(hashlib.sha256(json.dumps(m,separators=(',',':'),ensure_ascii=False).encode('utf-8')).hexdigest())"</code>
+        <p class="pf-prose" style="margin-top: 14px;">Python’s <span class="pf-mono">json.load</span> preserves key order, so loading an already-canonical manifest and re-serializing it this way reproduces the same string, and therefore the same hash.</p>
+
+        <div class="pf-code-label">B.3 — Canonicalization rules</div>
+        <p class="pf-prose">Canonicalization was fixed in advance so that the hash is reproducible by anyone. Two rules apply to both manifests: the JSON is serialized <strong>compactly — no whitespace, no newlines</strong> (separators <span class="pf-mono">,</span> and <span class="pf-mono">:</span>), and forward slashes are <strong>not</strong> escaped while non-ASCII characters are emitted as UTF-8 rather than <span class="pf-mono">\uXXXX</span>. Beyond that, each manifest has its own key order and sort field.</p>
+        <p class="pf-prose" style="margin-top: 16px;"><strong>Artwork manifest</strong></p>
+        <ul class="pf-list">
+          <li>Top-level keys in this order: <span class="pf-mono">manifest_version</span>, <span class="pf-mono">manifest_type</span>, <span class="pf-mono">total</span>, <span class="pf-mono">entries</span>.</li>
+          <li><span class="pf-mono">entries</span> sorted by <strong><span class="pf-mono">erc721_token_id</span> ascending</strong>.</li>
+          <li>Each entry carries 17 keys in this order: <span class="pf-mono">erc721_token_id</span>, <span class="pf-mono">serial_no</span>, <span class="pf-mono">rarity_code</span>, <span class="pf-mono">background_code</span>, <span class="pf-mono">body_code</span>, <span class="pf-mono">frame_code</span>, <span class="pf-mono">reel_code</span>, <span class="pf-mono">light_code</span>, <span class="pf-mono">effect_code</span>, <span class="pf-mono">logo_code</span>, <span class="pf-mono">overlay_code</span>, <span class="pf-mono">image_filename</span>, <span class="pf-mono">metadata_filename</span>, <span class="pf-mono">image_sha256</span>, <span class="pf-mono">metadata_sha256</span>, <span class="pf-mono">ipfs_image_uri</span>, <span class="pf-mono">ipfs_metadata_uri</span>.</li>
+          <li><span class="pf-mono">erc721_token_id</span> and <span class="pf-mono">serial_no</span> are JSON numbers; the other 15 fields are JSON strings. <span class="pf-mono">logo_code</span> and <span class="pf-mono">overlay_code</span> are the empty string when that layer is absent — the key is always present.</li>
+        </ul>
+        <p class="pf-prose" style="margin-top: 16px;"><strong>Allocation manifest</strong></p>
+        <ul class="pf-list">
+          <li>Top-level keys in this order: <span class="pf-mono">manifest_version</span>, <span class="pf-mono">seed</span>, <span class="pf-mono">algorithm</span>, <span class="pf-mono">assignment_mode</span>, <span class="pf-mono">pool_specs</span>, <span class="pf-mono">total</span>, <span class="pf-mono">entries</span>.</li>
+          <li><span class="pf-mono">entries</span> sorted by <strong><span class="pf-mono">public_pack_ref</span> ascending</strong>.</li>
+          <li>Each entry carries 5 keys in this order: <span class="pf-mono">public_pack_ref</span>, <span class="pf-mono">pool_type</span>, <span class="pf-mono">allocated_machine_id</span>, <span class="pf-mono">allocated_erc721_token_id</span>, <span class="pf-mono">rarity_code</span>.</li>
+          <li><span class="pf-mono">allocated_machine_id</span> and <span class="pf-mono">allocated_erc721_token_id</span> are JSON numbers; the remaining fields are JSON strings.</li>
+        </ul>
+        <p class="pf-prose" style="margin-top: 14px;">The allocation manifest identifies each pack only by <span class="pf-mono">public_pack_ref</span> — an anonymous, immutable reference. <strong>No holder identity appears anywhere in it</strong>, which is why moving a pack from our reserve to a member leaves the Allocation Commitment untouched.</p>
+
+        <div class="pf-code-label">B.4 — Reproducing the rarity layout from the seed</div>
+        <p class="pf-prose">This script needs nothing but the seed and the pool specification printed in the rarity table above. It rebuilds, for all 500 Machines, which rarity each serial number carries.</p>
+        <code class="pf-code">python3 - &lt;&lt;'PY'
+import hashlib
+seed = "Pachiverse_Pack_Reveal_v2026-03-25"
+specs = {
+    "A": {"token_id": 1101, "rarities": {"R": 229, "SR": 40, "SSR": 20, "SSSR": 10, "UR": 1, "LEGEND": 0}},
+    "B": {"token_id": 1202, "rarities": {"R": 41, "SR": 80, "SSR": 40, "SSSR": 20, "UR": 14, "LEGEND": 5}},
+}
+machine_id = 1
+out = {}
+for pool_type, spec in specs.items():
+    rows = []
+    for rarity, count in spec["rarities"].items():
+        for i in range(1, count + 1):
+            key = hashlib.sha256(f"{seed}|{pool_type}|{rarity}|{i}".encode("utf-8")).hexdigest()
+            rows.append((key, rarity))
+    rows.sort(key=lambda r: (r[0], r[1]))
+    for pos, (_key, rarity) in enumerate(rows, start=1):
+        out[machine_id] = (spec["token_id"], pool_type, rarity, pos)
+        machine_id += 1
+for mid in (1, 2, 300, 301, 500):
+    print(mid, out[mid])
+PY</code>
+        <p class="pf-prose" style="margin-top: 14px;">Each tuple is <span class="pf-mono">(pack token id, pool, rarity, queue position)</span>. The <span class="pf-mono">rarity</span> produced for a given Machine id must equal the <span class="pf-mono">rarity_code</span> recorded against the same <span class="pf-mono">erc721_token_id</span> in the artwork manifest — for all 500 entries, not only the samples printed here.</p>
+
+        <div class="pf-code-label">B.5 — Cross-checking the two manifests</div>
+        <p class="pf-prose">The final check ties the two files to each other: every pack maps to exactly one Machine, no Machine is allocated twice, and the rarity recorded on the allocation side matches the artwork side.</p>
+        <code class="pf-code">python3 - &lt;&lt;'PY'
+import json, collections
+alloc = json.load(open("allocation-manifest.json"))
+art = {e["erc721_token_id"]: e for e in json.load(open("artwork-manifest.json"))["entries"]}
+assert alloc["total"] == 500 and len(alloc["entries"]) == 500
+seen, counts = set(), collections.Counter()
+for e in alloc["entries"]:
+    assert e["allocated_machine_id"] == e["allocated_erc721_token_id"], e
+    tid = e["allocated_erc721_token_id"]
+    assert tid not in seen, f"duplicate token {tid}"
+    seen.add(tid)
+    assert art[tid]["rarity_code"] == e["rarity_code"], (tid, e["rarity_code"])
+    counts[(e["pool_type"], e["rarity_code"])] += 1
+print(sorted(counts.items()))
+print("unique tokens:", len(seen))
+PY</code>
+        <p class="pf-prose" style="margin-top: 14px;">Expected: <span class="pf-mono">unique tokens: 500</span>, with per-pool counts matching the rarity table above — Pool A <span class="pf-mono">R 229 · SR 40 · SSR 20 · SSSR 10 · UR 1</span>, Pool B <span class="pf-mono">R 41 · SR 80 · SSR 40 · SSSR 20 · UR 14 · LEGEND 5</span>. Any assertion that fires is a discrepancy — please report it.</p>
+
+        <div class="pf-code-label">B.6 — The complete chain</div>
+        <p class="pf-prose">Running A.1 through B.5 in order establishes, end to end: the contracts are the ones named on this page and their supply and metadata are locked; the images and metadata on IPFS hash to the values recorded in the artwork manifest; that manifest hashes to the Artwork Commitment published <em>before</em> the reveal; the allocation manifest hashes to the Allocation Commitment published <em>before</em> the reveal; and the rarity layout inside both is precisely what the published seed produces. There is no point in that chain at which we could have substituted anything without one of the hashes failing to match.</p>
       </div>
 
       <!-- Ecosystem Assets -->
