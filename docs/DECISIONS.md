@@ -537,14 +537,15 @@ DEFAULT_ADMIN_ROLE は会社 MetaMask 1 本に集中している。譲渡評価�
 確定（2026-09-15、runbook §6 に反映）:
 | # | 確定内容 |
 |---|---|
-| Q-4 | インポートは VM 上で `gcloud auth login` によりオーナー ID で実行（SA への importer 一時付与は採らない） |
-| Q-9 | KMS 課金を受け入れる。secp256k1 は HSM 保護レベル限定で無償枠なし。目安は 3 鍵で月 3 ドル前後、実額は 10 月請求で確認 |
-| Q-10 | Safe{Wallet} は Polygon 対応済み。署名者 (2) は所有済みの Ledger 1 台 |
-| R-1 | raw 鍵の封緘バックアップは PVM_CUSTODY のみ紙 1 部。Safe 冷蔵鍵とは別の場所に保管 |
+| Q-4 | VM では PKCS#8 変換とラップまでを行い、ラップ済み blob を Mac に持ち出してオーナー ID から import する（同日改訂。VM にオーナー認証を置かない。SA への importer 一時付与も採らない） |
+| Q-9 | KMS 課金を受け入れる。secp256k1 は HSM 保護レベル限定で無償枠なし。HSM の EC 鍵は約 $2.5/月/版で 3 鍵で月 $7.5 前後（破棄予約中の捨て鍵も 10/14 まで課金）、実額は 10〜11 月請求で確認 |
+| Q-10 | Safe{Wallet} は Polygon 対応済み。署名者 (2) は所有済みの Ledger 1 台。Ledger は Safe 署名で blind signing が常に必要なため、署名前に safeTxHash を UI 外で独立計算して端末表示と照合し operation=0 を確認する手順を必須化 |
+| R-1 | raw 鍵の封緘バックアップは PVM_CUSTODY のみ紙 1 部。Safe 冷蔵鍵とは別の場所に保管。紙からの再導出検証を R-7 の前に行い、DD では鍵素材が HSM 外に存在することを開示。譲渡後の CUSTODY ローテーションは行わない |
 | R-3 | 冷蔵鍵は 2 台目の Ledger を公式直販で新品調達し、オフラインで初期化 |
 | R-4 | 冷蔵鍵は §4.4 の検証で 1 回だけ署名者として使う |
 | R-6 | 旧 ADMIN の除去は Safe 経由の `revokeRole`（fail-safe） |
-| R-7 | 移行前の VM スナップショットは Part A 安定稼働 72 時間後に削除 |
+| R-5 | PVM_CUSTODY 漏洩時の退避手段を `cast send --gcp` に書き換えてから Part A に入る（Part A の前提条件） |
+| R-7 | 移行前の VM スナップショットは「3 鍵の sign→recover 一致＋BURNER 実 TX 成功」を条件に、紙検証→VM 平文 shred→他スナップショット確認の順で削除 |
 
 ### Reason
 インポート方式は運用への影響が最小で、リハーサルで成立を確認済み。KMS の課金は無料化できないが月数百円の桁で、
