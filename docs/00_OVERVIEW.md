@@ -101,7 +101,7 @@ Signer の環境変数一覧は [02_ONCHAIN.md](02_ONCHAIN.md) を参照。
 - [02_ONCHAIN.md](02_ONCHAIN.md) — コントラクト仕様・Wallet/鍵の分離・Signer の nonce 設計・アート生成パイプライン
 - [DECISIONS.md](DECISIONS.md) — 重要な設計判断と理由
 - [03_TRANSFER_PLAN.md](03_TRANSFER_PLAN.md) — UNI への引き渡し: 譲渡評価の現在地と 10〜11 月の計画
-- [04_DEV_EFFORT_EVIDENCE.md](04_DEV_EFFORT_EVIDENCE.md) — 開発工数の客観的証跡（Git 記録から `scripts/dev_effort_evidence.sh` で生成、工数表 v1.2 の付録）
+- [04_DEV_EFFORT_EVIDENCE.md](04_DEV_EFFORT_EVIDENCE.md) — 実装規模の証跡（Git 記録から `scripts/dev_effort_evidence.sh` で生成、工数表 v1.2 の付録。工数の証跡ではない）
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — 既知問題・技術的負債・壊れやすい箇所・未確認事項
 
 ### このリポジトリ外の資料
