@@ -519,3 +519,45 @@ IP 帰属と既払いなしが確定したことで、価格は相殺や残余�
 
 ### Status
 Active
+
+## Decision: Signer 鍵は Cloud KMS（HSM）へインポート、ADMIN は Safe 2-of-3 へ移行し、未決事項 8 件をオーナー判断で確定（2026-09-07 方針・2026-09-15 確定）
+
+### Context
+Signer の 3 鍵（MINTER / PVM_CUSTODY / BURNER）はクラウド VM 上に平文で置かれ、コントラクトの
+DEFAULT_ADMIN_ROLE は会社 MetaMask 1 本に集中している。譲渡評価の最大の減点要因であり
+（[03_TRANSFER_PLAN.md](03_TRANSFER_PLAN.md)）、移行 runbook は
+`members.pachiverse.com/ops/KEY_MANAGEMENT_MIGRATION.md`（PR #51）にある。
+2026-09-14 の捨て鍵リハーサルでインポート方式が成立し、残った未決事項をオーナーが 2026-09-15 に確定した。
+
+### Decision
+方針（2026-09-07）:
+- 既存 3 鍵を Google Cloud KMS（HSM、EC_SIGN_SECP256K1_SHA256）へ**インポート**する。新鍵への切替はしない（on-chain ロールと PVM 500 体の移転を避ける）
+- Safe は 2-of-3。署名者は 会社 MetaMask ＋ オーナー所有の Ledger ＋ 紙保管の冷蔵鍵。Safe に移すのは DEFAULT_ADMIN_ROLE のみ
+
+確定（2026-09-15、runbook §6 に反映）:
+| # | 確定内容 |
+|---|---|
+| Q-4 | インポートは VM 上で `gcloud auth login` によりオーナー ID で実行（SA への importer 一時付与は採らない） |
+| Q-9 | KMS 課金を受け入れる。secp256k1 は HSM 保護レベル限定で無償枠なし。目安は 3 鍵で月 3 ドル前後、実額は 10 月請求で確認 |
+| Q-10 | Safe{Wallet} は Polygon 対応済み。署名者 (2) は所有済みの Ledger 1 台 |
+| R-1 | raw 鍵の封緘バックアップは PVM_CUSTODY のみ紙 1 部。Safe 冷蔵鍵とは別の場所に保管 |
+| R-3 | 冷蔵鍵は 2 台目の Ledger を公式直販で新品調達し、オフラインで初期化 |
+| R-4 | 冷蔵鍵は §4.4 の検証で 1 回だけ署名者として使う |
+| R-6 | 旧 ADMIN の除去は Safe 経由の `revokeRole`（fail-safe） |
+| R-7 | 移行前の VM スナップショットは Part A 安定稼働 72 時間後に削除 |
+
+### Reason
+インポート方式は運用への影響が最小で、リハーサルで成立を確認済み。KMS の課金は無料化できないが月数百円の桁で、
+減点要因の解消に対して無視できる。冷蔵鍵に Ledger を使えばツールの真正性検証が不要になり、監査でも説明しやすい。
+
+### Alternatives
+- 新鍵へのローテーション: 過去の鍵素材の残存リスクを断ち切れるが、ロール移譲と 500 体の移転を伴うため今回は対象外（将来課題）
+- KMS を使わず VM 上の暗号化保管: 鍵が VM から出せる構造が変わらないため不採用
+
+### Consequences
+- 実行順: signer PR #1 → #2 → members PR #51 マージ → Part A（KMS）→ 翌日の日次 burn で実 TX 検証 → 72 時間後に後始末 → Part B（Safe）
+- 2 台目 Ledger の調達（オーナー）が Part B の前提
+- インポート方式のため、過去に raw 鍵が置かれた場所（.env バックアップ・スナップショット）の後始末を必ず実施する
+
+### Status
+Active
