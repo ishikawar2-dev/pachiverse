@@ -8,7 +8,7 @@
 Pachiverse は、パチンコ／スロットを題材とした NFT（商品換価権 NFT）と会員制プラットフォームを組み合わせた Web3 事業。
 このリポジトリ（`~/Developer/pachiverse`）は、その **公開サイト（LP・ドキュメントページ）を正本としつつ、周辺のサブプロジェクトを同一ディレクトリ配下に同居させた作業ルート**である。
 
-重要な構造上の事実として、**このディレクトリは単一のリポジトリではない**。Git 管理されているのは静的サイトと `api/` のみで、`pachiverse-contracts` / `pachiverse-signer` / `members.pachiverse.com` はそれぞれ独立した入れ子の Git リポジトリ、`pvm-art` は（2026-09-01 時点で）Git 管理外のローカル作業ディレクトリである。詳細は [01_ARCHITECTURE.md](01_ARCHITECTURE.md)。
+重要な構造上の事実として、**このディレクトリは単一のリポジトリではない**。Git 管理されているのは静的サイトと `api/` のみで、`pachiverse-contracts` / `pachiverse-signer` / `members.pachiverse.com` はそれぞれ独立した入れ子の Git リポジトリ、`pvm-art` も 2026-09-15 から独立した入れ子の Git リポジトリ（`pachiverse01-ai/pvm-art`、private。原本画像 10GB は Git 外で sha256 マニフェスト管理）である。詳細は [01_ARCHITECTURE.md](01_ARCHITECTURE.md)。
 
 ## 対象ユーザー
 
