@@ -12,11 +12,10 @@
 
 ### リポジトリ構成
 
-- **`pvm-art` が Git 管理外。**
-  `.git` が存在せず、バージョン管理による保護がない。500 体分の trait マスター（`traits.yaml`）、
-  検証済みの合成アルゴリズム実装、アンカー画像などの重要資産が、**誤削除・誤編集から復旧できない状態**。
-  `art-src/` には rejected / candidates を含む大量の画像素材があり、リポジトリ化する場合は
-  素材の扱い（Git LFS か対象外か）の判断が必要。
+- ~~**`pvm-art` が Git 管理外。**~~ **2026-09-15 に解消**: `pachiverse01-ai/pvm-art`（private）として Git 化。
+  trait マスター・合成実装・アンカー・最終 metadata・IPFS 復旧材料を追跡（約 90MB、LFS 不使用）。
+  候補素材・原本画像 10GB・PV 素材は Git 外。**残る課題**: `out/images4096/`（原本 10GB）の別置きバックアップが未実施。
+  `out/MANIFEST_images4096.sha256` で照合できる状態にはなっている。
 
 - **親リポジトリの作業ツリー内に独立した Git リポジトリが入れ子になっている。**
   `pachiverse-contracts` / `pachiverse-signer` / `members.pachiverse.com` は submodule ではなく
