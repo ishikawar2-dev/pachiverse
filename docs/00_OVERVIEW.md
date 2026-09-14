@@ -103,6 +103,7 @@ Signer の環境変数一覧は [02_ONCHAIN.md](02_ONCHAIN.md) を参照。
 - [03_TRANSFER_PLAN.md](03_TRANSFER_PLAN.md) — UNI への引き渡し: 譲渡評価の現在地と 10〜11 月の計画
 - [04_DEV_EFFORT_EVIDENCE.md](04_DEV_EFFORT_EVIDENCE.md) — 開発工数の客観的証跡（Git 記録から `scripts/dev_effort_evidence.sh` で生成、工数表 v1.2 の付録）
 - [05_DEPRECIATION_ITEMS.md](05_DEPRECIATION_ITEMS.md) — 陳腐化減価の控除項目メモ（原価法の評価書に添付。売り手作成、係数は書かない）
+- [06_USAGE_SCALE.md](06_USAGE_SCALE.md) — 利用規模 3 段（登録／利用開始／90 日活動）。`scripts/usage_scale.py` で本番 DB 抽出から生成、稼働の証拠として使う
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — 既知問題・技術的負債・壊れやすい箇所・未確認事項
 
 ### このリポジトリ外の資料
