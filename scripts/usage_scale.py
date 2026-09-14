@@ -28,7 +28,8 @@ HOLDING_KEYS = {
     'vb_pachinko_share_6_10_qty': 'VB 6/10', 'vb_pachinko_share_4_10_qty': 'VB 4/10',
     'vb_pachinko_share_2_10_qty': 'VB 2/10', 'vb_pachinko_share_1_10_qty': 'VB 1/10',
     'vb_pachinko_share_1_20_qty': 'VB 1/20', 'vb_pachinko_share_1_200_qty': 'VB 1/200',
-    'vb_pachipro_amateur_qty': 'パチプロ アマ', 'vb_pachipro_semi_qty': 'パチプロ セミ',
+    'vb_pachipro_amateur_qty': 'パチプロ アマ', 'vb_pachipro_semi_qty': 'パチプロ セミ', 'vb_pachipro_pro_qty': 'パチプロ プロ',
+    'baccarat_table_nft_qty': 'バカラテーブル',
     'vb_koguchi_amount_man': '小口（万円）',
     'uni_owner_ticket_nft_qty': 'オーナーチケット',
     'vb_coin_qty': 'PV Coin',
@@ -128,6 +129,8 @@ def main():
     print('- **退会・停止のステータス値は本番 DB に存在しない**（usermeta `status` は全員 active）。退会者は 2026-03-31 の取り込み時点で除外されており、VB リストの「退会・返金依頼中」行（132 行）は DB に反映されていない。登録数はこれを含まない上限値として読む。')
     print('- 「利用開始」は初回ログイン完了で数える。初回ログイン通知の送付有無（`uni_initial_login_notice_sent_at`）ではない。')
     print('- 「90 日活動」はログインのみを見る。開封・送信などの操作は数えない（監査ログで別途取れる）。')
+    print('- 活動はイベント駆動で、2026-09-09 の Reveal 直後に山がある（7 日活動 432 はその反映）。平常時の水準は次回以降の抽出で確認する。')
+    print('- 小口（万円）と PV Coin は会員側の残高（会社側の履行義務）であり、NFT の保有とは性質が異なる。§3 では区別して読む。')
     print('- 同一人物の重複口座は 2026-09-13 に 15 組を統合したが、抽出（9/13 15:00）はその前後どちらかであり、±10 人程度の差が出る。')
     print('- 個人情報は出力しない。再実行時は `prod_db_export_readonly.php` の最新 JSON を渡す。')
 
