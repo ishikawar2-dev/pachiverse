@@ -11,7 +11,8 @@
 - **更新ルール**: 週次の稼働記録更新（members `ops/OPERATIONS_LOG.md` §0）と同じタイミングで §2〜§4 の変更を反映する。鍵管理移行（KMS / Safe）の完了時は §2・§3 の該当行を書き換える。名義・所在が確定したら §8 から該当行を消し、§2 に移す。
 - **個人名の扱い**: 役職・アカウント名のみ。「オーナー」= 売り手本人（UNI の 100% 株主・運用担当）、「UNI 現代表」= 買い手側の意思決定者。
 - 本書は売り手（開発者本人）が作成した自己申告であり、網羅性は保証しない。DD で追加項目が出れば §2 に追記する。
-- **第三者（買い手・評価人・監査会社）へ渡す版では、§3（認証情報の所在）と管理者アカウント名・サーバーのホスト名・IP は別紙にして本文から外す。** 本書は private リポジトリ内の運用用。
+- **第三者（買い手・評価人・監査会社）へ渡す版では、§3（認証情報の所在）と、§2 の管理者アカウント名・ホスト名・IP・GCP アカウントのメール・R2/Pinata の個別 URL・HMAC の key_id は別紙にして本文から外し「所在の種別」だけ残す。** 本書は private リポジトリ内の運用用。
+- **前提（2026-09-15 時点）**: §3 の認証情報は全行がオーナー個人の保持で、復旧コードの封緘・GCP プロジェクトオーナーの 2 名化・SSH/FTPS 鍵と Foundry keystore の Mac 外保管はすべて未実施。**03_TRANSFER_PLAN §4.1 策 2（封緘バックアップと復旧テスト）が完了するまで、本書単独では運用を再開できない。** 策 2 を 10 月の最優先に置く。
 
 ## 2. 資産目録
 
@@ -24,7 +25,7 @@
 | コード | スマートコントラクト（Foundry） | `~/Developer/pachiverse/pachiverse-contracts`（remote は要確認） | 要確認 | 同上 | 01_ARCHITECTURE |
 | コード | 署名基盤 Signer（TypeScript） | `~/Developer/pachiverse/pachiverse-signer`（PR #1/#2 未マージ） | 要確認 | 同上 | 02_ONCHAIN、05 §3.1 A-1 |
 | コード | アート生成パイプライン | GitHub `pachiverse01-ai/pvm-art`（private、2026-09-15〜） | 要確認 | 同上 | `pvm-art/README.md`「Git 管理と資産の所在」 |
-| コード | メタバース World Foundation v1.3.1 | `~/Developer/pachiverse/pachiverse-world`（remote 要確認。G1・P1-10 未了） | 要確認 | 同上。未完成部分は控除メモ J | `pachiverse-world/README.md`、05 §2b J |
+| コード | メタバース World Foundation v1.3.1 | GitHub `pachiverse01-ai/pachiverse-world-foundation`（ローカル `~/Developer/pachiverse/pachiverse-world`。グレーボックス段階、G1・P1-10 は Hall v2 後の再実施未了） | 要確認 | 同上。未完成部分は控除メモ J | `pachiverse-world/README.md`、05 §2b J |
 | コード | Genaverse マケプレ設計書（未実装） | members `docs/00_README_FOR_CLAUDE_CODE.md`〜`07_*` | — | コードと同梱 | members `docs/00_OVERVIEW.md` docs 案内 B |
 | インフラ | 会員サイト本番・stg（WordPress、PHP 8.3.31） | お名前.com 共用サーバー `www1036.onamae.ne.jp`、`~/public_html/members.pachiverse.com/` と `stg.members.pachiverse.com/` | 要確認 | サーバー契約の名義変更または UNI 契約サーバーへ移設（移設は買い手判断、05 A-6） | `ops/DAY_OF_RUNBOOK_20260909.md` §0.2、`ops/RELEASE_STATE_20260902.md` §2-b |
 | インフラ | Signer VM（GCP e2-micro、Debian 12） | GCP プロジェクト `pachiverse-signer`（組織 `pachiverse01-org`）、VM `pachiverse-signer`（us-central1-a）、固定 IP 35.192.1.24、systemd `pachiverse-signer.service`、`/opt/signer/` | 要確認（アカウント `pachiverse01@gmail.com`、請求リンク済） | GCP プロジェクトのオーナーを UNI 側にも付与（KMS runbook §2.2「2 名以上」）、請求先の変更 | `ops/RELEASE_STATE_20260902.md` §2-a |
@@ -47,16 +48,18 @@
 | 外部サービス | Google Sheets（サポート受信箱の共有） | スプレッドシート `UNI_SUPPORT_GSHEETS_SPREADSHEET_ID`、サービスアカウント JSON（WP ルート `gsheets-service-account.json`） | 要確認 | シートの所有権移転、サービスアカウントの再発行 | members `docs/00_OVERVIEW.md` |
 | 外部サービス | OpenSea（プロフィール `PachiverseFoundation`、PVM / Packs V2 コレクション） | OpenSea アカウント。コレクション編集権は会社 MetaMask で取得 | 要確認 | アカウント譲渡または Safe 移行後の編集権の再取得 | DAY_OF_RUNBOOK §7.3 |
 | 外部サービス | GitHub Actions（members の CI。無料枠を 9/11 に超過） | `pachiverse01-ai` org | 要確認 | org 移管と同時。課金しない方針 | `ops/OPERATIONS_LOG.md` I-04 |
-| ウォレット | 会社ウォレット = ADMIN = PACK_CUSTODY = デプロイ・premint 署名者 | `0x502cef1173c162a39d8b23fa69579d862c2c728a`（MetaMask。同鍵を Foundry keystore `deployer` に取込済）。Pack 1101×300 / 1202×200 の保有者、POL 補充元（9/6 時点 1,325 POL） | 会社（呼称上）。実際の保管者はオーナー | **譲渡・引き継ぎ時の最重要アイテム**（02_ONCHAIN §11）。Safe 2-of-3 化後に ADMIN は Safe へ、PACK_CUSTODY は MetaMask のまま。鍵の引き渡し手順は Part B 完了後に別紙 | DAY_OF_RUNBOOK §0.3、KEY_MANAGEMENT_MIGRATION §1 |
+| ウォレット | 会社ウォレット = ADMIN = PACK_CUSTODY = デプロイ・premint 署名者 | `0x502cef1173c162a39d8b23fa69579d862c2c728a`（MetaMask。同鍵を Foundry keystore `deployer` に取込済）。Pack 1101 / 1202 の custody 保有者（premint 300 / 200、9/14 の burn 64 枚後は 269 / 167。以後は開封分だけ減る）、POL 補充元（9/6 時点 1,325 POL） | 会社（呼称上）。実際の保管者はオーナー | **譲渡・引き継ぎ時の最重要アイテム**（02_ONCHAIN §11）。Safe 2-of-3 化後に ADMIN は Safe へ、PACK_CUSTODY は MetaMask のまま。鍵の引き渡し手順は Part B 完了後に別紙 | DAY_OF_RUNBOOK §0.3、KEY_MANAGEMENT_MIGRATION §1 |
 | ウォレット | PVM_CUSTODY（PVM 500 体の保管・出庫 TX 署名） | `0x3a6cf63047fC81f9B8a3ae3990fE4Af1F091ae49`。鍵は Signer VM `/opt/signer/.env`（KMS 化後は Cloud KMS `pvm-custody`＋紙 1 部封緘） | 会社（用途上） | GCP プロジェクトと紙バックアップの引き渡し。ローテーション（500 体移転）は行わない（オーナー決定 9/15） | 同上、KMS runbook R-1 |
 | ウォレット | BURNER（Pack burn 署名）/ MINTER（finalize 済で実質無用） | `0xcE5cd2929e4f99D5493347962F53A81447fBA688` / `0x8CeAbd264ac7700E71eCAdB286DDc0E62Ff2b575`。鍵は Signer VM（KMS 化後は Cloud KMS `burner` / `minter`） | 会社（用途上） | GCP プロジェクトごと。BURNER は Safe 経由で付け替え可能 | 同上 |
 | ウォレット | Safe 2-of-3（ADMIN の移行先。**未作成**） | 署名者予定: 会社 MetaMask・オーナーの Ledger・新規調達の 2 台目 Ledger（冷蔵鍵） | 会社（予定） | 署名者に UNI 側を入れる案は要オーナー判断（03 §4.1 策 4） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §5 |
 | コントラクト | PachiverseMachines（PVM, ERC721、finalize・freeze 済） | Polygon `0x55E3A05eaAc41aAeB596227CD4076e91033541b3`（Verified） | オンチェーン（ADMIN が実効的な所有） | ADMIN 権限の Safe 移行で引き渡し | RELEASE_STATE §1、`pachiverse-contracts/DEPLOY_PVM_20260909.md` §3 |
 | コントラクト | PachiverseMysteryPacks V2（PVPACK, ERC1155、finalize・freeze 済） | Polygon `0x2B5DaC082f664986e77b4f075617D1908BBd109C`（Verified） | 同上 | 同上 | 同上 |
+| コントラクト | **Owner's Pass ERC721**（会員へ送付済み 4,200 枚、1 人 1 枚。マイページの OT 1201 は枚数確認用の記録） | Polygon `0x1c19d0367236127a4d73c4816daee36fc23edd8a` | **owner EOA の所在は要確認（§8 #7）** | owner 鍵がなければ配布済み資産のコントラクト管理（メタデータ・追加発行の可否）ができない。譲渡ブロッカー候補 | members `docs/DECISIONS.md` 2026-09-14、メモリ owner-ticket-canonical-owners-pass |
 | コントラクト | 旧 ERC1155 ×3（Packs 旧 `0x9f3a5b10…`＝退役・dead 転送済 / Participation Units `0x852fbd87…` / Access & Companion `0x22acc4ac…`）、Owner's Pass ERC721 `0x1c19d0367236127a4d73c4816daee36fc23edd8a` | Polygon。旧 3 契約は baseURI freeze 済・owner は EOA | 要確認（owner EOA の所在） | owner 鍵の所在確認と引き渡し | 01_ARCHITECTURE「公開されているコントラクトアドレス」、02_ONCHAIN §8、`ops/OPERATIONS_LOG.md` I-09 |
-| データ | 本番 WordPress DB（会員・PV Coin 台帳・監査ログ・Pack Reveal・50 テーブル） | お名前.com MySQL。バックアップ例 `~/backup/members-db-20260908-1407.sql`（80MB、Mac） | 会員データは UNI/VB の顧客データで譲渡対象外（05 I） | 事業承継に伴う個人データ提供として整理し会員通知（03 §1） | members `docs/01_ARCHITECTURE.md`「データベース」、DAY_OF_RUNBOOK §8 |
+| インフラ | **オーナーの Mac**（Foundry keystore `deployer`・SSH/FTPS 鍵・ローカル ADC・API キー各種・DB バックアップ・pvm-art 原本 10GB の唯一の置き場） | Mac 1 台（バックアップ方針: 要確認） | 個人 | **単一障害点**。策 2 で鍵・復旧コードを封緘し、原本とバックアップを別置きにするまで、この端末の喪失＝運用不能 | 03 §4.1 策 2、§3 |
+| データ | 本番 WordPress DB（会員・PV Coin 台帳・監査ログ・Pack Reveal・50 テーブル） | お名前.com MySQL。バックアップ例 `~/backup/members-db-20260908-1407.sql`（80MB、Mac） | 会員データは UNI/VB の顧客データであり**評価対象外だが、システムと一体で引き渡す**（05 I） | 事業承継に伴う個人データ提供として整理し会員通知（03 §1） | members `docs/01_ARCHITECTURE.md`「データベース」、DAY_OF_RUNBOOK §8 |
 | データ | Signer SQLite（request_id・nonce 予約・attempts の正本） | VM `DATABASE_PATH`（永続ディスク） | 会社（用途上） | VM ごと引き渡し。単一インスタンス制約に注意 | 02_ONCHAIN §4 |
-| データ | PVM 500 体の原本画像（4096 PNG、約 10GB）・WEBP 500 枚（616MB）・metadata 500 件 | Mac `pvm-art/out/images4096/`・`out/webp/`（Git 外。別置きバックアップ未）、metadata はリポジトリ＋IPFS。CID: 画像 `bafybeiarlh4…`、metadata `bafybeiazx7o…` | 個人（IP はオーナー。03 §1） | 外付け／クラウドに 1 部複製し `out/MANIFEST_*.sha256` で照合したうえで引き渡し | `pvm-art/README.md`、RELEASE_STATE §1 |
+| データ | PVM 500 体の原本画像（4096 PNG、約 10GB）・WEBP 500 枚（ディスク上 616MB。README の 576MB は制作時の計測値）・metadata 500 件 | Mac `pvm-art/out/images4096/`・`out/webp/`（Git 外。別置きバックアップ未）、metadata はリポジトリ＋IPFS。CID: 画像 `bafybeiarlh4…`、metadata `bafybeiazx7o…` | 個人（IP はオーナー。03 §1） | 外付け／クラウドに 1 部複製し `out/MANIFEST_*.sha256` で照合したうえで引き渡し | `pvm-art/README.md`、RELEASE_STATE §1 |
 | データ | 旧 NFT 14 種の原本と IPFS 復旧材料 | `Pachiverse_NFT_mint _backup/`（削除禁止）、`pvm-art/ipfs-restore/`（`EXPECTED_CIDS.txt`、`metaB-partial.car`） | 個人 | pvm-art リポジトリと同梱 | `RESTORE_RUNBOOK.md` |
 | データ | 正規データ・会員取り込み調査・作業リスト（個人情報あり） | members リポジトリ直下の Git 未追跡ファイル（`正規データ/`、`Pachiverse_customer_reply_*` 等）、`~/Downloads` の質疑応答一覧 | UNI/VB の顧客データ | 中身を転記しない。UNI 側の担当者へ媒体で引き渡し | members `docs/KNOWN_ISSUES.md`「個人情報を含むローカルファイル」 |
 | 文書 | 要件定義書・開発工数表・全面レビュー報告書 | ルート直下 `Pachiverse_要件定義書_v1.0_2026-07-07.docx`、`Pachiverse_開発工数表_v1.1_2026-09-07.md`（Git 外）、`~/Downloads/members-review-2026-09-07.html` | 個人 | 譲渡資料インデックス（03 フェーズ H）に収録 | 00_OVERVIEW「このリポジトリ外の資料」、03 §6 |
@@ -97,6 +100,7 @@
 | 日次（03:00 頃 cron 作成 → 手動 dispatch） | **burn dispatch（Phase 1: 手動）**。`create` されたバッチを inspect → preflight → dispatch → confirmed 確認 | DAY_OF_RUNBOOK §3、RELEASE_RUNBOOK §6 | TX は 1 件も出ず滞留するだけ（9/9〜14 に 5 日滞留した前例 = I-05、S2）。オンチェーンと正本の不整合が続く。**放置は安全、手動 failed 化は二重 burn の危険** |
 | 日次（09:30 cron） | `uni_pack_reveal_daily_verify`（割当整合性 19 項目）。失敗時は通知先へメール | DAY_OF_RUNBOOK §7.1、members KNOWN_ISSUES「Allocation commit 後」 | 不整合の検知が止まる。手動は `wp uni-pack-reveal verify-daily` |
 | 日次（02:30 cron ほか） | 資産レコンサイル（コイン / NFT スナップショット、PolygonScan 取得）、監査ログハッシュ検証、ニュース生成 09:00/21:00、IMAP 5 分取り込み | members `docs/01_ARCHITECTURE.md`「Cron」、`ops/CPA_REVIEW_GUIDE.md` §6 | WP-Cron はアクセス駆動で時刻保証なし。ヘルスダッシュボードで次回予定を確認 |
+| 日次（要確認: 現状は 9/8 の手動 1 回のみ） | **本番 DB のダンプ取得と Mac 外への保管**（`wp db export` または phpMyAdmin。監査ログ・台帳の INSERT-only 設計のため日次で足りる）。Signer SQLite と VM ディスクのスナップショットも週 1 で取る方針を決める | DAY_OF_RUNBOOK §1.11（9/8 の手順）。**定期化は未**（§8 #15） | DB 喪失時に会員の権利（台帳・保有）を復元できない |
 | 週次（火曜締め → 水曜 12:00） | 稼働・インシデント記録の更新（デプロイ回数・burn・開封・出庫・verify・監査ログ件数） | `ops/OPERATIONS_LOG.md` §0（8 手順） | 譲渡評価・監査向けの稼働証跡に空白が出る |
 | 週次 | サポート受信箱の未対応確認、Reveal 関連問い合わせ。回答は方針正本に従う | members `docs/14_support_reply_policy.md`、DAY_OF_RUNBOOK §2.3 | 会員対応の遅延 |
 | 週次（公開 7 日後〜） | オンチェーン残高の突合（Packs custody 残 = 500 − 焼却数、PVM_CUSTODY 残 = 500 − 出庫数）、Phase 2 移行判断 | DAY_OF_RUNBOOK §7.2、§3.10 | 不整合の見逃し |
@@ -165,7 +169,9 @@
 
 ## 8. 未確認事項（名義・所在が分からなかったもの）
 
-1. GitHub `ishikawar2-dev/pachiverse` の可視性（public/private）と、`pachiverse01-ai` org の所有者。contracts / signer / world リポジトリの remote と所有者。
+**譲渡ブロッカー（先に解消する順）**: (1) #7 会社 MetaMask のシードの保管場所と、Owner's Pass ERC721・旧 ERC1155 の owner EOA の所在 → (2) #3 GCP プロジェクト（KMS 鍵の置き場所）と #1 GitHub org（IP 帰属の証跡）の所有者 → (3) #2 ドメイン登録者名義 → (4) #10 復旧コードの所在。**再契約で足りるもの**: #4〜#6・#9・#11（各サービスは UNI 側で新規契約し差し替え可能）。
+
+1. GitHub `ishikawar2-dev/pachiverse` の可視性（public/private）と、`pachiverse01-ai` org の所有者。contracts / signer の remote は `pachiverse01-ai`、world は `pachiverse01-ai/pachiverse-world-foundation`（remote は判明。所有者は要確認）。
 2. お名前.com サーバー契約・ドメイン `pachiverse.com` / `vegasbank-nft.com` の登録者名義（個人か会社か）。`vegasbank-nft.com` の DNS 管理場所。
 3. GCP プロジェクト `pachiverse-signer` / 組織 `pachiverse01-org` の請求先名義。`pachiverse01@gmail.com` が個人アカウントか会社管理か。
 4. Vercel（Hobby）、Vercel Redis / Upstash、Cloudflare（R2）の契約名義。R2 はオーナー個人アカウントだが会社化の要否。
@@ -176,6 +182,8 @@
 9. Support 用メールボックス（`support@pachiverse.com`、`customer@vegasbank-nft.com`）のホスティング先と名義。
 10. 主要アカウント（GitHub / Vercel / GCP / Cloudflare / OpenSea / お名前.com）の復旧コードの所在（封緘は未実施）。
 11. OpenSea プロフィール `PachiverseFoundation` のアカウント名義と、コレクション編集権の取得状況。
-12. PVM 原本 10GB・WEBP 616MB の別置きバックアップの有無（未実施の見込み）、旧 NFT バックアップ `Pachiverse_NFT_mint _backup/` の保全先。
+12. PVM 原本 10GB・WEBP 約 600MB の別置きバックアップの有無（未実施の見込み）、旧 NFT バックアップ `Pachiverse_NFT_mint _backup/` の保全先。
 13. Indexer の位置づけ（Signer 内蔵 Receipt Checker で代替済みだが、親 KNOWN_ISSUES の記述は未更新）。
 14. 契約関連: 譲渡後の保守委託契約（03 §4.1 策 5）、見届け役（策 4）の指名、税理士・監査会社・会計士の選定。
+15. 本番 DB・Signer SQLite・VM ディスクの定期バックアップの有無と保管先（現状は 9/8 の手動ダンプ 1 回のみ確認）。
+16. OSS ライセンス一覧（WordPress GPL 派生の扱い、Three.js / Rapier / OpenZeppelin 等）と、月額ランニングコストの金額（DD 資料として要追加）。
