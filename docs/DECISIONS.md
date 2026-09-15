@@ -742,3 +742,22 @@ Active
 
 ### Status
 Active
+
+## Decision: 公開サイト（Vercel）は main 以外のブランチをビルドせず、プレビューデプロイを使わない。機体画像は R2 配信に固定する（2026-09-15）
+
+### Context
+Vercel Hobby の Deployment Storage（10GB、通信量ではなくデプロイ成果物の累積）が 75% に達した。原因はブランチ push ごとのプレビューデプロイに 81MB の機体画像（`assets/machines/{t,d}` 1,000 件、immutable）が毎回含まれていたこと。
+
+### Decision
+1. `vercel.json` の `ignoreCommand` で `VERCEL_GIT_COMMIT_REF` が `main` のときだけビルドする（PR #43 → 終了コード修正 #46）
+2. 機体画像は Cloudflare R2（`pachiverse-media`）へ移し、`api/collection.js` が返す `thumb` / `detail` の base を R2 にする（#45 は環境変数 `MACHINE_ASSET_BASE` で切替）。画像削除後は既定値をコードに持ち、環境変数は上書き用にする（#48）
+3. リポジトリから画像を削除する（#47、83MB → 2.3MB）。原本は `pvm-art/out/web/` と R2、sha256 は `pvm-art/out/MANIFEST_*.sha256`
+
+### Reason
+プレビューは公開サイトでは使っていない（確認はローカル `vercel dev` か main マージ後の本番）。画像は Artwork Commitment で凍結済みで変更されないため、リポジトリに置く必然性がなく、R2 は PV 動画で既に使っている。
+
+### Consequences
+- ブランチ push で Vercel のプレビュー URL は出ない。見た目の確認は本番反映後になるので、`api/` の変更は main マージ前にローカルで `node -e` 等の動作確認を済ませる
+- `ignoreCommand` の終了コードは逆（exit 1 = ビルド）。変更時は `docs/KNOWN_ISSUES.md`「公開サイト」の確認手順に従う
+- 画像配信が R2 に依存する。第 2 コピーとカスタムドメイン化は未実施（`docs/KNOWN_ISSUES.md`）
+- 古いプレビューデプロイの削除（Storage 解放）はオーナー作業で未実施

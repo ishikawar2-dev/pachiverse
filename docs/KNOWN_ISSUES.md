@@ -42,6 +42,18 @@
   CSS・JS がインラインで肥大化している。`design-preview.html` は公開ナビゲーションから
   リンクされておらず、公開意図があるかどうか**未確認**。
 
+- **`vercel.json` の `ignoreCommand` は終了コードの意味が直感と逆（exit 1 = ビルドする、exit 0 = スキップ）。**
+  2026-09-15 の #43 で条件を逆に書き、main のビルドまで約 1.5 時間スキップした（#46 で修正。手動 Redeploy も
+  旧ビルドを再利用するので気づきにくい）。変更時は push 後に Vercel の Deployments で「Build」になっていること、
+  `curl -s https://pachiverse.com/api/collection | head -c 300` の応答が新コードのものであることを必ず確認する。
+  `ops/OPERATIONS_LOG.md`（members）I-11
+
+- **機体画像（`/api/collection` の `thumb` / `detail`）は Cloudflare R2 依存。**
+  2026-09-15 に `assets/machines/{t,d}` 1,000 件をリポジトリから削除し、`api/collection.js` の既定 URL を R2 の
+  `r2.dev` 公開 URL にした。R2 側の障害・バケット削除・レート制限（`r2.dev` は本番向けでないと Cloudflare が注記）で
+  Collection Explorer の画像が全滅する。第 2 コピーは未作成、カスタムドメイン化（`media.pachiverse.com`）も未実施。
+  復旧手順は `docs/R2_MACHINE_ASSETS_MIGRATION.md`「ロールバック」「注意」
+
 ### 購読 API（`api/`）
 
 以下はいずれも**未修正**。改善候補として記載する。
