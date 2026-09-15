@@ -750,7 +750,7 @@ Vercel Hobby の Deployment Storage（10GB、通信量ではなくデプロイ�
 
 ### Decision
 1. `vercel.json` の `ignoreCommand` で `VERCEL_GIT_COMMIT_REF` が `main` のときだけビルドする（PR #43 → 終了コード修正 #46）
-2. 機体画像は Cloudflare R2（`pachiverse-media`）へ移し、`api/collection.js` が返す `thumb` / `detail` の base を R2 にする（#45）。既定値をコードに持ち、`MACHINE_ASSET_BASE` で上書き可能にする
+2. 機体画像は Cloudflare R2（`pachiverse-media`）へ移し、`api/collection.js` が返す `thumb` / `detail` の base を R2 にする（#45 は環境変数 `MACHINE_ASSET_BASE` で切替）。画像削除後は既定値をコードに持ち、環境変数は上書き用にする（#48）
 3. リポジトリから画像を削除する（#47、83MB → 2.3MB）。原本は `pvm-art/out/web/` と R2、sha256 は `pvm-art/out/MANIFEST_*.sha256`
 
 ### Reason

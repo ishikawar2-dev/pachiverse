@@ -39,6 +39,8 @@ curl -sI "https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev/assets/machines/t/
 `200`、`content-type: image/webp`、`cache-control: public, max-age=31536000, immutable` を確認。
 
 ### 4. Vercel の環境変数を設定（オーナー）
+
+※ #48 以降はコード既定値が R2 公開 URL なので、この手順は必須ではない（カスタムドメイン化のときに値を変える用途）。実施記録: 9/15 に Production へ設定済み。
 Vercel プロジェクト `pachiverse` → Settings → Environment Variables → **Production** に
 `MACHINE_ASSET_BASE = https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev`
 を追加し、**Redeploy**（環境変数は再デプロイで反映）。
@@ -52,7 +54,7 @@ Vercel プロジェクト `pachiverse` → Settings → Environment Variables �
 5 が確認できたら `git rm -r assets/machines/t assets/machines/d`（`undiscovered*` 3 ファイルは残す）。`vercel.json` の `/assets/machines/(.*)` ヘッダは undiscovered 用に残す。原本は `pvm-art/out/web/` に残り、`pvm-art/out/MANIFEST_webp.sha256` とは別に `manifest.csv` で照合できる。
 
 ### ロールバック
-6 の前なら Vercel の `MACHINE_ASSET_BASE` を削除して Redeploy で静的配信に戻る。6 の後（現在）は `git revert` で画像を戻したうえで `MACHINE_ASSET_BASE` に空でない自オリジン（`https://pachiverse.com`）を設定するか、`api/collection.js` の既定値を変える。
+6 の前なら Vercel の `MACHINE_ASSET_BASE` を削除して Redeploy で静的配信に戻る。6 の後（現在）は `git revert` で画像を戻したうえで、Vercel の `MACHINE_ASSET_BASE`（設定済み、値は r2.dev）を自オリジン `https://pachiverse.com` に**変更**するか、`api/collection.js` の既定値を変える（環境変数は `https://` 付き絶対 URL 以外だと既定値に戻る）。
 
 ## 注意
 - R2 の公開 URL は `r2.dev` サブドメイン（レート制限あり、本番向けではないと Cloudflare が注記）。アクセスが増えるなら R2 のカスタムドメイン（`media.pachiverse.com`、DNS は UNI 名義のお名前.com）に切り替える。`MACHINE_ASSET_BASE` を変えるだけで移行できる

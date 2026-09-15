@@ -22,7 +22,10 @@ function metadataUrl(uri) {
 // 手順と復旧: docs/R2_MACHINE_ASSETS_MIGRATION.md
 const DEFAULT_MACHINE_ASSET_BASE = 'https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev';
 function assetBase() {
-  return String(process.env.MACHINE_ASSET_BASE || DEFAULT_MACHINE_ASSET_BASE).replace(/\/+$/, '');
+  // スキーム付き絶対 URL 以外（空、"/"、ホスト名だけ）は既定値へ。og:image に壊れた URL を出さないため
+  const raw = String(process.env.MACHINE_ASSET_BASE || '').trim();
+  const base = /^https?:\/\//.test(raw) ? raw : DEFAULT_MACHINE_ASSET_BASE;
+  return base.replace(/\/+$/, '');
 }
 
 function decorateMachine(machine, key) {

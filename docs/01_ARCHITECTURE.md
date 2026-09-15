@@ -158,7 +158,8 @@ prompts/         生成プロンプト
 ```
 
 Reveal 済み Machine の一覧には、Vercel Function が実行時に派生画像 URL を付与する。
-派生画像は `assets/machines/t/`（512px）と `assets/machines/d/`（1024px）に置き、
+派生画像は Cloudflare R2（バケット `pachiverse-media`）の `assets/machines/t/`（512px）と
+`assets/machines/d/`（1024px）に置き（2026-09-15 にリポジトリから移設。原本は `pvm-art/out/web/`）、
 ファイル名は `HMAC-SHA256(MACHINE_ASSET_KEY, "pvm:" + token_id)` の hex 先頭 40 文字とする。
 token_id とファイル名の対応表はリポジトリに置かない。未 Reveal の 500 スロット生成はブラウザ側で行い、
 未 Reveal Machine の rarity・trait・画像 URL は API と HTML のいずれにも含めない。
@@ -166,6 +167,7 @@ token_id とファイル名の対応表はリポジトリに置かない。未 R
 使用する環境変数:
 
 - `MACHINE_ASSET_KEY` — 派生画像ファイル名を計算する HMAC 鍵
+- `MACHINE_ASSET_BASE` — 派生画像の配信元（任意。`https://` 付き絶対 URL。未設定・不正値ならコード既定の R2 公開 URL。カスタムドメイン化のときに使う）
 - `MEMBERS_API_BASE` — 会員システム公開 API のベース URL
 
 ### 3. NFT 発行から Reveal まで（設計上のフロー）
@@ -299,11 +301,14 @@ broadcast
   `module.exports = async (req, res)` 形式の Vercel Serverless Function を同じプロジェクトで配信する。
   `vercel.json` が Collection Explorer の rewrite・派生画像 cache header・Function includeFiles を定義する。
   Vercel プロジェクト `pachiverse` は GitHub リポジトリ `ishikawar2-dev/pachiverse` と連携しており、
-  **`main` への push（PR マージ）で Production、他ブランチへの push で Preview が自動デプロイされる**
-  （2026-09-02 に PR #8 / #9 のマージで実測確認。`vercel project inspect` には Git 情報が表示されないので注意）。
+  **`main` への push（PR マージ）で Production がデプロイされる。他ブランチの push は `vercel.json` の
+  `ignoreCommand` でビルドをスキップし、Preview は作らない**（2026-09-15。Deployment Storage 対策。
+  `ignoreCommand` は exit 1 = ビルド / exit 0 = スキップで直感と逆。`docs/KNOWN_ISSUES.md`「公開サイト」）。
+  2026-09-02 に PR #8 / #9 のマージで Production 反映を実測確認。`vercel project inspect` には Git 情報が表示されないので注意。
   CLI からの `vercel deploy` も可能だが、同一ディレクトリ内の別リポジトリを巻き込まないよう `.vercelignore` が必須
   （無いと 5.8GB をアップロードし Hobby プランの 24h 5000 ファイル上限に達する）。
-  環境変数 `MACHINE_ASSET_KEY` は Production / Preview / Development に設定済み。
+  環境変数 `MACHINE_ASSET_KEY` は Production / Preview / Development に設定済み（Preview は現在ビルドしない）。
+  `MACHINE_ASSET_BASE` は Production に R2 公開 URL を設定済み（コード既定と同値なので無くても動く）。
   `www.pachiverse.com` は 2026-09-02 にプロジェクトへ追加（それ以前は証明書が失効していた）。
 - **contracts** — Foundry スクリプトで Amoy → mainnet の順にデプロイする手順が README に明記されている。
   秘密鍵は `.env` に置かず keystore / ハードウェアウォレットを使う運用。
