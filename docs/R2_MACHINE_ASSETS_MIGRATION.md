@@ -2,6 +2,10 @@
 
 作成: 2026-09-15　目的: Vercel の Deployment Storage（10 GB 無料枠、75% 到達）を圧迫する `assets/machines/`（t 21MB ＋ d 59MB、500 体 × 2 種の派生 webp）を R2 に移し、デプロイ 1 回あたり 83MB → 約 2MB にする。
 
+## 実施記録
+- 2026-09-15: §1〜§5 完了。R2 に 1,000 件（HEAD 全件 200・sha256 抜き取り一致）、Vercel に `MACHINE_ASSET_BASE` 設定、本番 `/api/collection` 67/67 件が R2、og:image も R2。§6 で `assets/machines/{t,d}` をリポジトリから削除（原本は `pvm-art/out/web/` と R2）
+- 同日、#43 の `ignoreCommand` が終了コードの誤りで main のビルドまでスキップしていたことが判明 → #46 で修正（exit 1 = ビルド、exit 0 = スキップ）
+
 ## 前提
 - R2 バケット `pachiverse-media`（公開 URL `https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev`）は PV 動画で使用中。オーナーの Cloudflare アカウント
 - 原本は `pvm-art/out/web/{t,d}`（Git 外）。サイトの `assets/machines/{t,d}` と sha256 で同一であることを 2026-09-15 に確認済み
