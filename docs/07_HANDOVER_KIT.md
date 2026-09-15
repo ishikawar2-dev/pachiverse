@@ -54,7 +54,7 @@
 | ウォレット | Safe 2-of-3（ADMIN の移行先。**未作成**） | 署名者予定: 会社 MetaMask・オーナーの Ledger・新規調達の 2 台目 Ledger（冷蔵鍵） | 会社（予定） | 署名者に UNI 側を入れる案は要オーナー判断（03 §4.1 策 4） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §5 |
 | コントラクト | PachiverseMachines（PVM, ERC721、finalize・freeze 済） | Polygon `0x55E3A05eaAc41aAeB596227CD4076e91033541b3`（Verified） | オンチェーン（ADMIN が実効的な所有） | ADMIN 権限の Safe 移行で引き渡し | RELEASE_STATE §1、`pachiverse-contracts/DEPLOY_PVM_20260909.md` §3 |
 | コントラクト | PachiverseMysteryPacks V2（PVPACK, ERC1155、finalize・freeze 済） | Polygon `0x2B5DaC082f664986e77b4f075617D1908BBd109C`（Verified） | 同上 | 同上 | 同上 |
-| コントラクト | **Owner's Pass ERC721**（会員へ送付済み 4,200 枚、1 人 1 枚。マイページの OT 1201 は枚数確認用の記録） | Polygon `0x1c19d0367236127a4d73c4816daee36fc23edd8a` | **owner EOA の所在は要確認（§8 #7）** | owner 鍵がなければ配布済み資産のコントラクト管理（メタデータ・追加発行の可否）ができない。譲渡ブロッカー候補 | members `docs/DECISIONS.md` 2026-09-14、メモリ owner-ticket-canonical-owners-pass |
+| コントラクト | **Owner's Pass ERC721**（会員へ送付済み 4,200 枚、1 人 1 枚。マイページの OT 1201 は枚数確認用の記録） | Polygon `0x1c19d0367236127a4d73c4816daee36fc23edd8a` | **owner 鍵なし（外部委託で作成、仕様不明。2026-09-15 確認）** | コントラクト管理は不可能。失効させる方向で検討中だが 9/14 決定と逆になるため別途決定が要る（§8 #7） | members `docs/DECISIONS.md` 2026-09-14、メモリ owner-ticket-canonical-owners-pass |
 | コントラクト | 旧 ERC1155 ×3（Packs 旧 `0x9f3a5b10…`＝退役・dead 転送済 / Participation Units `0x852fbd87…` / Access & Companion `0x22acc4ac…`）、Owner's Pass ERC721 `0x1c19d0367236127a4d73c4816daee36fc23edd8a` | Polygon。旧 3 契約は baseURI freeze 済・owner は EOA | 要確認（owner EOA の所在） | owner 鍵の所在確認と引き渡し | 01_ARCHITECTURE「公開されているコントラクトアドレス」、02_ONCHAIN §8、`ops/OPERATIONS_LOG.md` I-09 |
 | インフラ | **オーナーの Mac**（Foundry keystore `deployer`・SSH/FTPS 鍵・ローカル ADC・API キー各種・DB バックアップ・pvm-art 原本 10GB の唯一の置き場） | Mac 1 台（バックアップ方針: 要確認） | 個人 | **単一障害点**。策 2 で鍵・復旧コードを封緘し、原本とバックアップを別置きにするまで、この端末の喪失＝運用不能 | 03 §4.1 策 2、§3 |
 | データ | 本番 WordPress DB（会員・PV Coin 台帳・監査ログ・Pack Reveal・50 テーブル） | お名前.com MySQL。バックアップ例 `~/backup/members-db-20260908-1407.sql`（80MB、Mac） | 会員データは UNI/VB の顧客データであり**評価対象外だが、システムと一体で引き渡す**（05 I） | 事業承継に伴う個人データ提供として整理し会員通知（03 §1） | members `docs/01_ARCHITECTURE.md`「データベース」、DAY_OF_RUNBOOK §8 |
@@ -171,13 +171,14 @@
 
 **譲渡ブロッカー（先に解消する順）**: (1) #7 会社 MetaMask のシードの保管場所と、Owner's Pass ERC721・旧 ERC1155 の owner EOA の所在 → (2) #3 GCP プロジェクト（KMS 鍵の置き場所）と #1 GitHub org（IP 帰属の証跡）の所有者 → (3) #2 ドメイン登録者名義 → (4) #10 復旧コードの所在。**再契約で足りるもの**: #4〜#6・#9・#11（各サービスは UNI 側で新規契約し差し替え可能）。
 
-1. GitHub `ishikawar2-dev/pachiverse` の可視性（public/private）と、`pachiverse01-ai` org の所有者。contracts / signer の remote は `pachiverse01-ai`、world は `pachiverse01-ai/pachiverse-world-foundation`（remote は判明。所有者は要確認）。
-2. お名前.com サーバー契約・ドメイン `pachiverse.com` / `vegasbank-nft.com` の登録者名義（個人か会社か）。`vegasbank-nft.com` の DNS 管理場所。
-3. GCP プロジェクト `pachiverse-signer` / 組織 `pachiverse01-org` の請求先名義。`pachiverse01@gmail.com` が個人アカウントか会社管理か。
+1. ~~GitHub org の所有者~~ **確認済み（2026-09-15）: `pachiverse01-ai` org と `ishikawar2-dev` はいずれもオーナー個人の所有。** 譲渡時に org を UNI の GitHub アカウントへ transfer する（残: `ishikawar2-dev/pachiverse` の可視性）。
+2. ~~ドメインの登録者名義~~ **確認済み（2026-09-15）: `pachiverse.com` / `vegasbank-nft.com` は UNI 名義で登録済み。名義変更は不要。** 残: サーバー契約（お名前.com 共用サーバー）の名義と `vegasbank-nft.com` の DNS 管理場所。
+3. ~~GCP の所有者~~ **確認済み（2026-09-15）: GCP プロジェクト `pachiverse-signer` はオーナー個人の所有。** 譲渡時に UNI の請求先アカウントへプロジェクトを移す（KMS 鍵はプロジェクトに紐づくため、移管で鍵ごと引き渡せる）。残: 組織 `pachiverse01-org` の扱いと、プロジェクトオーナーの 2 名化。
 4. Vercel（Hobby）、Vercel Redis / Upstash、Cloudflare（R2）の契約名義。R2 はオーナー個人アカウントだが会社化の要否。
 5. Filebase・Pinata（「YU's Workspace」の所有者）・fal.ai・Etherscan・RPC 事業者・OpenAI・Anthropic・Google Sheets の各アカウント名義と、譲渡可能か再契約か。
 6. ブラストエンジンの契約名義・プラン・残通数、WP Mail SMTP の設定内容（本番のみに存在しリポジトリに無い）。本番のメール送信経路の正確な構成（members KNOWN_ISSUES 未確認 2）。
-7. 会社 MetaMask（`0x502cef…`）のシードの保管場所・保管者と、旧 ERC1155 3 契約および Owner's Pass ERC721 の owner EOA の所在。
+7. **会社 MetaMask（`0x502cef…`）のシード: 保管場所は不明（オーナー回答 2026-09-15）。オーナーは MetaMask にログインできる。** 鍵はブラウザの MetaMask 拡張と Mac の Foundry keystore `deployer` の 2 箇所にしか存在しないため、**封緘バックアップの最優先項目**（members `ops/SEALED_BACKUP_RUNBOOK.md` §2-1）。
+   **Owner's Pass ERC721 の owner 鍵: 存在しない（外部に作成を委託し、仕様も不明。オーナー回答 2026-09-15）。** コントラクトの管理操作は今後も不可能。オーナーは「失効させる方向で検討」しているが、2026-09-14 の決定（Owner's Pass が本体、OT 1201 は確認用）と逆になるため、**別途の決定と会員周知が要る**（未決）。旧 ERC1155 3 契約の owner も同様に要確認。
 8. `wp-config-secrets.php` に本番で実際に定義されている定数の一覧（`UNI_BLASTENGINE_WEBHOOK_TOKEN` の設定有無を含む）。
 9. Support 用メールボックス（`support@pachiverse.com`、`customer@vegasbank-nft.com`）のホスティング先と名義。
 10. 主要アカウント（GitHub / Vercel / GCP / Cloudflare / OpenSea / お名前.com）の復旧コードの所在（封緘は未実施）。
