@@ -49,7 +49,7 @@
 | 外部サービス | OpenSea（プロフィール `PachiverseFoundation`、PVM / Packs V2 コレクション） | OpenSea アカウント。コレクション編集権は会社 MetaMask で取得 | 要確認 | アカウント譲渡または Safe 移行後の編集権の再取得 | DAY_OF_RUNBOOK §7.3 |
 | 外部サービス | GitHub Actions（members の CI。無料枠を 9/11 に超過） | `pachiverse01-ai` org | 要確認 | org 移管と同時。課金しない方針 | `ops/OPERATIONS_LOG.md` I-04 |
 | ウォレット | 会社ウォレット = ADMIN = PACK_CUSTODY = デプロイ・premint 署名者 | `0x502cef1173c162a39d8b23fa69579d862c2c728a`（MetaMask。同鍵を Foundry keystore `deployer` に取込済）。Pack 1101 / 1202 の custody 保有者（premint 300 / 200、9/14 の burn 64 枚後は 269 / 167。以後は開封分だけ減る）、POL 補充元（9/6 時点 1,325 POL） | 会社（呼称上）。実際の保管者はオーナー | **譲渡・引き継ぎ時の最重要アイテム**（02_ONCHAIN §11）。Safe 2-of-3 化後に ADMIN は Safe へ、PACK_CUSTODY は MetaMask のまま。鍵の引き渡し手順は Part B 完了後に別紙 | DAY_OF_RUNBOOK §0.3、KEY_MANAGEMENT_MIGRATION §1 |
-| ウォレット | PVM_CUSTODY（PVM 500 体の保管・出庫 TX 署名） | `0x3a6cf63047fC81f9B8a3ae3990fE4Af1F091ae49`。鍵は Signer VM `/opt/signer/.env`（KMS 化後は Cloud KMS `pvm-custody`＋紙 1 部封緘） | 会社（用途上） | GCP プロジェクトと紙バックアップの引き渡し。ローテーション（500 体移転）は行わない（オーナー決定 9/15） | 同上、KMS runbook R-1 |
+| ウォレット | PVM_CUSTODY（PVM 500 体の保管・出庫 TX 署名） | `0x3a6cf63047fC81f9B8a3ae3990fE4Af1F091ae49`。鍵は Cloud KMS `pv-signer/pvm-custody` v1（HSM、2026-09-16 移行済み）＋紙 1 部封緘（R-1、2026-09-16 作成・再導出一致） | 会社（用途上） | GCP プロジェクトと紙バックアップの引き渡し。ローテーション（500 体移転）は行わない（オーナー決定 9/15） | 同上、KMS runbook R-1 |
 | ウォレット | BURNER（Pack burn 署名）/ MINTER（finalize 済で実質無用） | `0xcE5cd2929e4f99D5493347962F53A81447fBA688` / `0x8CeAbd264ac7700E71eCAdB286DDc0E62Ff2b575`。鍵は Signer VM（KMS 化後は Cloud KMS `burner` / `minter`） | 会社（用途上） | GCP プロジェクトごと。BURNER は Safe 経由で付け替え可能 | 同上 |
 | ウォレット | Safe 2-of-3（ADMIN の移行先。**未作成**） | 署名者予定: 会社 MetaMask・オーナーの Ledger・新規調達の 2 台目 Ledger（冷蔵鍵） | 会社（予定） | 署名者に UNI 側を入れる案は要オーナー判断（03 §4.1 策 4） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §5 |
 | コントラクト | PachiverseMachines（PVM, ERC721、finalize・freeze 済） | Polygon `0x55E3A05eaAc41aAeB596227CD4076e91033541b3`（Verified） | オンチェーン（ADMIN が実効的な所有） | ADMIN 権限の Safe 移行で引き渡し | RELEASE_STATE §1、`pachiverse-contracts/DEPLOY_PVM_20260909.md` §3 |
@@ -70,8 +70,8 @@
 
 | 認証情報 | 保管場所 | 保持者（役職） | ローテーション状況 |
 |---|---|---|---|
-| Signer 3 鍵（MINTER / PVM_CUSTODY / BURNER の raw 秘密鍵） | Signer VM `/opt/signer/.env`（mode 600、`EnvironmentFile`）。VM 外に出していない。移行後は Cloud KMS `pv-signer/{minter,pvm-custody,burner}` | 運用担当（オーナー）。VM SSH 権限者 | 未ローテーション。KMS へ**インポート**（新鍵切替なし）を 10 月に予定。移行前のディスクスナップショットは削除予定（R-7） |
-| PVM_CUSTODY の紙バックアップ 1 部 | 封緘し Safe 冷蔵鍵と別の場所に保管（**未作成**、R-1） | オーナー | KMS Part A と同時に作成・復旧テスト |
+| Signer 3 鍵（MINTER / PVM_CUSTODY / BURNER） | **Cloud KMS `pv-signer/{minter,pvm-custody,burner}` v1（HSM、2026-09-16 インポート済み）。VM の `.env` に平文鍵は無い。** 残置: VM `/root/signer-env-20260915-1835.bak`（root 600、平文鍵を含む。§3.12 で shred 予定） | GCP プロジェクトオーナー 2 名（`pachiverse01@gmail.com`、`ishikawar2@gmail.com`）。VM SA に cryptoKey 単位 signerVerifier | ローテーションなし（インポート方式）。`.bak` の shred と移行前スナップショットの削除（R-7）が残り |
+| PVM_CUSTODY の紙バックアップ 1 部 | **作成済み（2026-09-16）。石川の個人手帳に封緘して保管**（Safe 冷蔵鍵とは別の場所にすること。紙からアドレスを再導出して一致確認済み） | オーナー | 譲渡時は紙ごと引き渡し、UNI 側で再導出確認 |
 | 会社 MetaMask（ADMIN / PACK_CUSTODY）のシード | オーナー管理（保管場所は**要確認**、別紙） | オーナー | 未ローテーション。ADMIN は Safe へ移行予定、PACK_CUSTODY はこのまま |
 | Foundry keystore `deployer`（会社 MetaMask の鍵の取込） | Mac `~/.foundry/keystores/deployer`（パスワードはオーナーのみ） | オーナー | Safe 移行後は `revokeRole` 等の用途が Safe に置き換わる |
 | オーナーの Ledger（Safe 署名者 2）/ 2 台目 Ledger（冷蔵鍵、署名者 3） | オーナー保有 / 新品を公式直販で調達予定 | オーナー | Part B で使用。冷蔵鍵の保管場所は KMS runbook §5 に「場所の説明」のみ記録 |
