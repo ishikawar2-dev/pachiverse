@@ -105,6 +105,10 @@ Signer の環境変数一覧は [02_ONCHAIN.md](02_ONCHAIN.md) を参照。
 - [05_DEPRECIATION_ITEMS.md](05_DEPRECIATION_ITEMS.md) — 陳腐化減価の控除項目メモ（原価法の評価書に添付。売り手作成、係数は書かない）
 - [06_USAGE_SCALE.md](06_USAGE_SCALE.md) — 利用規模 3 段（登録／利用開始／90 日活動）。`scripts/usage_scale.py` で本番 DB 抽出から生成、稼働の証拠として使う
 - [07_HANDOVER_KIT.md](07_HANDOVER_KIT.md) — 引き継ぎパッケージ（資産目録・認証情報の所在・運用カレンダー・連絡先・runbook 索引。値は書かない）
+- [08_AUDIT_SCOPE.md](08_AUDIT_SCOPE.md) — 第三者監査のスコープ書（対象・対象外・観点・提供資料・見積依頼文・既知の指摘と対応状況）。**初稿、要確認 18 件**
+- [09_MAINTENANCE_HANDOVER_TERMS.md](09_MAINTENANCE_HANDOVER_TERMS.md) — 譲渡後の保守・引継ぎ期間の条件案（3＋9 ヶ月案、範囲、SLA 案、費用の枠組み、IP 帰属）。**初稿、要確認 13 件**
+- [10_PII_TRANSFER_MEMO.md](10_PII_TRANSFER_MEMO.md) — 会員データ移管の個人情報保護法上の整理メモ（当事者関係、保有データ一覧、法的整理の候補、弁護士確認論点、通知文案 2 案）。**初稿、法的判断は弁護士確認前**
+- [11_INFRA_MIGRATION.md](11_INFRA_MIGRATION.md) — インフラの現状と移行案（構成・名義・単一障害点、案 A 名義変更／案 B 再構築、移管順序、必ず切り替わるもの）。**初稿、要確認 14 件**
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — 既知問題・技術的負債・壊れやすい箇所・未確認事項
 
 ### このリポジトリ外の資料
