@@ -40,7 +40,7 @@
 | G | IPFS ピン提供者への依存 | 500 体の画像・metadata は IPFS に固定済みだが、ピン提供者の消失で取得不能になった前例がある（既存 14 種、9 月上旬に復旧） | — | 運用リスク。原本は sha256 マニフェストで照合可能、別置きバックアップは未 | `pvm-art/ipfs-restore/RESTORE_RUNBOOK.md`、`pvm-art/README.md` |
 | H | 外部アカウントの移管 | fal.ai・Pinata・GCP（KMS/VM）・Vercel・メール SMTP（ブラストエンジン）・ドメイン/DNS は個人または会社名義で契約。譲渡時に名義変更または再契約が要る | — | 引き継ぎパッケージ（03_TRANSFER_PLAN §4.1）で所在を一覧化 | 03_TRANSFER_PLAN §4.1 |
 | I | 退会者の残存保有 | 退会 22 人分の保有が DB に残っている（扱いはオーナー判断待ち） | — | データ整合の未決事項。会員データは UNI/VB の顧客データであり譲渡対象外 | members `docs/DECISIONS.md` 2026-09-13、06_USAGE_SCALE §4 |
-| J | メタバース（pachiverse-world）の未完成部分 | World Foundation v1.3.1。P1-04〜P1-09 完了、G1・P1-10 が未了。引き渡し範囲に含む（2026-09-15 決定） | 金額未算定（工数表 v1.2 で工程追加） | 未完成部分は再調達原価に進捗率で反映する。控除ではなく原価側で扱う | `pachiverse-world/`、03_TRANSFER_PLAN §1 |
+| J | メタバース（pachiverse-world）の未完成部分 | World Foundation v1.3.1（グレーボックス段階の試作）。Phase 1（P1-01〜P1-09）完了、G1・P1-10 は Hall v2 後の再実施が未了。引き渡し範囲に含む（2026-09-15 決定） | 金額未算定（工数表 v1.2 で工程追加） | 控除ではなく原価側で扱う。外注見積は「現状を再現する費用」で取る（完成費用ではない） | `pachiverse-world/`、03_TRANSFER_PLAN §1 |
 
 ## 3. 項目ごとの詳細
 
