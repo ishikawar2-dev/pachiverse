@@ -16,6 +16,13 @@ function metadataUrl(uri) {
   return 'https://ipfs.filebase.io/ipfs/' + String(uri || '').replace(/^ipfs:\/\//, '');
 }
 
+// 機体画像の配信元。未設定なら同一オリジンの静的配信（/assets/machines/…）、
+// 設定時（例: https://pub-….r2.dev）はその配下に同じパス階層で置いた画像を指す。
+// Vercel の Deployment Storage を圧迫していた 81MB の画像を R2 へ移すための切替点（2026-09-15）。
+function assetBase() {
+  return String(process.env.MACHINE_ASSET_BASE || '').replace(/\/+$/, '');
+}
+
 function decorateMachine(machine, key) {
   const source = machine && typeof machine === 'object' ? machine : {};
   const whitelisted = {
@@ -37,9 +44,10 @@ function decorateMachine(machine, key) {
     image_url_fallback: source.image_url_fallback,
   };
   const hash = assetHash(key, whitelisted.token_id);
+  const base = assetBase();
   return Object.assign(whitelisted, {
-    thumb: '/assets/machines/t/' + hash + '.webp',
-    detail: '/assets/machines/d/' + hash + '.webp',
+    thumb: base + '/assets/machines/t/' + hash + '.webp',
+    detail: base + '/assets/machines/d/' + hash + '.webp',
     metadata_url: metadataUrl(whitelisted.ipfs_metadata_uri),
     opensea_url: 'https://opensea.io/assets/matic/' + MACHINE_CONTRACT + '/' + whitelisted.token_id,
   });
