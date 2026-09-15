@@ -108,7 +108,8 @@ module.exports = async (req, res) => {
       title: title,
       description: 'Pachiverse Machine #' + id + ' is a unique ' + machine.rarity + ' machine from the 500-piece Pachiverse generative NFT collection.',
       url: 'https://pachiverse.com/collection/' + id,
-      image: 'https://pachiverse.com' + machine.detail,
+      // MACHINE_ASSET_BASE 設定時は detail が絶対 URL（R2）になるのでそのまま使う
+      image: /^https?:\/\//.test(machine.detail) ? machine.detail : 'https://pachiverse.com' + machine.detail,
       imageWidth: 1024,
       imageHeight: 1024,
       noindex: false,
