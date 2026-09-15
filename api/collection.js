@@ -16,11 +16,13 @@ function metadataUrl(uri) {
   return 'https://ipfs.filebase.io/ipfs/' + String(uri || '').replace(/^ipfs:\/\//, '');
 }
 
-// 機体画像の配信元。未設定なら同一オリジンの静的配信（/assets/machines/…）、
-// 設定時（例: https://pub-….r2.dev）はその配下に同じパス階層で置いた画像を指す。
-// Vercel の Deployment Storage を圧迫していた 81MB の画像を R2 へ移すための切替点（2026-09-15）。
+// 機体画像の配信元。既定は Cloudflare R2 の公開 URL（2026-09-15 に assets/machines/{t,d} を
+// リポジトリから削除したため、同一オリジンには画像が無い）。環境変数 MACHINE_ASSET_BASE で
+// 上書きでき、R2 のカスタムドメイン化（media.pachiverse.com）はここを変えるだけで移行できる。
+// 手順と復旧: docs/R2_MACHINE_ASSETS_MIGRATION.md
+const DEFAULT_MACHINE_ASSET_BASE = 'https://pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev';
 function assetBase() {
-  return String(process.env.MACHINE_ASSET_BASE || '').replace(/\/+$/, '');
+  return String(process.env.MACHINE_ASSET_BASE || DEFAULT_MACHINE_ASSET_BASE).replace(/\/+$/, '');
 }
 
 function decorateMachine(machine, key) {
