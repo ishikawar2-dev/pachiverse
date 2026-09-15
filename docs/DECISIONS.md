@@ -761,3 +761,24 @@ Vercel Hobby の Deployment Storage（10GB、通信量ではなくデプロイ�
 - `ignoreCommand` の終了コードは逆（exit 1 = ビルド）。変更時は `docs/KNOWN_ISSUES.md`「公開サイト」の確認手順に従う
 - 画像配信が R2 に依存する。第 2 コピーとカスタムドメイン化は未実施（`docs/KNOWN_ISSUES.md`）
 - 古いプレビューデプロイの削除（Storage 解放）はオーナー作業で未実施
+
+## Decision: Signer の署名鍵は新鍵へのローテーションではなく既存 3 鍵を Cloud KMS（HSM）へインポートして移行した。IAM は cryptoKey 単位 signerVerifier のみ、GCP オーナーは 2 名（2026-09-16 実施）
+
+### Context
+Signer VM の `.env` に平文の秘密鍵 3 本（MINTER / PVM_CUSTODY / BURNER）があり、譲渡評価の減点要因・監査指摘事項だった。新鍵に切り替える案は、PVM 500 体（custody 保有）の移転と Packs V2 の `BURNER_ROLE` 付け替えが必要で、ガス・手順・失敗時の影響が大きい。
+
+### Decision
+1. 既存 3 鍵を Google Cloud KMS（`pv-signer`、HSM、`EC_SIGN_SECP256K1_SHA256`）へ**インポート**する（アドレス不変。オンチェーンのロール変更なし）。2026-09-16 03:04〜03:46 JST に実施、KMS 署名の初 TX（burn `0x5b66f222…`）confirmed
+2. インポートは VM 上で PKCS#8 変換・手動ラップ（RSA-OAEP ＋ AES-256-KWP）まで行い、ラップ済み blob だけを Mac に持ち出してオーナー ID から import する（VM にオーナー認証を置かない、SA に importer を付けない）
+3. IAM は cryptoKey 単位で VM のサービスアカウントに `roles/cloudkms.signerVerifier` のみ。keyRing / プロジェクト単位には付けない
+4. GCP プロジェクトのオーナーを 2 名にする（KMS の鍵はエクスポート不可のため、アカウント喪失＝署名手段の喪失）
+5. 平文鍵の残置は `.env` のバックアップ 1 部のみ（root 600）。PVM_CUSTODY の紙 1 部を封緘（R-1）してから shred する（R-7）。MINTER（finalize 済みで無用）と BURNER（Safe 経由で付け替え可能）の紙は取らない
+
+### Reason
+アドレスと権限を変えずに「鍵素材が HSM から出ない」状態にでき、Signer 側は `ACCOUNT_PROVIDER` の切替だけで済む（起動時に KMS 公開鍵と宣言アドレスを照合する fail-closed）。鍵漏洩時は IAM 剥奪で即座に署名を止められる（従来は VM 停止しかなかった）。
+
+### Consequences
+- KMS の課金（HSM EC 鍵 3 本で月 $7.5 前後＋署名回数。Q-9）
+- 得られないもの: VM 侵害時に「VM からの署名依頼」は止められない（IAM を剥がすまで）。GCP プロジェクト喪失で署名不能（紙は PVM_CUSTODY のみ）
+- MINTER の KMS 署名は検証不能（finalize 済み）、PVM_CUSTODY は次の出庫で実 TX 検証
+- 手順と実施記録: `members.pachiverse.com/ops/KEY_MANAGEMENT_MIGRATION.md` §3 / §5.3、`ops/INCIDENT_RESPONSE.md` §3.8。Part B（ADMIN の Safe 2-of-3 化）は別決定
