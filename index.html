@@ -62,83 +62,29 @@
     overflow: hidden;
     background-color: #000;
   }
+  /* 星雲: 固定コンテナ自身のレイヤーに描く（独立レイヤー・アニメーションなし）。
+     2026-09-16 iOS Safari 対策: 全画面サイズの合成レイヤーを増やさない */
   .starfield::before {
     content: '';
     position: absolute;
     inset: -10%;
-    will-change: transform;
     background:
       radial-gradient(ellipse 800px 500px at 80% 25%, rgba(77,217,255,0.07), transparent 65%),
       radial-gradient(ellipse 900px 600px at 15% 70%, rgba(255,89,255,0.06), transparent 65%),
       radial-gradient(ellipse 600px 400px at 55% 95%, rgba(157,93,255,0.05), transparent 65%);
-    animation: nebula-shift 40s ease-in-out infinite alternate;
   }
-  @keyframes nebula-shift {
-    0%   { transform: translate(0, 0); }
-    100% { transform: translate(40px, -30px); }
-  }
-  /* 星の 3 層: ドリフト・視差とも transform（GPU 合成）で動かす。
-     background-position を動かすと画面全体のグラデーションを毎フレーム再描画して 10fps 程度まで落ちる（2026-09-02 実測）。
-     外側の要素が視差（--scroll-y）を、::before がタイル背景とドリフトを担当する。 */
-  .starfield-back, .starfield-mid, .starfield-front {
+  /* 星の 3 層は <canvas> 1 枚に描く（body 末尾の script「Starfield」参照）。
+     2026-09-16 iOS Safari 対策: 以前の CSS 版（各層が inset: 0 -600px + will-change の擬似要素）は
+     iPhone（3x）で 1 層 ≈ 1650×974 CSS px の合成レイヤーになり、GPU 側メモリを 100 MB 以上消費して
+     WebContent の強制終了（Safari の「問題が繰り返し起きました」）を招いた。canvas は 1 枚（DPR 上限 2）で済む。 */
+  .starfield-canvas {
     position: absolute;
-    inset: -10%;
-    will-change: transform;
-    backface-visibility: hidden;
+    top: 0;
+    left: 0;
+    display: block;
   }
-  .starfield-back::before, .starfield-mid::before, .starfield-front::before {
-    content: '';
-    position: absolute;
-    inset: 0 -600px;
-    background-repeat: repeat;
-    will-change: transform;
-    backface-visibility: hidden;
-  }
-  .starfield-back { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.12px), 0); opacity: 0.85; }
-  .starfield-mid { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.25px), 0); opacity: 0.7; animation: star-twinkle-a 6s ease-in-out infinite alternate; }
-  .starfield-front { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.4px), 0); opacity: 0.8; animation: star-twinkle-b 4s ease-in-out infinite alternate; }
-  .starfield-back::before {
-    background-image:
-      radial-gradient(1px 1px at 20px 80px,  #fff 50%, transparent 51%),
-      radial-gradient(1px 1px at 60px 220px, rgba(255,255,255,0.8) 50%, transparent 51%),
-      radial-gradient(1px 1px at 130px 30px, #fff 50%, transparent 51%),
-      radial-gradient(1px 1px at 170px 180px, rgba(180,210,255,0.85) 50%, transparent 51%),
-      radial-gradient(1.5px 1.5px at 240px 90px, #fff 50%, transparent 51%),
-      radial-gradient(1px 1px at 290px 260px, rgba(255,255,255,0.7) 50%, transparent 51%),
-      radial-gradient(1px 1px at 340px 50px, rgba(200,220,255,0.9) 50%, transparent 51%),
-      radial-gradient(1px 1px at 380px 200px, #fff 50%, transparent 51%);
-    background-size: 420px 320px;
-    animation: star-drift-back 240s linear infinite;
-  }
-  @keyframes star-drift-back { to { transform: translate3d(420px, 0, 0); } }
-  .starfield-mid::before {
-    background-image:
-      radial-gradient(1.5px 1.5px at 50px 60px, rgba(150,210,255,0.95) 50%, transparent 51%),
-      radial-gradient(1px 1px at 140px 200px, #fff 50%, transparent 51%),
-      radial-gradient(2px 2px at 230px 110px, rgba(255,210,180,0.75) 50%, transparent 51%),
-      radial-gradient(1.5px 1.5px at 310px 240px, #fff 50%, transparent 51%),
-      radial-gradient(1px 1px at 390px 30px, rgba(180,200,255,0.9) 50%, transparent 51%);
-    background-size: 480px 340px;
-    animation: star-drift-mid 180s linear infinite;
-  }
-  @keyframes star-drift-mid { to { transform: translate3d(480px, 0, 0); } }
-  @keyframes star-twinkle-a { from { opacity: 0.45; } to { opacity: 0.85; } }
-  .starfield-front::before {
-    background-image:
-      radial-gradient(2px 2px at 80px 120px, #fff 50%, transparent 51%),
-      radial-gradient(1.5px 1.5px at 220px 60px, rgba(255,255,255,0.95) 50%, transparent 51%),
-      radial-gradient(2.5px 2.5px at 340px 200px, rgba(180,220,255,0.9) 50%, transparent 51%),
-      radial-gradient(1.5px 1.5px at 130px 280px, rgba(255,180,210,0.8) 50%, transparent 51%);
-    background-size: 520px 360px;
-    animation: star-drift-front 140s linear infinite;
-  }
-  @keyframes star-drift-front { to { transform: translate3d(-520px, 0, 0); } }
-  @keyframes star-twinkle-b { from { opacity: 0.5; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
-    .starfield-back, .starfield-mid, .starfield-front, .starfield-back::before, .starfield-mid::before, .starfield-front::before, .starfield::before, .shooting-star {
-      animation: none !important;
-    }
-    .shooting-star { display: none; }
+    .shooting-star { animation: none !important; display: none; }
   }
   .shooting-star {
     position: absolute;
@@ -753,8 +699,6 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.92);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     z-index: 15;
     display: flex;
     flex-direction: column;
@@ -762,12 +706,19 @@
     justify-content: center;
     gap: 28px;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
   }
+  /* backdrop-filter は開いている間だけ持つ。閉じた全画面オーバーレイにぼかしが残ると
+     iOS Safari では非表示でも毎フレーム全画面ぼかしが走る（2026-09-16 対策） */
   .mobile-menu[data-open="true"] {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition: opacity 0.3s ease, visibility 0s;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
   .mobile-menu a {
     color: #ffffff;
@@ -888,6 +839,7 @@
 
   /* 1. Scanlines ------------------------------------------------ */
   .fx-scanlines {
+    top: -120px; /* ドリフト量ぶん上へ伸ばし transform で下へ流す。background-position のアニメは全画面を毎フレーム再描画する（2026-09-16 iOS 対策） */
     background-image: repeating-linear-gradient(
       to bottom,
       rgba(255, 255, 255, 0.06) 0px,
@@ -900,8 +852,8 @@
     animation: scanline-drift 8s linear infinite;
   }
   @keyframes scanline-drift {
-    0%   { background-position: 0 0; }
-    100% { background-position: 0 120px; }
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(0, 120px, 0); }
   }
 
   /* 2. CRT vignette + subtle curvature cue --------------------- */
@@ -921,9 +873,10 @@
     mix-blend-mode: normal;
     animation: vignette-breathe 6s ease-in-out infinite;
   }
+  /* 呼吸は filter ではなく opacity で（全画面 filter アニメは毎フレーム GPU フィルタ処理になる。2026-09-16 iOS 対策） */
   @keyframes vignette-breathe {
-    0%, 100% { filter: saturate(1) brightness(1); }
-    50%      { filter: saturate(1.25) brightness(1.08); }
+    0%, 100% { opacity: calc(var(--fx-vignette) * 0.86); }
+    50%      { opacity: var(--fx-vignette); }
   }
 
   /* Chromatic aberration on the heading --------------------- */
@@ -1707,8 +1660,9 @@
   .neon-cta-secondary svg { width: 15px; height: 15px; }
   button.neon-cta-secondary { background: transparent; font-family: inherit; cursor: pointer; }
   /* Official trailer lightbox（R2 配信・クリック再生・ESC/背景クリックで閉じる） */
-  .pv-lightbox { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
-  .pv-lightbox[data-open="true"] { opacity: 1; pointer-events: auto; }
+  .pv-lightbox { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,0.92); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0s linear 0.25s; }
+  /* backdrop-filter は開いている間だけ（閉じたまま全画面ぼかしを持たせない: 2026-09-16 iOS 対策） */
+  .pv-lightbox[data-open="true"] { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.25s ease, visibility 0s; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
   .pv-lightbox-inner { width: min(1100px, 100%); display: flex; flex-direction: column; gap: 12px; }
   .pv-lightbox-panel { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(77,217,255,0.3); box-shadow: 0 0 60px rgba(77,217,255,0.15), 0 30px 80px rgba(0,0,0,0.6); }
   .pv-lightbox-video { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; }
@@ -2029,7 +1983,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: calc(var(--pfx-noise, 0) * 0.95);
+    opacity: calc(var(--pfx-noise, 0) * var(--tw-noise-mul, 0.95));
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/><feComponentTransfer><feFuncA type='discrete' tableValues='0 0 0 0.4 0.7 1'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
     background-size: 240px 240px;
     background-repeat: repeat;
@@ -2037,6 +1991,8 @@
     border-radius: inherit;
     z-index: 5;
     animation: pfx-noise-jitter 0.18s steps(4) infinite;
+    /* 見えていない間（--pfx-noise = 0）はジッターを止め、22fps の再描画を可視中のカードだけに限定する */
+    animation-play-state: var(--pfx-noise-play, paused);
   }
   @keyframes pfx-noise-jitter {
     0%   { background-position: 0 0; }
@@ -2377,9 +2333,7 @@
 <body>
   <!-- Page-wide starfield (behind everything) -->
   <div class="starfield" aria-hidden="true">
-    <div class="starfield-back"></div>
-    <div class="starfield-mid"></div>
-    <div class="starfield-front"></div>
+    <canvas class="starfield-canvas"></canvas>
     <div class="shooting-star s1"></div>
     <div class="shooting-star s2"></div>
     <div class="shooting-star s3"></div>
@@ -2387,9 +2341,12 @@
   </div>
 
   <section class="hero">
+    <!-- 背景動画: src は body 末尾の script「Hero background video」が端末幅で選ぶ。767px 以下は assets/hero の軽量版（960×682・約 1 MB）。
+         元動画（1708×1212・13 Mbps）は iPhone ではデコードだけで数十 MB を使う（2026-09-16 iOS 対策） -->
     <video
       class="bg-video"
-      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260217_030345_246c0224-10a4-422c-b324-070b7c0eceda.mp4"
+      data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260217_030345_246c0224-10a4-422c-b324-070b7c0eceda.mp4"
+      data-src-mobile="/assets/hero/hero-bg-960.mp4"
       autoplay
       muted
       loop
@@ -2399,7 +2356,9 @@
 
     <img
       class="cabinet"
-      src="https://members.pachiverse.com/wp-content/uploads/2026/04/machine_trans-scaled.png"
+      src="https://members.pachiverse.com/wp-content/uploads/2026/04/machine_trans-1024x1024.png"
+      srcset="https://members.pachiverse.com/wp-content/uploads/2026/04/machine_trans-768x768.png 768w, https://members.pachiverse.com/wp-content/uploads/2026/04/machine_trans-1024x1024.png 1024w, https://members.pachiverse.com/wp-content/uploads/2026/04/machine_trans-scaled.png 2560w"
+      sizes="(max-width: 767px) 240px, 400px"
       alt=""
       aria-hidden="true"
     />
@@ -3557,7 +3516,10 @@
         else if (tBottom < outEnd)   opacity = 1 - smooth((tBottom - outStart) / outSpan);
         el.style.setProperty('--pfx-o', opacity.toFixed(3));
         el.style.setProperty('--pfx-y', ty.toFixed(1) + 'px');
-        el.style.setProperty('--pfx-noise', (4 * opacity * (1 - opacity)).toFixed(3));
+        var noise = 4 * opacity * (1 - opacity);
+        el.style.setProperty('--pfx-noise', noise.toFixed(3));
+        // ノイズが見えない間はジッターアニメを止める（.pfx-noise の animation-play-state が参照）
+        el.style.setProperty('--pfx-noise-play', noise > 0.01 ? 'running' : 'paused');
       }
       ticking = false;
     }
@@ -3783,6 +3745,192 @@
     }
     window.addEventListener('scroll', update, { passive: true });
     update();
+  })();
+</script>
+
+<script>
+  /* Tweaks 台帳 — 開発時の数値調整（Tweaks Studio）用。本番でもここのデフォルト値がそのまま使われる。
+     `node scripts/tweaks-dev-server.mjs` で配信すると /api/dev/tweaks と受信ランタイムが有効になり、
+     Studio のスライダーが約 1 秒で反映される（本番の HTML にはランタイムも API も含まれない）。
+     確定した値はここに焼き込む。CSS 側の値（--tw-* / --fx-*）は PV_TWEAKS_APPLY が :root に反映する。
+     項目の説明・範囲は scripts/tweaks-dev-server.mjs の SCHEMA にある。 */
+  window.PV_TWEAKS = {
+    stars: { on: 1, dprMax: 2, fps: 30, drift: 1, twinkle: 1, parallax: 1, size: 1, alpha: 1, back: 1, mid: 1, front: 1 },
+    hero: { videoOn: 1, parallaxMul: 1 },
+    sections: { parallaxMul: 2, noiseStrength: 0.95 },
+    fx: { scanline: 1, vignette: 1, chroma: 1 }
+  };
+  window.PV_TWEAKS_APPLY = function (values) {
+    var T = window.PV_TWEAKS;
+    var own = Object.prototype.hasOwnProperty;
+    for (var g in values) {
+      if (!own.call(values, g) || !T[g] || !values[g] || typeof values[g] !== 'object') continue;
+      for (var k in values[g]) {
+        if (own.call(values[g], k) && own.call(T[g], k) && typeof values[g][k] === 'number' && isFinite(values[g][k])) T[g][k] = values[g][k];
+      }
+    }
+    var root = document.documentElement.style;
+    root.setProperty('--tw-hero-mul', String(T.hero.parallaxMul));
+    root.setProperty('--tw-parallax-mul', String(T.sections.parallaxMul));
+    root.setProperty('--tw-noise-mul', String(T.sections.noiseStrength));
+    root.setProperty('--fx-scanline', String(T.fx.scanline));
+    root.setProperty('--fx-vignette', String(T.fx.vignette));
+    root.setProperty('--fx-chroma', String(T.fx.chroma));
+    if (window.__pvHeroVideoSync) window.__pvHeroVideoSync();
+    if (window.__pvStarfieldRedraw) window.__pvStarfieldRedraw();
+  };
+  window.PV_TWEAKS_APPLY({});
+</script>
+
+<script>
+  /* Starfield — 星 3 層を canvas 1 枚に描く（2026-09-16 iOS Safari メモリ対策。旧 CSS 版の星データをそのまま移植）
+     各層: tile [幅, 高さ] で繰り返すパターン / drift [移動量 px, 所要秒]（横方向に無限ループ）/
+     parallax: scrollY × 係数（縦方向・折り返し）/ alpha [最小, 最大, 往復秒]（往復秒 0 = 固定）。
+     約 30fps で描画し、非表示タブでは停止、reduce-motion では静止画 1 枚。
+     倍率・上限・fps などの調整値は window.PV_TWEAKS.stars（上の台帳）を毎フレーム読む。 */
+  (function () {
+    var canvas = document.querySelector('.starfield-canvas');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    var TW = (window.PV_TWEAKS && window.PV_TWEAKS.stars) ||
+      { on: 1, dprMax: 2, fps: 30, drift: 1, twinkle: 1, parallax: 1, size: 1, alpha: 1, back: 1, mid: 1, front: 1 };
+
+    var LAYERS = [
+      { key: 'back', tile: [420, 320], drift: [420, 240], parallax: -0.12, alpha: [0.85, 0.85, 0],
+        stars: [[20, 80, 1, '#fff'], [60, 220, 1, 'rgba(255,255,255,0.8)'], [130, 30, 1, '#fff'], [170, 180, 1, 'rgba(180,210,255,0.85)'],
+                [240, 90, 1.5, '#fff'], [290, 260, 1, 'rgba(255,255,255,0.7)'], [340, 50, 1, 'rgba(200,220,255,0.9)'], [380, 200, 1, '#fff']] },
+      { key: 'mid', tile: [480, 340], drift: [480, 180], parallax: -0.25, alpha: [0.45, 0.85, 6],
+        stars: [[50, 60, 1.5, 'rgba(150,210,255,0.95)'], [140, 200, 1, '#fff'], [230, 110, 2, 'rgba(255,210,180,0.75)'],
+                [310, 240, 1.5, '#fff'], [390, 30, 1, 'rgba(180,200,255,0.9)']] },
+      { key: 'front', tile: [520, 360], drift: [-520, 140], parallax: -0.4, alpha: [0.5, 1, 4],
+        stars: [[80, 120, 2, '#fff'], [220, 60, 1.5, 'rgba(255,255,255,0.95)'], [340, 200, 2.5, 'rgba(180,220,255,0.9)'],
+                [130, 280, 1.5, 'rgba(255,180,210,0.8)']] }
+    ];
+    var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var MAX_PIXELS = 4200000; // 大画面では解像度を落として GPU メモリを抑える（DPR の上限は台帳 stars.dprMax。3x 端末でも既定 2）
+    var width = 0, height = 0, dpr = 1, usedDprMax = 0;
+    var last = 0, running = false, rafId = 0;
+
+    function resize() {
+      // iOS のツールバー伸縮で高さが頻繁に変わるため、幅と DPR が同じなら高さは大きくなる時だけ確保し直す
+      var w = window.innerWidth, h = window.innerHeight;
+      var d = Math.min(window.devicePixelRatio || 1, TW.dprMax);
+      if (w * h * d * d > MAX_PIXELS) d = Math.max(1, Math.sqrt(MAX_PIXELS / (w * h)));
+      d = Math.round(d * 100) / 100;
+      usedDprMax = TW.dprMax;
+      var sameGeom = (w === width && d === dpr);
+      if (sameGeom && h <= height) return false;
+      width = w; dpr = d;
+      height = sameGeom ? Math.max(height, h) : h;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return true;
+    }
+
+    function layerAlpha(layer, t) {
+      var a = layer.alpha;
+      var center = (a[0] + a[1]) / 2;
+      if (!a[2] || reduceMotion) return center;
+      var p = (t / (a[2] * 1000)) % 2;       // 0..2 で往復（alternate）
+      if (p > 1) p = 2 - p;
+      p = 0.5 - 0.5 * Math.cos(Math.PI * p); // ease-in-out
+      return center + (a[0] + (a[1] - a[0]) * p - center) * TW.twinkle;
+    }
+
+    function mod(n, m) { return ((n % m) + m) % m; }
+
+    function draw(t) {
+      ctx.clearRect(0, 0, width, height);
+      if (!TW.on) return;
+      var scrollY = reduceMotion ? 0 : (window.scrollY || window.pageYOffset || 0);
+      for (var L = 0; L < LAYERS.length; L++) {
+        var layer = LAYERS[L];
+        if (!TW[layer.key]) continue;
+        var tw = layer.tile[0], th = layer.tile[1];
+        var ox = reduceMotion ? 0 : mod((t / 1000) * (layer.drift[0] / layer.drift[1]) * TW.drift, tw);
+        var oy = mod(scrollY * layer.parallax * TW.parallax, th);
+        var cols = Math.ceil(width / tw) + 1, rows = Math.ceil(height / th) + 1;
+        ctx.globalAlpha = Math.max(0, Math.min(1, layerAlpha(layer, t) * TW.alpha));
+        for (var i = 0; i < layer.stars.length; i++) {
+          var st = layer.stars[i];
+          var r = st[2] / 2 * TW.size;
+          ctx.fillStyle = st[3];
+          for (var ix = -1; ix < cols; ix++) {
+            var x = st[0] + ox + ix * tw;
+            if (x < -3 || x > width + 3) continue;
+            for (var iy = -1; iy < rows; iy++) {
+              var y = st[1] + oy + iy * th;
+              if (y < -3 || y > height + 3) continue;
+              ctx.beginPath();
+              ctx.arc(x, y, r, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function frame(now) {
+      rafId = 0;
+      if (!running) return;
+      if (TW.dprMax !== usedDprMax) resize();
+      if (now - last >= 1000 / Math.max(1, TW.fps)) { last = now; draw(now); }
+      rafId = window.requestAnimationFrame(frame);
+    }
+    function start() {
+      if (running || reduceMotion) return;
+      running = true;
+      if (!rafId) rafId = window.requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      if (rafId) { window.cancelAnimationFrame(rafId); rafId = 0; }
+    }
+
+    resize();
+    draw(0);
+    window.addEventListener('resize', function () { if (resize() && !running) draw(last); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
+    // Tweaks から値が変わったとき、静止中（reduce-motion）でも描き直す
+    window.__pvStarfieldRedraw = function () { if (!running) { if (TW.dprMax !== usedDprMax) resize(); draw(last); } };
+    if (!document.hidden) start();
+  })();
+</script>
+
+<script>
+  /* Hero background video — 端末幅で軽量版/フル版を選び、ヒーローが画面外・タブ非表示の間はデコードを止める（2026-09-16 iOS 対策） */
+  (function () {
+    var video = document.querySelector('.bg-video');
+    if (!video) return;
+    var small = !!(window.matchMedia && window.matchMedia('(max-width: 767px)').matches);
+    var src = (small && video.getAttribute('data-src-mobile')) || video.getAttribute('data-src');
+    if (!src) return;
+    video.src = src;
+    var inView = true;
+    function syncPlayback() {
+      var on = !(window.PV_TWEAKS && window.PV_TWEAKS.hero && window.PV_TWEAKS.hero.videoOn === 0);
+      video.style.visibility = on ? '' : 'hidden';
+      if (on && inView && !document.hidden) {
+        var p = video.play();
+        if (p && p.catch) p.catch(function (err) { console.debug('hero video: play() rejected', err); });
+      } else {
+        video.pause();
+      }
+    }
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) inView = entries[i].isIntersecting;
+        syncPlayback();
+      }, { threshold: 0 });
+      io.observe(video);
+    }
+    document.addEventListener('visibilitychange', syncPlayback);
+    window.__pvHeroVideoSync = syncPlayback; // Tweaks（hero.videoOn）から呼ぶ
   })();
 </script>
 
