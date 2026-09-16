@@ -354,13 +354,16 @@
 
 ---
 
-### 星空（.starfield 3 層）は transform 以外で動かさない（2026-09-02 実測）
+### トップページの描画は iPhone のメモリ上限に近い — 全画面の合成レイヤーを増やさない（2026-09-16）
 
-- 以前は `background-position-x` のキーフレームと `background-position-y: calc(var(--scroll-y) …)` の視差で動かしており、画面全体（Retina で 2 倍）のグラデーション背景を毎フレーム再描画していた。トップページは **静止 9fps / スクロール 8fps**（1680px・dpr 2 の Mac 実測。6/1 版から同じ）
-- PR #15 で、外側要素が視差を `transform: translate3d(0, calc(var(--scroll-y) * -k px), 0)`、`::before` がタイル背景とドリフト（`transform: translate3d(±tile-width, 0, 0)` のキーフレーム）を担当する構造に変更 → **静止 45fps / スクロール 35fps**。見た目・速度・タイルは同一
-- 触る際の注意: 星の層に `background-position` / `background-size` のアニメーション、`filter`、巨大な `will-change` 昇格（グラデーション面そのものを昇格すると逆に悪化: 実測 8fps）を入れない。`::before` の `inset: 0 -600px` はドリフト幅（最大 520px）を吸収するための余白なので縮めない
-- 残りのスクロール負荷は視差エンジン（`[data-pfx]` を毎フレーム `getBoundingClientRect`）と `pfx-noise-jitter` ×17。必要なら間引き・削減で更に改善できる（未実施）
-- `design-preview.html` は旧方式の星空 CSS を複製したまま（社内プレビュー用のため未修正）
+- 2026-09-16 に iPhone Safari で「問題が繰り返し起きました」（描画プロセスの連続強制終了）が報告され、星空 3 層を canvas 1 枚に置換するなどの対策を入れた（経緯・計測値・代替案は `DECISIONS.md` 2026-09-16）。シミュレータ計測で GPU 側 IOSurface はヒーロー 191 → 111〜124 MB（3 回計測）、下部 277 → 150 MB。実機の jetsam 上限は再現できないため、再発の有無は本番反映後に確認する
+- 触る際の注意（`index.html`）:
+  - 星空は `<canvas class="starfield-canvas">`（body 末尾の script「Starfield」）。星の追加・速度変更は JS の `LAYERS` を編集する。CSS の擬似要素やレイヤー（`will-change` / `transform` アニメ）で星を描く方式に戻さない。2026-09-02 の CSS 版（PR #15）は 1 層 ≈ 1650×974 CSS px の合成レイヤー ×3 で約 110 MB を消費した。さらに古い `background-position` アニメ版は静止 9fps まで落ちる（2026-09-02 実測）
+  - `position: fixed` の全画面要素に `backdrop-filter`、`filter` のアニメ、`background-position` のアニメを付けない。閉じたオーバーレイ（`.mobile-menu` `.pv-lightbox`）は `visibility: hidden` にして `backdrop-filter` を外す（`opacity: 0` だけでは iOS でぼかしが毎フレーム走る）
+  - ヒーロー背景動画は JS が `data-src` / `data-src-mobile` から選ぶ（767px 以下は `assets/hero/hero-bg-960.mp4`）。`<video src>` を直書きしない。差し替え時はファイル名を変える（`vercel.json` で immutable キャッシュ）
+  - 残りの負荷: 視差エンジン（`[data-pfx]` ×80 の `will-change: opacity, translate, filter` と毎フレームの `getBoundingClientRect`）、`pfx-noise-jitter` ×17（見えている間だけ動く）、無限アニメーション約 80 本。シミュレータ計測ではメモリへの寄与は小さい
+- `design-preview.html` は旧方式（2026-09-02 以前）の星空 CSS を複製したまま（社内プレビュー用のため未修正）
+- 他ページ（collection / faq / docs / litepaper / contracts / transparency）の navbar / fx-layer は `index.html` と同じ CSS の複製で、閉じたモバイルメニューの `backdrop-filter` と走査線の `background-position` アニメが残っている（横展開は未実施。星空・背景動画が無いので負荷は小さい）
 
 ## 未確認事項
 

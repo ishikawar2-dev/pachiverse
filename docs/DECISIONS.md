@@ -782,3 +782,32 @@ Signer VM の `.env` に平文の秘密鍵 3 本（MINTER / PVM_CUSTODY / BURNER
 - 得られないもの: VM 侵害時に「VM からの署名依頼」は止められない（IAM を剥がすまで）。GCP プロジェクト喪失で署名不能（紙は PVM_CUSTODY のみ）
 - MINTER の KMS 署名は検証不能（finalize 済み）、PVM_CUSTODY は次の出庫で実 TX 検証
 - 手順と実施記録: `members.pachiverse.com/ops/KEY_MANAGEMENT_MIGRATION.md` §3 / §5.3、`ops/INCIDENT_RESPONSE.md` §3.8。Part B（ADMIN の Safe 2-of-3 化）は別決定
+
+## Decision: トップページの星空は CSS 合成レイヤーではなく canvas 1 枚で描き、閉じた全画面オーバーレイに backdrop-filter を持たせない（2026-09-16）
+
+### Context
+iPhone の Safari でトップページを開くと「"https://pachiverse.com/" で問題が繰り返し起きました」（WebContent / GPU プロセスの連続強制終了）になるケースが報告された。iPhone 17 Pro シミュレータで Safari を新規起動して計測したところ、ヒーロー表示のまま静止した状態で GPU プロセスの IOSurface（合成レイヤーの実体）が 191 MB（軽いページは 18 MB）、下部セクションで 277 MB あり、JS ヒープやリークは無かった（3 分放置で増加なし）。要因を 1 つずつ無効化して比較した結果、最大要因は 2026-09-02 の perf 変更で入れた星空 3 層（`inset: 0 -600px` + `will-change: transform` の擬似要素。iPhone 3x では 1 層 ≈ 1650×974 CSS px のレイヤー）で、これだけで約 110 MB を占めた。
+
+### Decision
+1. 星 3 層を `<canvas class="starfield-canvas">` 1 枚に置き換え、旧 CSS の星データ（位置・色・大きさ・タイル周期・ドリフト速度・明滅・視差係数）を JS に移植。DPR 上限 2、約 30fps、非表示タブで停止、`prefers-reduced-motion` では静止画。星雲（`.starfield::before`）は `will-change` とドリフトアニメを外して固定コンテナのレイヤーに描く
+2. モバイルメニューとトレーラーのライトボックスは、閉じている間 `visibility: hidden` にし `backdrop-filter` を持たせない（開いている間だけ付与）。`opacity: 0` で隠すだけでは全画面ぼかしが常時走る
+3. 走査線（`.fx-scanlines`）のドリフトは `background-position` ではなく `transform`、ビネットの呼吸は `filter` ではなく `opacity` で動かす（全画面の毎フレーム再描画・フィルタ処理をなくす）
+4. ヒーロー背景動画は 767px 以下で `assets/hero/hero-bg-960.mp4`（960×682・約 1 MB、元は 1708×1212・13 Mbps）を使い、ヒーローが画面外・タブ非表示の間は `pause()` する
+5. 筐体画像は `srcset` で 768 / 1024 / 2560px 版を出し分ける（従来は 2560×2560 PNG を 223px で表示）
+6. ガラスカードのノイズ（`.pfx-noise`）は見えていない間 `animation-play-state: paused`
+
+### Reason
+同条件の再計測で IOSurface はヒーロー 191 → 111〜124 MB（3 回計測）、下部（#team）277 → 150 MB に減り、見た目は同等（星・流れ星・視差・明滅を維持。以前は視差で星がスクロール中に画面外へ消えていたが、canvas 版は折り返すので常に見える）。canvas は描画コストが点 120 個程度で軽く、レイヤーは 1 枚で済む。
+
+### Alternatives
+- 各層の `inset` をドリフト方向 1 周期分に縮める（約 4 割減にとどまる）
+- スマホでは動画をポスター画像に置き換える（動きが失われるため、軽量版動画を選択）
+- `background-position` アニメに戻す（2026-09-02 実測で 9fps まで落ちるため不採用）
+
+### Consequences
+- シミュレータは実機の jetsam 上限を再現しないため、実機での再発有無はリリース後に確認する。再発時は iPhone の「設定 > プライバシーとセキュリティ > 解析および改善 > 解析データ」の `JetsamEvent-*.ips` / `com.apple.WebKit.WebContent-*.ips` で原因（メモリ超過かバグか）を切り分ける
+- 他ページ（collection / faq / docs / litepaper / contracts / transparency）の navbar・fx-layer は同じ CSS の複製で、閉じたモバイルメニューの `backdrop-filter` と走査線の `background-position` アニメが残っている（星空と背景動画は無いので負荷は小さい）。同じ対策を横展開する余地あり
+- `assets/hero/` は `vercel.json` で immutable キャッシュ。動画を差し替えるときはファイル名を変える
+
+### Status
+Active
