@@ -820,14 +820,14 @@ members 3d-1（PR #116）の移行 runbook `ops/OT_MIGRATION_RUNBOOK.md` §0.4 �
 ### Decision
 | # | 決定 |
 |---|---|
-| D-16 | コントラクトの ADMIN は **Ledger の EOA で開始**し、Part B（Safe 2-of-3）の後に `grantRole` / `renounceRole` で Safe へ移す。最初から Safe にしない（`setMaxTotalValue` に Safe Transaction Builder が要り、2 台目 Ledger 未入手のため） |
+| D-16 | コントラクトの ADMIN は **会社 MetaMask（PVM の ADMIN と同一 `0x502cef…728a`）で開始**し、Part B（Safe 2-of-3）の後に PVM と一緒に `grantRole` / `renounceRole` で Safe へ移す（同日改訂: 当初「Ledger の EOA」としたが、PVM の ADMIN が Ledger ではなく MetaMask だったため同一運用にする。新たな露出は増えない。`maxTotalValue` は constructor で渡し、移行中に ADMIN の TX を出さない。ADMIN 奪取時にできるのは上限引き上げ＋新規発行（希薄化）と metadata 変更で、既存カードの value 移動は不可） |
 | D-17 | 1 TX の件数は **100**（ブロックガス上限の 1/6。失敗時の損失上限が 1 TX 分。200 にしても総費用は同じで運用回数が 40 → 20 になるだけ） |
 | D-18 | OT_MINTER / OT_CUSTODY の署名鍵は **Cloud KMS（HSM）内で生成**し、紙の封緘バックアップは取らない（鍵素材が HSM 外に存在しないため。R-1 と同じ考え方）。KMS 鍵の一覧と削除権限の限定を引き渡し目録に載せる |
 | D-19 | 退会 `suspended` の会員は初回移行の**対象外のまま**（`--include-suspended` を付けない）。理由: VB 側の返金が未完了で D-10 の差し引きが usermeta に未反映。返金完了 → 差し引き反映後に、追加分は 3d-2 の確定型付与（`ot_issue_value` / `ot_mint_batch`）で扱う |
 
 ### Consequences
 - 移行の前提作業は、法務確認（P-8）→ 12 人の `uni_member=1` → KMS 鍵 2 本（§3.14）→ Amoy デプロイ（`DEPLOY_OT_PREP.md`）→ Signer `.env` → 3b/3c/3d-1 の配置 → stg 予行 → mainnet、の順。退会 22 人の返金確認は移行の前提から外れる（D-19）
-- D-16 により ADMIN 鍵は当面 Ledger 1 台。Part B の Safe 移行時に `DEPLOY_OT_PREP.md` の役割表を更新する
+- D-16 により ADMIN は当面 MetaMask（ホットウォレット）。Part B の Safe 移行時に PVM と同時に移し、`DEPLOY_OT_PREP.md` の役割表を更新する
 
 ### Status
 Active
