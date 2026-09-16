@@ -362,6 +362,7 @@
   - `position: fixed` の全画面要素に `backdrop-filter`、`filter` のアニメ、`background-position` のアニメを付けない。閉じたオーバーレイ（`.mobile-menu` `.pv-lightbox`）は `visibility: hidden` にして `backdrop-filter` を外す（`opacity: 0` だけでは iOS でぼかしが毎フレーム走る）
   - ヒーロー背景動画は JS が `data-src` / `data-src-mobile` から選ぶ（767px 以下は `assets/hero/hero-bg-960.mp4`）。`<video src>` を直書きしない。差し替え時はファイル名を変える（`vercel.json` で immutable キャッシュ）
   - 残りの負荷: 視差エンジン（`[data-pfx]` ×80 の `will-change: opacity, translate, filter` と毎フレームの `getBoundingClientRect`）、`pfx-noise-jitter` ×17（見えている間だけ動く）、無限アニメーション約 80 本。シミュレータ計測ではメモリへの寄与は小さい
+- 数値の調整は Tweaks Studio で行う: `node scripts/tweaks-dev-server.mjs`（既定 8790 番）で配信し、Studio の接続先に `http://localhost:8790` を入れる。同一 LAN の iPhone は `http://<Mac の IP>:8790/`。台帳は `index.html` の `window.PV_TWEAKS`（星空の倍率・fps・DPR 上限、ヒーロー/セクションの視差、ノイズ、走査線/ビネット/色収差）、スライダー定義は dev サーバーの `SCHEMA`。確定値は台帳に焼き込む。本番 HTML にはランタイムも API も含まれない
 - `design-preview.html` は旧方式（2026-09-02 以前）の星空 CSS を複製したまま（社内プレビュー用のため未修正）
 - 他ページ（collection / faq / docs / litepaper / contracts / transparency）の navbar / fx-layer は `index.html` と同じ CSS の複製で、閉じたモバイルメニューの `backdrop-filter` と走査線の `background-position` アニメが残っている（横展開は未実施。星空・背景動画が無いので負荷は小さい）
 

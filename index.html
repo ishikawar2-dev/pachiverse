@@ -1983,7 +1983,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: calc(var(--pfx-noise, 0) * 0.95);
+    opacity: calc(var(--pfx-noise, 0) * var(--tw-noise-mul, 0.95));
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/><feComponentTransfer><feFuncA type='discrete' tableValues='0 0 0 0.4 0.7 1'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
     background-size: 240px 240px;
     background-repeat: repeat;
@@ -3749,40 +3749,76 @@
 </script>
 
 <script>
+  /* Tweaks 台帳 — 開発時の数値調整（Tweaks Studio）用。本番でもここのデフォルト値がそのまま使われる。
+     `node scripts/tweaks-dev-server.mjs` で配信すると /api/dev/tweaks と受信ランタイムが有効になり、
+     Studio のスライダーが約 1 秒で反映される（本番の HTML にはランタイムも API も含まれない）。
+     確定した値はここに焼き込む。CSS 側の値（--tw-* / --fx-*）は PV_TWEAKS_APPLY が :root に反映する。
+     項目の説明・範囲は scripts/tweaks-dev-server.mjs の SCHEMA にある。 */
+  window.PV_TWEAKS = {
+    stars: { on: 1, dprMax: 2, fps: 30, drift: 1, twinkle: 1, parallax: 1, size: 1, alpha: 1, back: 1, mid: 1, front: 1 },
+    hero: { videoOn: 1, parallaxMul: 1 },
+    sections: { parallaxMul: 2, noiseStrength: 0.95 },
+    fx: { scanline: 1, vignette: 1, chroma: 1 }
+  };
+  window.PV_TWEAKS_APPLY = function (values) {
+    var T = window.PV_TWEAKS;
+    var own = Object.prototype.hasOwnProperty;
+    for (var g in values) {
+      if (!own.call(values, g) || !T[g] || !values[g] || typeof values[g] !== 'object') continue;
+      for (var k in values[g]) {
+        if (own.call(values[g], k) && own.call(T[g], k) && typeof values[g][k] === 'number' && isFinite(values[g][k])) T[g][k] = values[g][k];
+      }
+    }
+    var root = document.documentElement.style;
+    root.setProperty('--tw-hero-mul', String(T.hero.parallaxMul));
+    root.setProperty('--tw-parallax-mul', String(T.sections.parallaxMul));
+    root.setProperty('--tw-noise-mul', String(T.sections.noiseStrength));
+    root.setProperty('--fx-scanline', String(T.fx.scanline));
+    root.setProperty('--fx-vignette', String(T.fx.vignette));
+    root.setProperty('--fx-chroma', String(T.fx.chroma));
+    if (window.__pvHeroVideoSync) window.__pvHeroVideoSync();
+    if (window.__pvStarfieldRedraw) window.__pvStarfieldRedraw();
+  };
+  window.PV_TWEAKS_APPLY({});
+</script>
+
+<script>
   /* Starfield — 星 3 層を canvas 1 枚に描く（2026-09-16 iOS Safari メモリ対策。旧 CSS 版の星データをそのまま移植）
      各層: tile [幅, 高さ] で繰り返すパターン / drift [移動量 px, 所要秒]（横方向に無限ループ）/
      parallax: scrollY × 係数（縦方向・折り返し）/ alpha [最小, 最大, 往復秒]（往復秒 0 = 固定）。
-     約 30fps で描画し、非表示タブでは停止、reduce-motion では静止画 1 枚。 */
+     約 30fps で描画し、非表示タブでは停止、reduce-motion では静止画 1 枚。
+     倍率・上限・fps などの調整値は window.PV_TWEAKS.stars（上の台帳）を毎フレーム読む。 */
   (function () {
     var canvas = document.querySelector('.starfield-canvas');
     if (!canvas || !canvas.getContext) return;
     var ctx = canvas.getContext('2d');
     if (!ctx) return;
+    var TW = (window.PV_TWEAKS && window.PV_TWEAKS.stars) ||
+      { on: 1, dprMax: 2, fps: 30, drift: 1, twinkle: 1, parallax: 1, size: 1, alpha: 1, back: 1, mid: 1, front: 1 };
 
     var LAYERS = [
-      { tile: [420, 320], drift: [420, 240], parallax: -0.12, alpha: [0.85, 0.85, 0],
+      { key: 'back', tile: [420, 320], drift: [420, 240], parallax: -0.12, alpha: [0.85, 0.85, 0],
         stars: [[20, 80, 1, '#fff'], [60, 220, 1, 'rgba(255,255,255,0.8)'], [130, 30, 1, '#fff'], [170, 180, 1, 'rgba(180,210,255,0.85)'],
                 [240, 90, 1.5, '#fff'], [290, 260, 1, 'rgba(255,255,255,0.7)'], [340, 50, 1, 'rgba(200,220,255,0.9)'], [380, 200, 1, '#fff']] },
-      { tile: [480, 340], drift: [480, 180], parallax: -0.25, alpha: [0.45, 0.85, 6],
+      { key: 'mid', tile: [480, 340], drift: [480, 180], parallax: -0.25, alpha: [0.45, 0.85, 6],
         stars: [[50, 60, 1.5, 'rgba(150,210,255,0.95)'], [140, 200, 1, '#fff'], [230, 110, 2, 'rgba(255,210,180,0.75)'],
                 [310, 240, 1.5, '#fff'], [390, 30, 1, 'rgba(180,200,255,0.9)']] },
-      { tile: [520, 360], drift: [-520, 140], parallax: -0.4, alpha: [0.5, 1, 4],
+      { key: 'front', tile: [520, 360], drift: [-520, 140], parallax: -0.4, alpha: [0.5, 1, 4],
         stars: [[80, 120, 2, '#fff'], [220, 60, 1.5, 'rgba(255,255,255,0.95)'], [340, 200, 2.5, 'rgba(180,220,255,0.9)'],
                 [130, 280, 1.5, 'rgba(255,180,210,0.8)']] }
     ];
     var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    var MAX_DPR = 2;          // 3x 端末でも 2x で描く（星は 1〜2.5px の点なので十分）
-    var MAX_PIXELS = 4200000; // 大画面では更に解像度を落として GPU メモリを抑える
-    var FRAME_MS = 33;        // 約 30fps
-    var width = 0, height = 0, dpr = 1;
+    var MAX_PIXELS = 4200000; // 大画面では解像度を落として GPU メモリを抑える（DPR の上限は台帳 stars.dprMax。3x 端末でも既定 2）
+    var width = 0, height = 0, dpr = 1, usedDprMax = 0;
     var last = 0, running = false, rafId = 0;
 
     function resize() {
       // iOS のツールバー伸縮で高さが頻繁に変わるため、幅と DPR が同じなら高さは大きくなる時だけ確保し直す
       var w = window.innerWidth, h = window.innerHeight;
-      var d = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      var d = Math.min(window.devicePixelRatio || 1, TW.dprMax);
       if (w * h * d * d > MAX_PIXELS) d = Math.max(1, Math.sqrt(MAX_PIXELS / (w * h)));
       d = Math.round(d * 100) / 100;
+      usedDprMax = TW.dprMax;
       var sameGeom = (w === width && d === dpr);
       if (sameGeom && h <= height) return false;
       width = w; dpr = d;
@@ -3797,28 +3833,31 @@
 
     function layerAlpha(layer, t) {
       var a = layer.alpha;
-      if (!a[2] || reduceMotion) return (a[0] + a[1]) / 2;
+      var center = (a[0] + a[1]) / 2;
+      if (!a[2] || reduceMotion) return center;
       var p = (t / (a[2] * 1000)) % 2;       // 0..2 で往復（alternate）
       if (p > 1) p = 2 - p;
       p = 0.5 - 0.5 * Math.cos(Math.PI * p); // ease-in-out
-      return a[0] + (a[1] - a[0]) * p;
+      return center + (a[0] + (a[1] - a[0]) * p - center) * TW.twinkle;
     }
 
     function mod(n, m) { return ((n % m) + m) % m; }
 
     function draw(t) {
-      var scrollY = reduceMotion ? 0 : (window.scrollY || window.pageYOffset || 0);
       ctx.clearRect(0, 0, width, height);
+      if (!TW.on) return;
+      var scrollY = reduceMotion ? 0 : (window.scrollY || window.pageYOffset || 0);
       for (var L = 0; L < LAYERS.length; L++) {
         var layer = LAYERS[L];
+        if (!TW[layer.key]) continue;
         var tw = layer.tile[0], th = layer.tile[1];
-        var ox = reduceMotion ? 0 : mod((t / 1000) * (layer.drift[0] / layer.drift[1]), tw);
-        var oy = mod(scrollY * layer.parallax, th);
+        var ox = reduceMotion ? 0 : mod((t / 1000) * (layer.drift[0] / layer.drift[1]) * TW.drift, tw);
+        var oy = mod(scrollY * layer.parallax * TW.parallax, th);
         var cols = Math.ceil(width / tw) + 1, rows = Math.ceil(height / th) + 1;
-        ctx.globalAlpha = layerAlpha(layer, t);
+        ctx.globalAlpha = Math.max(0, Math.min(1, layerAlpha(layer, t) * TW.alpha));
         for (var i = 0; i < layer.stars.length; i++) {
           var st = layer.stars[i];
-          var r = st[2] / 2;
+          var r = st[2] / 2 * TW.size;
           ctx.fillStyle = st[3];
           for (var ix = -1; ix < cols; ix++) {
             var x = st[0] + ox + ix * tw;
@@ -3839,7 +3878,8 @@
     function frame(now) {
       rafId = 0;
       if (!running) return;
-      if (now - last >= FRAME_MS) { last = now; draw(now); }
+      if (TW.dprMax !== usedDprMax) resize();
+      if (now - last >= 1000 / Math.max(1, TW.fps)) { last = now; draw(now); }
       rafId = window.requestAnimationFrame(frame);
     }
     function start() {
@@ -3856,6 +3896,8 @@
     draw(0);
     window.addEventListener('resize', function () { if (resize() && !running) draw(last); });
     document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
+    // Tweaks から値が変わったとき、静止中（reduce-motion）でも描き直す
+    window.__pvStarfieldRedraw = function () { if (!running) { if (TW.dprMax !== usedDprMax) resize(); draw(last); } };
     if (!document.hidden) start();
   })();
 </script>
@@ -3871,7 +3913,9 @@
     video.src = src;
     var inView = true;
     function syncPlayback() {
-      if (inView && !document.hidden) {
+      var on = !(window.PV_TWEAKS && window.PV_TWEAKS.hero && window.PV_TWEAKS.hero.videoOn === 0);
+      video.style.visibility = on ? '' : 'hidden';
+      if (on && inView && !document.hidden) {
         var p = video.play();
         if (p && p.catch) p.catch(function (err) { console.debug('hero video: play() rejected', err); });
       } else {
@@ -3886,6 +3930,7 @@
       io.observe(video);
     }
     document.addEventListener('visibilitychange', syncPlayback);
+    window.__pvHeroVideoSync = syncPlayback; // Tweaks（hero.videoOn）から呼ぶ
   })();
 </script>
 
