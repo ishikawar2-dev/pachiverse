@@ -1,10 +1,14 @@
 // Vercel Serverless Function — view / export the subscriber list.
 //
 // Protected by a shared secret. Set an ADMIN_TOKEN environment variable in
-// the Vercel dashboard, then call:
-//   GET /api/subscribers?token=YOUR_TOKEN            -> JSON
-//   GET /api/subscribers?token=YOUR_TOKEN&format=csv -> CSV download
-// (the token may also be sent as an "Authorization: Bearer YOUR_TOKEN" header)
+// the Vercel dashboard, then call with the token in the Authorization header:
+//   curl -H "Authorization: Bearer YOUR_TOKEN" https://pachiverse.com/api/subscribers
+//   curl -H "Authorization: Bearer YOUR_TOKEN" "https://pachiverse.com/api/subscribers?format=csv" -o subscribers.csv
+//
+// 2026-09-21: the "?token=" query-string form was removed (tokens in URLs end up
+// in access logs, browser history and referrers). The comparison is constant-time.
+
+const crypto = require('crypto');
 
 async function redis(command) {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -22,10 +26,26 @@ async function redis(command) {
   return res.json();
 }
 
+// Constant-time comparison. Both sides are hashed first so the buffers always
+// have the same length (timingSafeEqual throws on length mismatch, which would
+// itself leak the token length).
+function tokenMatches(provided, expected) {
+  if (typeof provided !== 'string' || typeof expected !== 'string' || expected.length < 16) return false;
+  const a = crypto.createHash('sha256').update(provided).digest();
+  const b = crypto.createHash('sha256').update(expected).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
 module.exports = async (req, res) => {
-  const headerToken = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
-  const provided = (req.query && req.query.token) || headerToken;
-  if (!process.env.ADMIN_TOKEN || provided !== process.env.ADMIN_TOKEN) {
+  res.setHeader('Cache-Control', 'no-store');
+
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  }
+
+  const headerToken = String(req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
+  if (!tokenMatches(headerToken, process.env.ADMIN_TOKEN || '')) {
     return res.status(401).json({ ok: false, error: 'Unauthorized' });
   }
 
@@ -33,9 +53,14 @@ module.exports = async (req, res) => {
     const out = await redis(['HGETALL', 'subscribers']);
     const flat = (out && out.result) || [];
     const rows = [];
+    let malformed = 0;
     for (let i = 0; i < flat.length; i += 2) {
       let meta = {};
-      try { meta = JSON.parse(flat[i + 1]); } catch (e) { /* ignore */ }
+      try {
+        meta = JSON.parse(flat[i + 1]) || {};
+      } catch (e) {
+        malformed += 1; // keep the row (email is the hash field); the metadata is just unreadable
+      }
       rows.push({ email: flat[i], subscribed_at: meta.ts || '', ref: meta.ref || '' });
     }
     rows.sort((a, b) => (a.subscribed_at < b.subscribed_at ? 1 : -1));
@@ -51,8 +76,9 @@ module.exports = async (req, res) => {
       return res.status(200).send(csv);
     }
 
-    return res.status(200).json({ ok: true, count: rows.length, subscribers: rows });
+    return res.status(200).json({ ok: true, count: rows.length, malformed_meta: malformed, subscribers: rows });
   } catch (err) {
+    console.error('[subscribers] ' + (err && err.message ? err.message : String(err)));
     return res.status(500).json({ ok: false, error: 'Server error' });
   }
 };

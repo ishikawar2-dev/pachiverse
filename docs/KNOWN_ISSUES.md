@@ -56,36 +56,19 @@
 
 ### 購読 API（`api/`）
 
-以下はいずれも**未修正**。改善候補として記載する。
+2026-09-21 に以下を修正した（`api/subscribe.js` / `api/subscribers.js`。Redis モックのローカル検証で 429・401・CSV 等を確認）:
+- レート制限: IP ごとに **5 回/分・30 回/日**（Redis の固定窓カウンタ `subscribe:rl:<窓>:<IP の sha256 先頭 24 桁>:<窓開始>`、`EXPIRE` 付き）。超過は 429 + `Retry-After: 60`。
+  Redis が落ちていれば 500（登録自体もできないので同じ）
+- `api/subscribers.js` のトークンは **`Authorization: Bearer` ヘッダのみ**（`?token=` 経路は廃止。アクセスログ・履歴・リファラに残るため）。
+  比較は sha256 で長さを揃えた `crypto.timingSafeEqual`。`ADMIN_TOKEN` 未設定・16 文字未満は常に 401（fail-closed）
+- 両 API に `Cache-Control: no-store`、`subscribers` は GET 以外 405
+- エラーは `console.error('[subscribe] …')`（Vercel の Functions ログで確認できる。秘密は出さない）
+- `JSON.parse` に失敗した購読メタは行を落とさず `malformed_meta` として件数を返す（一覧の可用性を優先する従来の意図を維持）
 
-- **レート制限がない。** `api/subscribe.js` の防御は honeypot（`body.website`）とメール形式検証のみ。
-  同一 IP からの大量登録を抑止する仕組みがなく、Redis ハッシュを膨らませられる。
-
-- **`api/subscribers.js` のトークン比較がタイミングセーフでない。**
-  `provided !== process.env.ADMIN_TOKEN` は非定数時間比較。
-  `crypto.timingSafeEqual`（長さを揃えたうえで）が定石。
-
-- **管理トークンをクエリパラメータで受け付ける。**
-  `GET /api/subscribers?token=...` は、アクセスログ・リファラ・ブラウザ履歴にトークンが残る。
-  `Authorization: Bearer` ヘッダも受け付けるので、クエリ経路を廃止する余地がある。
-
-- **（メインレビュー検証済み 2026-09-01）** 上記 2 件を `api/subscribers.js` で直接確認。
-  `ADMIN_TOKEN` 未設定時に fail-closed（401）になる点は堅実。実務上のリスクは
-  非定数時間比較（ネットワーク経由のタイミング攻撃は現実には困難）より
-  **クエリパラメータ経路**の方が大きい。修正するなら (1) クエリ経路の廃止、
-  (2) `crypto.timingSafeEqual` 化、の順で対応するのが妥当。PII（購読者メール一覧）の
-  唯一の防御線である点は変わらないため、トークンは十分長いランダム値にすること。
-
-- **購読者の削除・配信停止（unsubscribe）フローが存在しない。**
-  登録と一覧取得のみ実装されている。運用・法令（特定電子メール法等）上の要件は**未確認**。
-
-- **`api/subscribers.js` の JSON.parse が失敗を握り潰す。**
-  `try { meta = JSON.parse(...) } catch (e) { /* ignore */ }` により、
-  メタデータが壊れていても空オブジェクトとして続行し、記録が残らない。
-  ただし一覧表示の可用性を優先した意図的な判断の可能性もあり、**要確認**。
-
-- **エラー時に常に `500 Server error` を返し、詳細をログに出していない。**
-  両ファイルとも `catch (err)` で汎用メッセージのみ返す。Redis 未設定・接続失敗の切り分けができない。
+残っている課題:
+- **購読者の削除・配信停止（unsubscribe）フローが存在しない。** 登録と一覧取得のみ。運用・法令（特定電子メール法等）上の要件は**未確認**。
+  配信は現状行っていない（購読リストを使ったメール送信の実装は無い）
+- レート制限は IP 単位のみ。NAT 配下の複数人が同じ窓で 5 回を超えると 429 になる（購読フォームは「request failed」表示で再試行可）
 
 ### Signer
 
