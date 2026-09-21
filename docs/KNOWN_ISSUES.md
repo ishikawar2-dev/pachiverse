@@ -57,13 +57,20 @@
 ### 購読 API（`api/`）
 
 2026-09-21 に以下を修正した（`api/subscribe.js` / `api/subscribers.js`。Redis モックのローカル検証で 429・401・CSV 等を確認）:
-- レート制限: IP ごとに **5 回/分・30 回/日**（Redis の固定窓カウンタ `subscribe:rl:<窓>:<IP の sha256 先頭 24 桁>:<窓開始>`、`EXPIRE` 付き）。超過は 429 + `Retry-After: 60`。
-  Redis が落ちていれば 500（登録自体もできないので同じ）
-- `api/subscribers.js` のトークンは **`Authorization: Bearer` ヘッダのみ**（`?token=` 経路は廃止。アクセスログ・履歴・リファラに残るため）。
-  比較は sha256 で長さを揃えた `crypto.timingSafeEqual`。`ADMIN_TOKEN` 未設定・16 文字未満は常に 401（fail-closed）
+- レート制限: IP ごとに **5 回/分・30 回/日**（Redis の固定窓カウンタ `subscribe:rl:<窓>:<IP の sha256 先頭 24 桁>:<窓開始>`。
+  `EVAL` で INCR と EXPIRE を 1 往復・原子化）。超過は 429 + `Retry-After`（窓の残り秒数）。Redis が落ちていれば 500、想定外の応答は fail-closed（500）。
+  IP は Vercel が上書きする `x-vercel-forwarded-for` / `x-forwarded-for` の先頭を使う（前段に別プロキシを置いた構成や `vercel dev` では信頼できない）。
+  ハッシュは仮名化であって匿名化ではない（IPv4 空間は逆引き可能。TTL は窓＋5 秒）
+- `api/subscribers.js` のトークンは **`Authorization: Bearer <token>` のみ**（`?token=` 経路とスキーム無しの生トークンは廃止。URL のトークンはアクセスログ・履歴・リファラに残るため）。
+  比較は sha256 で長さを揃えた `crypto.timingSafeEqual`。`ADMIN_TOKEN` 未設定・16 文字未満は常に 401（fail-closed）、401 には `WWW-Authenticate: Bearer`。
+  **`ADMIN_TOKEN` は十分長いランダム値にすること**（401 に遅延・回数制限は無い）
+- CSV 出力は全セルをクォートし、`= + - @ タブ CR` で始まるセルには `'` を前置（式インジェクション対策。`+`/`-` 始まりのメールは正規表現上あり得る）。
+  `ref` はサーバー側で `^[a-z0-9_-]{1,64}$` に制限（フロントは `index` 固定）
 - 両 API に `Cache-Control: no-store`、`subscribers` は GET 以外 405
 - エラーは `console.error('[subscribe] …')`（Vercel の Functions ログで確認できる。秘密は出さない）
 - `JSON.parse` に失敗した購読メタは行を落とさず `malformed_meta` として件数を返す（一覧の可用性を優先する従来の意図を維持）
+- 検証は Redis をモックしたローカルテストのみ（`vercel.json` の `ignoreCommand` で main 以外はビルドされず、プレビューデプロイが無い）。
+  マージ後に本番で 401 / 405 / 400 の実挙動を確認する（429 は実購読者を増やさずには再現できないので確認しない）
 
 残っている課題:
 - **購読者の削除・配信停止（unsubscribe）フローが存在しない。** 登録と一覧取得のみ。運用・法令（特定電子メール法等）上の要件は**未確認**。

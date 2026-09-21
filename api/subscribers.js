@@ -44,8 +44,11 @@ module.exports = async (req, res) => {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const headerToken = String(req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
-  if (!tokenMatches(headerToken, process.env.ADMIN_TOKEN || '')) {
+  // Only the "Bearer <token>" form is accepted (a bare token without the scheme is rejected).
+  const authHeader = String(req.headers['authorization'] || '');
+  const m = /^Bearer\s+(\S+)\s*$/i.exec(authHeader);
+  if (!m || !tokenMatches(m[1], process.env.ADMIN_TOKEN || '')) {
+    res.setHeader('WWW-Authenticate', 'Bearer realm="subscribers"');
     return res.status(401).json({ ok: false, error: 'Unauthorized' });
   }
 
@@ -67,7 +70,14 @@ module.exports = async (req, res) => {
 
     const format = String((req.query && req.query.format) || '').toLowerCase();
     if (format === 'csv') {
-      const esc = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+      // Quote every cell and neutralise spreadsheet formula injection: a cell that starts with
+      // = + - @ or a tab/CR is prefixed with a single quote so Excel / LibreOffice treat it as text
+      // (emails may legitimately start with + or -; `ref` is server-validated but escaped anyway).
+      const esc = (s) => {
+        let v = String(s == null ? '' : s);
+        if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+        return '"' + v.replace(/"/g, '""') + '"';
+      };
       const csv = ['email,subscribed_at,ref']
         .concat(rows.map((r) => [esc(r.email), esc(r.subscribed_at), esc(r.ref)].join(',')))
         .join('\n');

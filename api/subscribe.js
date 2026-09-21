@@ -11,11 +11,18 @@
 //
 // Abuse controls (2026-09-21): honeypot field, email shape check, and a
 // per-IP rate limit kept in Redis (fixed windows: 5 / minute, 30 / day).
-// The IP is stored only as a truncated SHA-256 in the counter key.
+// The counter key holds a truncated SHA-256 of the IP (pseudonymised, not
+// anonymised: IPv4 space is small enough to reverse; keys live one window + 5 s).
+// The client IP is taken from headers that Vercel itself sets and overwrites
+// (x-vercel-forwarded-for / x-forwarded-for); behind another proxy or on
+// `vercel dev` those headers are not trustworthy and everyone shares one bucket.
 
 const crypto = require('crypto');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// `ref` is a short campaign / page tag set by our own front-end ('index'). Anything else is dropped
+// so nothing formula-like ("=HYPERLINK(...)") or free text ends up in the CSV export.
+const REF_RE = /^[a-z0-9_-]{1,64}$/i;
 const RATE_LIMITS = [
   { name: 'minute', windowSec: 60, max: 5 },
   { name: 'day', windowSec: 86400, max: 30 },
@@ -38,30 +45,37 @@ async function redis(command) {
 }
 
 function clientIp(req) {
-  const xff = String(req.headers['x-forwarded-for'] || '');
-  const first = xff.split(',')[0].trim();
-  if (first) return first;
+  // Vercel sets x-vercel-forwarded-for from its own edge and overwrites client-supplied
+  // x-forwarded-for, so the first entry is the real client (not spoofable in this setup).
+  for (const name of ['x-vercel-forwarded-for', 'x-forwarded-for']) {
+    const first = String(req.headers[name] || '').split(',')[0].trim();
+    if (first) return first;
+  }
   const real = String(req.headers['x-real-ip'] || '').trim();
   if (real) return real;
   return (req.socket && req.socket.remoteAddress) || 'unknown';
 }
 
-// Returns true when the request is within limits. Counters are fixed windows
-// (key includes the window start), so no key ever grows past one window.
-async function withinRateLimit(req) {
+// INCR + EXPIRE in one round trip and atomically (no TTL-less key if we crash between them).
+const INCR_WITH_TTL = "local c = redis.call('INCR', KEYS[1]) if c == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return c";
+
+// Returns { ok: true } when within limits, or { ok: false, retryAfter } with the seconds left
+// in the window that was exceeded. Counters are fixed windows (key includes the window start).
+async function checkRateLimit(req) {
   const ipHash = crypto.createHash('sha256').update(clientIp(req)).digest('hex').slice(0, 24);
   const now = Math.floor(Date.now() / 1000);
   for (const limit of RATE_LIMITS) {
     const windowStart = now - (now % limit.windowSec);
+    const remaining = limit.windowSec - (now - windowStart);
     const key = `subscribe:rl:${limit.name}:${ipHash}:${windowStart}`;
-    const incr = await redis(['INCR', key]);
-    const count = Number(incr && incr.result);
-    if (count === 1) {
-      await redis(['EXPIRE', key, String(limit.windowSec + 5)]);
+    const reply = await redis(['EVAL', INCR_WITH_TTL, '1', key, String(remaining + 5)]);
+    const count = Number(reply && reply.result);
+    if (!Number.isFinite(count) || count < 1) {
+      throw new Error('unexpected INCR reply'); // fail closed rather than silently unlimited
     }
-    if (count > limit.max) return false;
+    if (count > limit.max) return { ok: false, retryAfter: remaining };
   }
-  return true;
+  return { ok: true };
 }
 
 module.exports = async (req, res) => {
@@ -89,14 +103,16 @@ module.exports = async (req, res) => {
 
     // Rate limit before touching the subscriber hash. If Redis is down this
     // throws and we answer 500 (the write below would fail anyway).
-    if (!(await withinRateLimit(req))) {
-      res.setHeader('Retry-After', '60');
+    const rl = await checkRateLimit(req);
+    if (!rl.ok) {
+      res.setHeader('Retry-After', String(Math.max(1, rl.retryAfter)));
       return res.status(429).json({ ok: false, error: 'Too many requests' });
     }
 
+    const refRaw = String(body.ref || '').trim();
     const meta = JSON.stringify({
       ts: new Date().toISOString(),
-      ref: String(body.ref || '').slice(0, 120),
+      ref: REF_RE.test(refRaw) ? refRaw : '',
     });
 
     // Only record the first subscription time; ignore if already present.
