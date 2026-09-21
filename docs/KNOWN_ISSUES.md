@@ -56,36 +56,26 @@
 
 ### 購読 API（`api/`）
 
-以下はいずれも**未修正**。改善候補として記載する。
+2026-09-21 に以下を修正した（`api/subscribe.js` / `api/subscribers.js`。Redis モックのローカル検証で 429・401・CSV 等を確認）:
+- レート制限: IP ごとに **5 回/分・30 回/日**（Redis の固定窓カウンタ `subscribe:rl:<窓>:<IP の sha256 先頭 24 桁>:<窓開始>`。
+  `EVAL` で INCR と EXPIRE を 1 往復・原子化）。超過は 429 + `Retry-After`（窓の残り秒数）。Redis が落ちていれば 500、想定外の応答は fail-closed（500）。
+  IP は Vercel が上書きする `x-vercel-forwarded-for` / `x-forwarded-for` の先頭を使う（前段に別プロキシを置いた構成や `vercel dev` では信頼できない）。
+  ハッシュは仮名化であって匿名化ではない（IPv4 空間は逆引き可能。TTL は窓＋5 秒）
+- `api/subscribers.js` のトークンは **`Authorization: Bearer <token>` のみ**（`?token=` 経路とスキーム無しの生トークンは廃止。URL のトークンはアクセスログ・履歴・リファラに残るため）。
+  比較は sha256 で長さを揃えた `crypto.timingSafeEqual`。`ADMIN_TOKEN` 未設定・16 文字未満は常に 401（fail-closed）、401 には `WWW-Authenticate: Bearer`。
+  **`ADMIN_TOKEN` は十分長いランダム値にすること**（401 に遅延・回数制限は無い）
+- CSV 出力は全セルをクォートし、`= + - @ タブ CR` で始まるセルには `'` を前置（式インジェクション対策。`+`/`-` 始まりのメールは正規表現上あり得る）。
+  `ref` はサーバー側で `^[a-z0-9_-]{1,64}$` に制限（フロントは `index` 固定）
+- 両 API に `Cache-Control: no-store`、`subscribers` は GET 以外 405
+- エラーは `console.error('[subscribe] …')`（Vercel の Functions ログで確認できる。秘密は出さない）
+- `JSON.parse` に失敗した購読メタは行を落とさず `malformed_meta` として件数を返す（一覧の可用性を優先する従来の意図を維持）
+- 検証は Redis をモックしたローカルテストのみ（`vercel.json` の `ignoreCommand` で main 以外はビルドされず、プレビューデプロイが無い）。
+  マージ後に本番で 401 / 405 / 400 の実挙動を確認する（429 は実購読者を増やさずには再現できないので確認しない）
 
-- **レート制限がない。** `api/subscribe.js` の防御は honeypot（`body.website`）とメール形式検証のみ。
-  同一 IP からの大量登録を抑止する仕組みがなく、Redis ハッシュを膨らませられる。
-
-- **`api/subscribers.js` のトークン比較がタイミングセーフでない。**
-  `provided !== process.env.ADMIN_TOKEN` は非定数時間比較。
-  `crypto.timingSafeEqual`（長さを揃えたうえで）が定石。
-
-- **管理トークンをクエリパラメータで受け付ける。**
-  `GET /api/subscribers?token=...` は、アクセスログ・リファラ・ブラウザ履歴にトークンが残る。
-  `Authorization: Bearer` ヘッダも受け付けるので、クエリ経路を廃止する余地がある。
-
-- **（メインレビュー検証済み 2026-09-01）** 上記 2 件を `api/subscribers.js` で直接確認。
-  `ADMIN_TOKEN` 未設定時に fail-closed（401）になる点は堅実。実務上のリスクは
-  非定数時間比較（ネットワーク経由のタイミング攻撃は現実には困難）より
-  **クエリパラメータ経路**の方が大きい。修正するなら (1) クエリ経路の廃止、
-  (2) `crypto.timingSafeEqual` 化、の順で対応するのが妥当。PII（購読者メール一覧）の
-  唯一の防御線である点は変わらないため、トークンは十分長いランダム値にすること。
-
-- **購読者の削除・配信停止（unsubscribe）フローが存在しない。**
-  登録と一覧取得のみ実装されている。運用・法令（特定電子メール法等）上の要件は**未確認**。
-
-- **`api/subscribers.js` の JSON.parse が失敗を握り潰す。**
-  `try { meta = JSON.parse(...) } catch (e) { /* ignore */ }` により、
-  メタデータが壊れていても空オブジェクトとして続行し、記録が残らない。
-  ただし一覧表示の可用性を優先した意図的な判断の可能性もあり、**要確認**。
-
-- **エラー時に常に `500 Server error` を返し、詳細をログに出していない。**
-  両ファイルとも `catch (err)` で汎用メッセージのみ返す。Redis 未設定・接続失敗の切り分けができない。
+残っている課題:
+- **購読者の削除・配信停止（unsubscribe）フローが存在しない。** 登録と一覧取得のみ。運用・法令（特定電子メール法等）上の要件は**未確認**。
+  配信は現状行っていない（購読リストを使ったメール送信の実装は無い）
+- レート制限は IP 単位のみ。NAT 配下の複数人が同じ窓で 5 回を超えると 429 になる（購読フォームは「request failed」表示で再試行可）
 
 ### Signer
 
@@ -93,9 +83,9 @@
 2026-09-16 本番移行・9/21 Part A 完了）で解消。「Indexer の実装場所が未確認」は Signer 内蔵の Receipt Checker
 （README「Receipt Checker（Indexer 内蔵）」）で解消。いずれも削除した）
 
-- **`WAIT_FOR_RECEIPT` が `.env.example` に記載されていない。**
-  `src/config/index.ts` は `env.WAIT_FOR_RECEIPT === 'true'` を読むが、
-  `.env.example` に項目がない。設定できることが運用者に伝わらない。
+- **`WAIT_FOR_RECEIPT` は `src/config/index.ts` で読まれるが、`src/` のどこからも参照されていない（2026-09-21 確認: 死んだ設定）。**
+  `.env.example` に無いのは問題ではなく、設定しても何も起きない。次回 Signer を更新するときに config から削除する
+  （Signer は本番 VM 上で動く署名基盤なので、この 1 行のためだけには配置しない）。README への追記も不要。
 
 - **replacement TX（同一 nonce で gas 上げ直し）が意図的に未実装。**
   gas 条件が低く長時間 pending になった場合、自動復旧しない。運用判断が必要。
