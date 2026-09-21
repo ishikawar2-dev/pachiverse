@@ -56,6 +56,15 @@ def num(s):
         return 0.0
 
 
+def holding(m, k):
+    """保有量 = 利用可能残高 + 出庫保留（<key>_withdraw_hold）。
+
+    出庫申請中の分は利用可能残高から保留キーへ移っているだけで会員の保有（members PR #103、D29）。
+    保留だけが残る会員（全量を申請中）を非保有に数えないための加算。
+    """
+    return num(m.get(k)) + num(m.get(k + '_withdraw_hold'))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('export')
@@ -84,9 +93,9 @@ def main():
         return n
     act90, act30, act7 = active(90), active(30), active(7)
     NFT_KEYS = [k for k in HOLDING_KEYS if k not in ('vb_koguchi_amount_man', 'uni_owner_ticket_nft_qty', 'vb_coin_qty')]
-    holders = sum(1 for i in ids if any(num(meta[i].get(k)) > 0 for k in NFT_KEYS))
-    holders_any = sum(1 for i in ids if any(num(meta[i].get(k)) > 0 for k in HOLDING_KEYS))
-    holders_by = {label: sum(1 for i in ids if num(meta[i].get(k)) > 0) for k, label in HOLDING_KEYS.items()}
+    holders = sum(1 for i in ids if any(holding(meta[i], k) > 0 for k in NFT_KEYS))
+    holders_any = sum(1 for i in ids if any(holding(meta[i], k) > 0 for k in HOLDING_KEYS))
+    holders_by = {label: sum(1 for i in ids if holding(meta[i], k) > 0) for k, label in HOLDING_KEYS.items()}
     uni = sum(1 for i in ids if meta[i].get('uni_member') == '1')
     vb = sum(1 for i in ids if meta[i].get('vb_member') == '1')
     regs = sorted(u['user_registered'] for u in users)
@@ -110,7 +119,7 @@ def main():
     print('| 指標 | 値 | 定義 |')
     print('|---|---:|---|')
     print(f'| 30 日活動 / 7 日活動 | {act30:,} / {act7:,} | 同上の 30 日・7 日 |')
-    print(f'| 商品換価権 NFT（パック・持分・パチプロ・島・mini）の保有者 | {holders:,} | 小口・オーナーチケット・PV Coin を除く保有 usermeta のいずれかが 0 より大きい |')
+    print(f'| 商品換価権 NFT（パック・持分・パチプロ・島・mini）の保有者 | {holders:,} | 小口・オーナーチケット・PV Coin を除く保有 usermeta（利用可能残高＋出庫保留 `_withdraw_hold`）のいずれかが 0 より大きい |')
     print(f'| 何らかの保有がある会員（小口・オーナーチケット・PV Coin を含む） | {holders_any:,} | オーナーチケットは Owner\'s Pass の枚数確認用の記録で、ほぼ全会員が持つ |')
     print(f'| UNI 由来 / VB 由来（重複あり） | {uni:,} / {vb:,} | `uni_member = 1` / `vb_member = 1` |')
     print(f'| 別口座へ統合済み | {merged} | `uni_account_merged_into` あり（登録数に含まれる） |')
