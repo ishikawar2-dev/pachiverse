@@ -89,20 +89,13 @@
 
 ### Signer
 
-- **本番用の鍵参照実装（KMS / HSM / MPC）が未実装。**
-  `UnimplementedAccountProvider` が置き場として存在するのみ。
-  現状で動くのは `LocalPrivateKeyAccountProvider`（環境変数の raw private key）だけで、
-  README も「開発 / Amoy のみ。本番では使わない」と明記している。
-  **本番運用開始前に必須の作業**。
+（2026-09-21 整理: 「本番用の鍵参照実装が未実装」は Cloud KMS プロバイダ（`src/accounts/gcpKms.ts`、PR #1/#2、
+2026-09-16 本番移行・9/21 Part A 完了）で解消。「Indexer の実装場所が未確認」は Signer 内蔵の Receipt Checker
+（README「Receipt Checker（Indexer 内蔵）」）で解消。いずれも削除した）
 
 - **`WAIT_FOR_RECEIPT` が `.env.example` に記載されていない。**
   `src/config/index.ts` は `env.WAIT_FOR_RECEIPT === 'true'` を読むが、
   `.env.example` に項目がない。設定できることが運用者に伝わらない。
-
-- **Indexer の実装場所が未確認。**
-  README の責任分界表に「Indexer: receipt 取得 / `confirmed` `failed` の判定」とあるが、
-  本リポジトリ配下に実装が見当たらない。members リポジトリ側か未実装かは**未確認**。
-  **`submitted` は broadcast しただけで成功ではない**ため、Indexer が無いと成否判定ができない。
 
 - **replacement TX（同一 nonce で gas 上げ直し）が意図的に未実装。**
   gas 条件が低く長時間 pending になった場合、自動復旧しない。運用判断が必要。
