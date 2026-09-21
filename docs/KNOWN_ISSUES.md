@@ -83,9 +83,9 @@
 2026-09-16 本番移行・9/21 Part A 完了）で解消。「Indexer の実装場所が未確認」は Signer 内蔵の Receipt Checker
 （README「Receipt Checker（Indexer 内蔵）」）で解消。いずれも削除した）
 
-- **`WAIT_FOR_RECEIPT` が `.env.example` に記載されていない。**
-  `src/config/index.ts` は `env.WAIT_FOR_RECEIPT === 'true'` を読むが、
-  `.env.example` に項目がない。設定できることが運用者に伝わらない。
+- **`WAIT_FOR_RECEIPT` は `src/config/index.ts` で読まれるが、`src/` のどこからも参照されていない（2026-09-21 確認: 死んだ設定）。**
+  `.env.example` に無いのは問題ではなく、設定しても何も起きない。次回 Signer を更新するときに config から削除する
+  （Signer は本番 VM 上で動く署名基盤なので、この 1 行のためだけには配置しない）。README への追記も不要。
 
 - **replacement TX（同一 nonce で gas 上げ直し）が意図的に未実装。**
   gas 条件が低く長時間 pending になった場合、自動復旧しない。運用判断が必要。
