@@ -98,22 +98,24 @@
 | 頻度 | 作業 | 手順書の所在 | 止まったときの影響 |
 |---|---|---|---|
 | 日次（10:00 前後、15 分） | 日次チェック表 18 項目（サイト・readiness・開封件数・burn 待ち・Signer healthz・POL 残高・IPFS 到達・出庫申請・受信箱） | DAY_OF_RUNBOOK §7.1 | 異常の検知が遅れる。会員の権利（WP DB）は失われない |
-| 日次（03:00 頃 cron 作成 → 手動 dispatch） | **burn dispatch（Phase 1: 手動）**。`create` されたバッチを inspect → preflight → dispatch → confirmed 確認 | DAY_OF_RUNBOOK §3、RELEASE_RUNBOOK §6 | TX は 1 件も出ず滞留するだけ（9/9〜14 に 5 日滞留した前例 = I-05、S2）。オンチェーンと正本の不整合が続く。**放置は安全、手動 failed 化は二重 burn の危険** |
+| 日次（03:00 頃 cron がバッチ作成 → 自動 dispatch） | **burn dispatch（Phase 2: 自動、2026-09-21〜）**。人の作業は「auto → manual 降格メールが届いたら status → 原因解消 → 手動 dispatch → `enable-auto`」のみ。週次に `burn-mode status` で `mode=auto` を確認 | DAY_OF_RUNBOOK §3.10・§5.2、members `ops/OPERATIONS_LOG.md` §5.1 | TX は 1 件も出ず滞留するだけ（9/9〜14 に 5 日滞留した前例 = I-05、S2）。オンチェーンと正本の不整合が続く。**放置は安全、手動 failed 化は二重 burn の危険** |
 | 日次（09:30 cron） | `uni_pack_reveal_daily_verify`（割当整合性 19 項目）。失敗時は通知先へメール | DAY_OF_RUNBOOK §7.1、members KNOWN_ISSUES「Allocation commit 後」 | 不整合の検知が止まる。手動は `wp uni-pack-reveal verify-daily` |
 | 日次（02:30 cron ほか） | 資産レコンサイル（コイン / NFT スナップショット、PolygonScan 取得）、監査ログハッシュ検証、ニュース生成 09:00/21:00、IMAP 5 分取り込み | members `docs/01_ARCHITECTURE.md`「Cron」、`ops/CPA_REVIEW_GUIDE.md` §6 | WP-Cron はアクセス駆動で時刻保証なし。ヘルスダッシュボードで次回予定を確認 |
 | 日次（要確認: 現状は 9/8 の手動 1 回のみ） | **本番 DB のダンプ取得と Mac 外への保管**（`wp db export` または phpMyAdmin。監査ログ・台帳の INSERT-only 設計のため日次で足りる）。Signer SQLite と VM ディスクのスナップショットも週 1 で取る方針を決める | DAY_OF_RUNBOOK §1.11（9/8 の手順）。**定期化は未**（§8 #15） | DB 喪失時に会員の権利（台帳・保有）を復元できない |
 | 週次（火曜締め → 水曜 12:00） | 稼働・インシデント記録の更新（デプロイ回数・burn・開封・出庫・verify・監査ログ件数） | `ops/OPERATIONS_LOG.md` §0（8 手順） | 譲渡評価・監査向けの稼働証跡に空白が出る |
 | 週次 | サポート受信箱の未対応確認、Reveal 関連問い合わせ。回答は方針正本に従う | members `docs/14_support_reply_policy.md`、DAY_OF_RUNBOOK §2.3 | 会員対応の遅延 |
-| 週次（公開 7 日後〜） | オンチェーン残高の突合（Packs custody 残 = 500 − 焼却数、PVM_CUSTODY 残 = 500 − 出庫数）、Phase 2 移行判断 | DAY_OF_RUNBOOK §7.2、§3.10 | 不整合の見逃し |
+| 週次（火曜締め） | オンチェーン残高の突合（Packs custody 残 = 500 − 焼却数、PVM_CUSTODY 残 = 500 − 出庫数）。読み取りは `ops/weekly-ops-readout.sh <週初> <週末>` に集約（burn バッチ・開封・出庫・監査ログ・メール・PHP 版・監査ログ v2 の確認まで 1 回で出る） | DAY_OF_RUNBOOK §7.2、members `ops/OPERATIONS_LOG.md` §0 | 不整合の見逃し |
 | 月次 | サポーターズ倶楽部 月次メール（文面更新 → テスト送信 → 送信 → 履歴確認、約 30 分） | `ops/SC_MAIL_MONTHLY_RUNBOOK.md` | 会員への利益還元報告が止まる（差出人は VEGAS BANK 事務局） |
 | 月次 | 請求確認: GCP（VM は Always Free、KMS 月 $7.5 前後）、お名前.com、Vercel、ブラストエンジン残通数、Filebase 容量、Ledger 等 | KMS runbook Q-9、§2 の各行 | 支払い停止でサービス停止（Signer VM・DNS・メール） |
+| 月次 | 管理画面ヘルスチェック（UNI: 運用 → Healthcheck）を開き NG / WARN を確認。「app log dir writable」が WARN/NG ならログ出力先の設定を直す。`admin-actions.log` が 50 MB 超なら `mv` → `gzip` | members `inc/healthcheck.php`、`ops/DEPLOY_CHECKLIST.md` §5「UNI_LOG_DIR」 | 管理操作のファイルログが黙って失われる（監査ログ DB は別） |
 | 月初 | GitHub Actions 枠リセット後に `gh workflow run test.yml --ref main` を実行し結果を記録 | `ops/OPERATIONS_LOG.md` I-04 | CI 未実行のままマージが続く |
 | 随時 | 本番デプロイ（main ベース必須、G1〜G4 ゲート、退避 `ops/rollback/`） | `ops/DEPLOY_CHECKLIST.md` §2〜§4、`scripts/deploy-ssh.sh` / `deploy-files.sh` | 誤ったブランチのプラグイン本体で全面ダウン（I-00、9/1） |
 | 随時 | 出庫申請の承認・送信（機能フラグ `uni_pack_reveal_withdrawal_enabled`、現在 OFF）。承認・dispatch は人間のみ | DAY_OF_RUNBOOK §4、members `docs/13_pvm_withdrawal.md` | 会員を待たせるが自動送信は無い。**送付先アドレスは 1 文字ずつ照合** |
 | 随時 | パック付与（company_reserve から）。usermeta 直接加算は禁止。Pool A/B の取り違え注意 | members KNOWN_ISSUES「Allocation commit 後」、DAY_OF_RUNBOOK §2.1-b | 誤付与（I-02 / I-06 の前例） |
 | 随時 | POL 補充: BURNER / PVM_CUSTODY が 1 POL 未満で 5 POL を会社 MetaMask から送金（人間が MetaMask で） | DAY_OF_RUNBOOK §1.8 | burn / 出庫が失敗し `pending_burn` へ戻る（会員影響なし） |
 | 随時 | Signer の更新: 旧停止 → 新起動（同時 2 インスタンス禁止） | 02_ONCHAIN §4「v1 の運用制約」 | nonce 重複でウォレット停止 |
-| 随時（10〜11 月） | KMS 化 Part A → 翌日の日次 burn で実 TX 検証 → Safe 2-of-3 Part B、第三者監査 | KEY_MANAGEMENT_MIGRATION、03_TRANSFER_PLAN §3〜§4 | 控除項目 A-1 / A-2 / A-5 が残る |
+| 随時（障害時）／半年に 1 回（リハ） | Signer 障害復旧: L1 サービス再起動 〜 L4 VM 再構築。SQLite を失ったら未決着 attempt をチェーンで決着させてから再開（二重 burn 防止）。復旧リハは drill VM で年 2 回、§7 に記録 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | burn・出庫が止まる（会員の権利は WP DB に残る）。リハ未実施だと手順書が「使えない紙」になる |
+| 随時（Part A は 2026-09-21 完了） | ~~KMS 化 Part A~~ → **Safe 2-of-3 Part B**（2 台目 Ledger 到着後。事前準備は KMS runbook §4.0-b、Sepolia リハ §4.0-c）→ 第三者監査（11 月〜） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §3〜§4 | 控除項目 A-2 / A-5 が残る |
 
 ## 5. 緊急連絡先と意思決定者（連絡先の値は別紙）
 
@@ -137,7 +139,9 @@
 | デプロイ・ロールバック・履歴 | `ops/DEPLOY_CHECKLIST.md`、`scripts/deploy-ssh.sh`、`scripts/deploy-files.sh`、`scripts/local-ci.sh` |
 | インシデント初動・カテゴリ別対応・事後手順 | `ops/INCIDENT_RESPONSE.md`（連絡先は §7） |
 | 稼働・インシデント記録（週次） | `ops/OPERATIONS_LOG.md` |
-| 鍵管理移行（KMS / Safe） | `ops/KEY_MANAGEMENT_MIGRATION.md`（ブランチ `docs/key-management-migration-runbook`、PR #51 未マージ）、signer PR #1/#2 |
+| 鍵管理移行（KMS / Safe） | `ops/KEY_MANAGEMENT_MIGRATION.md`（Part A 完了記録 §5.3、Part B 準備 §4.0-b/c、`ops/safe-tx-hash.sh`）、signer `src/accounts/gcpKms.ts` |
+| Signer の障害復旧（VM 再構築・SQLite 消失時の整合回復・復旧リハ） | members `ops/SIGNER_RECOVERY_RUNBOOK.md` |
+| 封緘バックアップ・復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` |
 | サポーターズ倶楽部メール | `ops/SC_MAIL_MONTHLY_RUNBOOK.md`、members `docs/14_support_reply_policy.md`（サポート回答の正本） |
 | 出庫仕様・Signer I/F 契約 | members `docs/13_pvm_withdrawal.md`、`docs/12_signer_interface_v1.md`、`docs/schemas/signer-v1/`（正本） |
 | 台帳 ⇔ オンチェーン突合（別ホストで実行） | members `docs/10_reconciliation_runbook.md`、`docs/README.md`、`docs/reconcile.ts` |
