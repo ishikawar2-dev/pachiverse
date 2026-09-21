@@ -35,13 +35,12 @@
                       radial-gradient(1.5px 1.5px at 240px 90px,#fff 50%,transparent 51%),
                       radial-gradient(1px 1px at 380px 200px,#fff 50%,transparent 51%);
     background-size: 420px 320px; background-repeat: repeat;
-    opacity: 0.6; animation: star-drift 240s linear infinite;
+    opacity: 0.6; /* 2026-09-21: 240 秒周期の background-position-x アニメ（毎フレーム全画面再描画）を停止。1.75px/s のドリフトは知覚できない */
   }
-  @keyframes star-drift { to { background-position-x: 420px; } }
 
   .fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 50; mix-blend-mode: screen; }
-  .fx-scanlines { background-image: repeating-linear-gradient(to bottom,rgba(255,255,255,0.06) 0px,rgba(255,255,255,0.06) 1px,transparent 1px,transparent 3px); opacity: var(--fx-scanline); mix-blend-mode: overlay; animation: scanline-drift 8s linear infinite; }
-  @keyframes scanline-drift { 0% { background-position: 0 0; } 100% { background-position: 0 120px; } }
+  .fx-scanlines { top: -120px; /* ドリフト量ぶん上へ伸ばし transform で下へ流す。background-position のアニメは全画面を毎フレーム再描画する（iOS 対策） */ background-image: repeating-linear-gradient(to bottom,rgba(255,255,255,0.06) 0px,rgba(255,255,255,0.06) 1px,transparent 1px,transparent 3px); opacity: var(--fx-scanline); mix-blend-mode: overlay; animation: scanline-drift 8s linear infinite; }
+  @keyframes scanline-drift { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(0,120px,0); } }
   .fx-vignette { background: radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.55) 90%,rgba(0,0,0,0.9) 100%); opacity: var(--fx-vignette); }
 
   /* Reading progress bar */
@@ -79,8 +78,9 @@
   .hamburger[aria-expanded="true"] .hamburger-icon { background: transparent; }
   .hamburger[aria-expanded="true"] .hamburger-icon::before { top: 0; transform: rotate(45deg); }
   .hamburger[aria-expanded="true"] .hamburger-icon::after { top: 0; transform: rotate(-45deg); }
-  .mobile-menu { position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(14px); z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-  .mobile-menu[data-open="true"] { opacity: 1; pointer-events: auto; }
+  .mobile-menu { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+  /* backdrop-filter は開いている間だけ持つ。閉じた全画面オーバーレイにぼかしが残ると iOS Safari では非表示でも毎フレーム全画面ぼかしが走る（index.html と同じ 2026-09-16 対策。2026-09-21 横展開） */
+  .mobile-menu[data-open="true"] { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.3s ease, visibility 0s; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
   .mobile-menu a { color: #fff; font-size: 24px; font-weight: 500; text-decoration: none; }
 
   /* Trust bar */
