@@ -152,6 +152,7 @@
 | 公平性の開示・お知らせ原稿 | `ops/FAIRNESS_DISCLOSURE_20260909.md`、`ops/ANNOUNCEMENT_*`、`ops/notices/` |
 | メタバース | `pachiverse-world/README.md` → `docs/world/DOCUMENTATION_MAP.md` |
 | 譲渡関連 | 親 `docs/03_TRANSFER_PLAN.md`、`04_DEV_EFFORT_EVIDENCE.md`、`05_DEPRECIATION_ITEMS.md`、`06_USAGE_SCALE.md` |
+| 譲渡日前後の引き渡し手順（順序・不可逆点・受け取り確認） | 親 `docs/12_TRANSFER_HANDOFF_PROCEDURE.md`（骨子。Part B 後に Safe 行を確定） |
 | 既知問題・設計判断 | 親 / members の `KNOWN_ISSUES.md`・`DECISIONS.md` |
 
 ## 7. 既知の制約と壊してはいけないもの（要約）
