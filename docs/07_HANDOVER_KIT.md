@@ -23,13 +23,13 @@
 | コード | 公開サイト + 購読 API | GitHub `ishikawar2-dev/pachiverse`（public/private 要確認） | 個人（アカウント） | UNI の GitHub org へ transfer、Vercel 連携の再設定 | 01_ARCHITECTURE「デプロイ」、メモリ root-repo-gh-account-switch |
 | コード | 会員システム（WordPress プラグイン `uni_memberpage`） | GitHub `pachiverse01-ai/pachiverse-members`（private） | 要確認（org `pachiverse01-ai` の所有者） | org の owner 権限付与または transfer | members `docs/00_OVERVIEW.md` |
 | コード | スマートコントラクト（Foundry） | `~/Developer/pachiverse/pachiverse-contracts`（remote は要確認） | 要確認 | 同上 | 01_ARCHITECTURE |
-| コード | 署名基盤 Signer（TypeScript） | `~/Developer/pachiverse/pachiverse-signer`（PR #1/#2 未マージ） | 要確認 | 同上 | 02_ONCHAIN、05 §3.1 A-1 |
+| コード | 署名基盤 Signer（TypeScript） | `~/Developer/pachiverse/pachiverse-signer`（KMS 対応 PR #1/#2 は 2026-09-16 マージ済み） | 要確認 | 同上 | 02_ONCHAIN、05 §3.1 A-1 |
 | コード | アート生成パイプライン | GitHub `pachiverse01-ai/pvm-art`（private、2026-09-15〜） | 要確認 | 同上 | `pvm-art/README.md`「Git 管理と資産の所在」 |
 | コード | メタバース World Foundation v1.3.1 | GitHub `pachiverse01-ai/pachiverse-world-foundation`（ローカル `~/Developer/pachiverse/pachiverse-world`。グレーボックス段階、G1・P1-10 は Hall v2 後の再実施未了） | 要確認 | 同上。未完成部分は控除メモ J | `pachiverse-world/README.md`、05 §2b J |
 | コード | Genaverse マケプレ設計書（未実装） | members `docs/00_README_FOR_CLAUDE_CODE.md`〜`07_*` | — | コードと同梱 | members `docs/00_OVERVIEW.md` docs 案内 B |
 | インフラ | 会員サイト本番・stg（WordPress、PHP 8.3.31） | お名前.com 共用サーバー `www1036.onamae.ne.jp`、`~/public_html/members.pachiverse.com/` と `stg.members.pachiverse.com/` | 要確認 | サーバー契約の名義変更または UNI 契約サーバーへ移設（移設は買い手判断、05 A-6） | `ops/DAY_OF_RUNBOOK_20260909.md` §0.2、`ops/RELEASE_STATE_20260902.md` §2-b |
 | インフラ | Signer VM（GCP e2-micro、Debian 12） | GCP プロジェクト `pachiverse-signer`（組織 `pachiverse01-org`）、VM `pachiverse-signer`（us-central1-a）、固定 IP 35.192.1.24、systemd `pachiverse-signer.service`、`/opt/signer/` | 要確認（アカウント `pachiverse01@gmail.com`、請求リンク済） | GCP プロジェクトのオーナーを UNI 側にも付与（KMS runbook §2.2「2 名以上」）、請求先の変更 | `ops/RELEASE_STATE_20260902.md` §2-a |
-| インフラ | Cloud KMS（HSM。3 鍵の保管先、移行後） | 同プロジェクト、keyRing `pv-signer`（本番用・未作成）/ `pv-rehearsal`（捨て鍵・削除不可） | 同上 | KMS 化完了後は GCP プロジェクトごと引き渡す。月 $7.5 前後の課金 | KEY_MANAGEMENT_MIGRATION §3.1・§6 Q-9 |
+| インフラ | Cloud KMS（HSM。3 鍵の保管先、移行後） | 同プロジェクト、keyRing `pv-signer`（本番用。Signer 3 鍵＋OT 2 鍵 `ot-minter` / `ot-custody`、2026-09-16 作成）/ `pv-rehearsal`（捨て鍵 `throwaway`。IAM は取り消し済み、cryptoKey 削除は 2026-10-15 以降） | 同上 | KMS 化完了後は GCP プロジェクトごと引き渡す。月 $7.5 前後の課金 | KEY_MANAGEMENT_MIGRATION §3.1・§6 Q-9 |
 | インフラ | 公開サイトホスティング | Vercel プロジェクト `pachiverse`（GitHub `ishikawar2-dev/pachiverse` 連携、main マージで本番。`vercel.json` の `ignoreCommand` で main 以外はビルドしない＝プレビューなし、2026-09-15） | 要確認（Hobby プラン） | Vercel チームへ transfer、環境変数の再設定（`KV_REST_API_*`、`MACHINE_ASSET_BASE`（任意。未設定時はコード既定の R2 URL））、ドメイン割当の付け替え | 01_ARCHITECTURE「デプロイ」、`vercel.json`、`docs/R2_MACHINE_ASSETS_MIGRATION.md` |
 | インフラ | 購読者 Redis | Vercel Redis / Upstash（`KV_REST_API_*`） | 要確認 | Vercel と同時に移管 | 00_OVERVIEW「外部サービス」 |
 | インフラ | PV 動画・機体画像ホスティング | Cloudflare R2 バケット `pachiverse-media`（公開 URL `pub-4f767ce43f34417aa267bf5a563efdcf.r2.dev`）。PV 動画に加え、2026-09-15 から公開サイトの機体画像 `assets/machines/{t,d}` 1,000 件（sha256 マニフェストは `pvm-art/out/MANIFEST_webp.sha256`、原本は `pvm-art/out/web/`）。リポジトリには置かない | 個人（オーナーの Cloudflare アカウント） | UNI の Cloudflare アカウントへバケット再作成（`rclone sync`、Cache-Control immutable）・`MACHINE_ASSET_BASE` 差し替え。第 2 コピー（別バケット or Filebase）は未作成 | 00_OVERVIEW「外部サービス」、`docs/R2_MACHINE_ASSETS_MIGRATION.md` |
@@ -50,7 +50,7 @@
 | 外部サービス | GitHub Actions（members の CI。無料枠を 9/11 に超過） | `pachiverse01-ai` org | 要確認 | org 移管と同時。課金しない方針 | `ops/OPERATIONS_LOG.md` I-04 |
 | ウォレット | 会社ウォレット = ADMIN = PACK_CUSTODY = デプロイ・premint 署名者 | `0x502cef1173c162a39d8b23fa69579d862c2c728a`（MetaMask。同鍵を Foundry keystore `deployer` に取込済）。Pack 1101 / 1202 の custody 保有者（premint 300 / 200、9/14 の burn 64 枚後は 269 / 167。以後は開封分だけ減る）、POL 補充元（9/6 時点 1,325 POL） | 会社（呼称上）。実際の保管者はオーナー | **譲渡・引き継ぎ時の最重要アイテム**（02_ONCHAIN §11）。Safe 2-of-3 化後に ADMIN は Safe へ、PACK_CUSTODY は MetaMask のまま。鍵の引き渡し手順は Part B 完了後に別紙 | DAY_OF_RUNBOOK §0.3、KEY_MANAGEMENT_MIGRATION §1 |
 | ウォレット | PVM_CUSTODY（PVM 500 体の保管・出庫 TX 署名） | `0x3a6cf63047fC81f9B8a3ae3990fE4Af1F091ae49`。鍵は Cloud KMS `pv-signer/pvm-custody` v1（HSM、2026-09-16 移行済み）＋紙 1 部封緘（R-1、2026-09-16 作成・再導出一致） | 会社（用途上） | GCP プロジェクトと紙バックアップの引き渡し。ローテーション（500 体移転）は行わない（オーナー決定 9/15） | 同上、KMS runbook R-1 |
-| ウォレット | BURNER（Pack burn 署名）/ MINTER（finalize 済で実質無用） | `0xcE5cd2929e4f99D5493347962F53A81447fBA688` / `0x8CeAbd264ac7700E71eCAdB286DDc0E62Ff2b575`。鍵は Signer VM（KMS 化後は Cloud KMS `burner` / `minter`） | 会社（用途上） | GCP プロジェクトごと。BURNER は Safe 経由で付け替え可能 | 同上 |
+| ウォレット | BURNER（Pack burn 署名）/ MINTER（finalize 済で実質無用） | `0xcE5cd2929e4f99D5493347962F53A81447fBA688` / `0x8CeAbd264ac7700E71eCAdB286DDc0E62Ff2b575`。鍵は Cloud KMS `pv-signer/burner` / `pv-signer/minter` v1（HSM、2026-09-16 移行済み） | 会社（用途上） | GCP プロジェクトごと。BURNER は Safe 経由で付け替え可能 | 同上 |
 | ウォレット | Safe 2-of-3（ADMIN の移行先。**未作成**） | 署名者予定: 会社 MetaMask・オーナーの Ledger・新規調達の 2 台目 Ledger（冷蔵鍵） | 会社（予定） | 署名者に UNI 側を入れる案は要オーナー判断（03 §4.1 策 4） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §5 |
 | コントラクト | PachiverseMachines（PVM, ERC721、finalize・freeze 済） | Polygon `0x55E3A05eaAc41aAeB596227CD4076e91033541b3`（Verified） | オンチェーン（ADMIN が実効的な所有） | ADMIN 権限の Safe 移行で引き渡し | RELEASE_STATE §1、`pachiverse-contracts/DEPLOY_PVM_20260909.md` §3 |
 | コントラクト | PachiverseMysteryPacks V2（PVPACK, ERC1155、finalize・freeze 済） | Polygon `0x2B5DaC082f664986e77b4f075617D1908BBd109C`（Verified） | 同上 | 同上 | 同上 |
@@ -70,7 +70,7 @@
 
 | 認証情報 | 保管場所 | 保持者（役職） | ローテーション状況 |
 |---|---|---|---|
-| Signer 3 鍵（MINTER / PVM_CUSTODY / BURNER） | **Cloud KMS `pv-signer/{minter,pvm-custody,burner}` v1（HSM、2026-09-16 インポート済み）。VM の `.env` に平文鍵は無い。** 残置: VM `/root/signer-env-20260915-1835.bak`（root 600、平文鍵を含む。§3.12 で shred 予定） | GCP プロジェクトオーナー 2 名（`pachiverse01@gmail.com`、`ishikawar2@gmail.com`）。VM SA に cryptoKey 単位 signerVerifier | ローテーションなし（インポート方式）。`.bak` の shred と移行前スナップショットの削除（R-7）が残り |
+| Signer 3 鍵（MINTER / PVM_CUSTODY / BURNER） | **Cloud KMS `pv-signer/{minter,pvm-custody,burner}` v1（HSM、2026-09-16 インポート済み）。VM の `.env` に平文鍵は無い。** 平文の `.bak` は 2026-09-21 に shred 済み、移行前スナップショット等は 0 件（R-7 クローズ）。平文鍵は R-1 の紙 1 部（PVM_CUSTODY）のみ | GCP プロジェクトオーナー 2 名（`pachiverse01@gmail.com`、`ishikawar2@gmail.com`）。VM SA に cryptoKey 単位 signerVerifier | ローテーションなし（インポート方式）。Part A は 2026-09-21 完了（members `ops/KEY_MANAGEMENT_MIGRATION.md` §5.3）。KMS のデータアクセス監査ログは 2026-09-21 15:4x JST から有効 |
 | PVM_CUSTODY の紙バックアップ 1 部 | **作成済み（2026-09-16）。石川の個人手帳に封緘して保管**（Safe 冷蔵鍵とは別の場所にすること。紙からアドレスを再導出して一致確認済み） | オーナー | 譲渡時は紙ごと引き渡し、UNI 側で再導出確認 |
 | 会社 MetaMask（ADMIN / PACK_CUSTODY）のシード | オーナー管理（保管場所は**要確認**、別紙） | オーナー | 未ローテーション。ADMIN は Safe へ移行予定、PACK_CUSTODY はこのまま |
 | Foundry keystore `deployer`（会社 MetaMask の鍵の取込） | Mac `~/.foundry/keystores/deployer`（パスワードはオーナーのみ） | オーナー | Safe 移行後は `revokeRole` 等の用途が Safe に置き換わる |
@@ -86,7 +86,7 @@
 | ブラストエンジン管理画面ログイン、WP Mail SMTP の SMTP 認証 | ブラストエンジン側アカウント／本番 WP のプラグイン設定（リポジトリ外） | 運用担当 | 要確認 |
 | お名前.com コントロールパネル（サーバー NAVI・DNS・SSH 登録・phpMyAdmin） | お名前.com アカウント（別紙） | オーナー | 要確認 |
 | お名前.com SSH 鍵（RSA 4096）、FTPS デプロイアカウント | Mac `~/.pachiverse-deploy/onamae_rsa`（コンパネ登録名 `pachiverse-deploy`、国外アクセス制限 ON）、`~/.netrc-deploy-members`（FTP アカウント `deploy@members.pachiverse.com`、スコープ限定） | 運用担当 | 2026-09-01〜02 作成 |
-| GCP アカウント・VM SSH 鍵 | Google アカウント `pachiverse01@gmail.com`（プロジェクトオーナー。**2 名以上にする作業が未**）、Mac `~/.pachiverse-deploy/gce_ed25519`、ローカル ADC（オーナー個人 Google アカウント、捨て鍵 `throwaway` への signerVerifier 付与が残っている） | オーナー | 捨て鍵の IAM 取り消しは未実施 |
+| GCP アカウント・VM SSH 鍵 | Google アカウント `pachiverse01@gmail.com`（プロジェクトオーナー。`ishikawar2@gmail.com` もオーナーで 2 名体制）、Mac `~/.pachiverse-deploy/gce_ed25519`、ローカル ADC（オーナー個人 Google アカウント） | オーナー | 捨て鍵 `throwaway` の IAM は取り消し済み（2026-09-21）。cryptoKey 削除は 2026-10-15 以降 |
 | Vercel 環境変数（`KV_REST_API_*`、`ADMIN_TOKEN`、`MACHINE_ASSET_KEY`、`MEMBERS_API_BASE`） | Vercel プロジェクト `pachiverse` の Production / Preview / Development | オーナー | `ADMIN_TOKEN` は購読者 PII の唯一の防御線（親 KNOWN_ISSUES） |
 | GitHub アカウント（`ishikawar2-dev` / `pachiverse01-ai`）、Vercel、Cloudflare、OpenSea、Filebase、Pinata、fal.ai、Etherscan、RPC 事業者の各ログイン | 各サービスのアカウント（別紙。復旧コードの封緘は 03 §4.1 策 2 で予定・未実施） | オーナー | 要確認 |
 | IPFS / 生成系のファイル渡しキー | Mac `~/.fal_key` / `~/.pinata_key` / `~/.filebase_keys` / `~/.polygonscan_key` | オーナー | 要確認 |
