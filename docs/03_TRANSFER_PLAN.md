@@ -145,6 +145,7 @@
 
 - `Pachiverse_開発工数表_v1.1_2026-09-07.md`（ルート直下、Git 管理外）— 第 4〜5 章・第 7 章・付録 B
 - [DECISIONS.md](DECISIONS.md) — 2026-09-15 の決定エントリ
+- [14_TRANSFER_MATERIALS_INDEX.md](14_TRANSFER_MATERIALS_INDEX.md) — 譲渡資料インデックス（フェーズ H の後半。所在・用途・読者・状態の一覧、初稿 2026-09-24）
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — 技術的負債の一覧
 - 鍵管理移行の runbook・PR #1/#2/#51（pachiverse-signer）
 - 2026-09-07 全面レビュー報告書（`~/Downloads`、§0 の 10 件）

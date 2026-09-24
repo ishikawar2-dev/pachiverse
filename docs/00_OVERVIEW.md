@@ -109,6 +109,9 @@ Signer の環境変数一覧は [02_ONCHAIN.md](02_ONCHAIN.md) を参照。
 - [09_MAINTENANCE_HANDOVER_TERMS.md](09_MAINTENANCE_HANDOVER_TERMS.md) — 譲渡後の保守・引継ぎ期間の条件案（3＋9 ヶ月案、範囲、SLA 案、費用の枠組み、IP 帰属）。**初稿、要確認 13 件**
 - [10_PII_TRANSFER_MEMO.md](10_PII_TRANSFER_MEMO.md) — 会員データ移管の個人情報保護法上の整理メモ（当事者関係、保有データ一覧、法的整理の候補、弁護士確認論点、通知文案 2 案）。**初稿、法的判断は弁護士確認前**
 - [11_INFRA_MIGRATION.md](11_INFRA_MIGRATION.md) — インフラの現状と移行案（構成・名義・単一障害点、案 A 名義変更／案 B 再構築、移管順序、必ず切り替わるもの）。**初稿、要確認 14 件**
+- [12_TRANSFER_HANDOFF_PROCEDURE.md](12_TRANSFER_HANDOFF_PROCEDURE.md) — 権限移転・譲渡時の引き渡し手順書（タイムライン・権限移転表・受け取り確認・不可逆点）。**骨子、Safe 2-of-3 完了後に確定**
+- [13_UNI_ACQUISITION_RATIONALE.md](13_UNI_ACQUISITION_RATIONALE.md) — UNI 側の取得理由書（代表決裁の添付。金額は評価書受領後）。**初稿、代表が内容確認済み**
+- [14_TRANSFER_MATERIALS_INDEX.md](14_TRANSFER_MATERIALS_INDEX.md) — 譲渡資料インデックス（資料の所在・用途・読者・状態の一覧、未作成の資料 15 件）。**初稿**
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — 既知問題・技術的負債・壊れやすい箇所・未確認事項
 
 ### このリポジトリ外の資料
