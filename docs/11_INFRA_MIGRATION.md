@@ -145,7 +145,7 @@
 | 4 | Cloudflare R2 | UNI の Cloudflare アカウントでバケット再作成 → `rclone sync`（Cache-Control immutable）→ 件数・sha256 照合（`pvm-art/out/MANIFEST_webp.sha256`）→ Vercel の `MACHINE_ASSET_BASE` を新 URL に変更して Redeploy → 旧バケットは一定期間並行 | 無し | `MACHINE_ASSET_BASE`（HMAC 鍵 `MACHINE_ASSET_KEY` は**変えない**。変えるとファイル名が全件変わり再アップロードになる） | `/api/collection` の画像 URL と og:image が新 URL、全件 HEAD 200 |
 | 5 | Vercel | プロジェクトを UNI のチーム（Pro 等）へ transfer。環境変数（`KV_REST_API_*`、`ADMIN_TOKEN`、`MACHINE_ASSET_KEY`、`MACHINE_ASSET_BASE`、`MEMBERS_API_BASE`）の再設定。ドメイン割当の付け替え。Redis を UNI 側へ再作成する場合は購読者データを HGETALL で移す | DNS 切替時に数分 | `ADMIN_TOKEN`（ローテーション） | 公開サイト表示、購読登録 → 一覧取得 |
 | 6 | お名前.com（会員サイト・メール） | サーバー契約の名義変更（または UNI 名義の再契約と移設 = 案 B）。SSH 鍵・FTPS デプロイアカウント・wp-admin Basic 認証・WP 管理者を UNI 側運用者のものに追加し、オーナー分を削除。ブラストエンジンの契約名義変更 | 名義変更のみなら無し | WP DB パスワード・salts（未ローテーション。この機会に実施）、SMTP 認証、Webhook トークン、HMAC 鍵 | `/login/` 200、テストメール SPF/DKIM/DMARC PASS、WP → Signer 疎通（TX を出さない §1.17） |
-| 7 | ウォレット・Safe | 会社 MetaMask のシード封緘と復旧テスト → UNI 側へ引き渡し。Safe 2-of-3（Part B 後）の署名者にオーナーの Ledger の代わりに UNI 側署名者を追加し、旧署名者を除去。OpenSea 編集権の再取得 | Signer 停止なし（PACK_CUSTODY は変えない） | Safe 署名者 | Safe UI で署名者 3 名・threshold 2、`hasRole(DEFAULT_ADMIN_ROLE, Safe)` true |
+| 7 | ウォレット・Safe | 会社 MetaMask のシード封緘と復旧テスト → UNI 側へ引き渡し。Safe 2-of-3（Part B 後）の署名者 2・3 は最初から UNI 管理の Ledger（DECISIONS 2026-09-24 U-9）。保守満了時に会社 MetaMask を UNI 新規鍵へ `swapOwner`。OpenSea 編集権の再取得 | Signer 停止なし（PACK_CUSTODY は変えない） | Safe 署名者 | Safe UI で署名者 3 名・threshold 2、`hasRole(DEFAULT_ADMIN_ROLE, Safe)` true |
 | 8 | 個人端末の解消 | Mac にしか無いもの（keystore・SSH/FTPS 鍵・原本画像 10GB・DB ダンプ）を UNI 側の保管先へ複製し、sha256 で照合。封緘バックアップ runbook §4 の完了条件を満たす | 無し | — | `SEALED_BACKUP_RUNBOOK.md` §5 の記録が全項目埋まる |
 
 ### 5.1 ステップ別ロールバック
@@ -169,7 +169,7 @@
 |---|---|---|---|
 | WP ⇔ Signer の HMAC 鍵 2 本（`wp2026a` / `sg2026a` 系） | 両サーバーに平文で存在し、旧運用者が値を知っている | RELEASE_STATE §2-a「ローテーション時は両側に新旧 2 本を並べる」 | 片側だけ変えると 401 / 409。`payload_hash` 実装は触らない |
 | KMS IAM | プロジェクトオーナーがオーナー保有アカウントから UNI 側アカウントへ | KEY_MANAGEMENT_MIGRATION §2.2・§3.9 | VM のサービスアカウントの `signerVerifier`（cryptoKey 単位）は不変。鍵バージョンは destroy しない |
-| Safe 署名者 | オーナーの Ledger を UNI 側署名者に置換 | KEY_MANAGEMENT_MIGRATION §4（Part B） | 署名前に safeTxHash を Safe UI の外で独立計算（Q-10） |
+| Safe 署名者 | Ledger 2 台は最初から UNI 管理（U-9）。満了時に会社 MetaMask を UNI 新規鍵へ `swapOwner` | KEY_MANAGEMENT_MIGRATION §4（Part B） | 署名前に safeTxHash を Safe UI の外で独立計算（Q-10） |
 | SMTP 認証・ブラストエンジン Webhook トークン | 契約名義・アカウントの変更に伴う | `ops/SC_MAIL_MONTHLY_RUNBOOK.md`、WP Mail SMTP 設定（本番のみ） | 本番設定はリポジトリに無い。変更前に現設定を控える |
 | DKIM（`vegasbank-nft.com` セレクタ `be2026`、`pachiverse.com` の `default`） | ブラストエンジンを再契約すると DKIM 鍵が変わり DNS 更新が要る | SC_MAIL_MONTHLY_RUNBOOK §「送信ドメイン認証」 | 旧 SendGrid の DKIM（s1/s2）は名残。移管時に整理 |
 | WP DB パスワード・WordPress salts | 未ローテーション（CPA_REVIEW_GUIDE §8 未着手、05 §3.7） | `wp-config-secrets.php`（値は書かない） | salts 変更で全会員が再ログイン。告知して実施 |
