@@ -29,10 +29,10 @@ Part B 完了後に §3 の Safe 行を確定値で埋め、譲渡契約の締�
 | **T（譲渡日）** | 契約・IP | 契約締結。IP 移転（09 §8）。コードは GitHub org の所有権移転（§3-1） | 契約は不可逆 |
 | T | 権限の追加 | §3 の各行の「UNI 側を追加」を実行（削除はまだしない） | — |
 | T+1〜T+3 | 受け取り確認 | §4 を UNI 側運用者（または見届け役）が実施。全部 OK になるまで旧権限を消さない | — |
-| T+3 | **オンチェーン権限** | Safe の署名者にオーナーの Ledger を残したまま、**冷蔵鍵（2 台目 Ledger）を UNI 側保管へ**（09 §7）。ADMIN 移転済みが前提（Part B） | 鍵の物理移動 |
+| T+3 | **オンチェーン権限** | Safe の署名者構成は変えない（Ledger A / B は最初から UNI 管理。DECISIONS 2026-09-24 U-9）。**会社 MetaMask のシード封緘物を UNI へ引き渡し**、UNI 側端末で復元してアドレス一致を確認（09 §7）。ADMIN 移転済みが前提（Part B） | 鍵の物理移動 |
 | T+7 | 旧権限の削除（第 1 弾） | オーナー個人アカウントの WP 管理者・SSH/FTPS・GCP オーナーを削除し、保守用の別アカウント（限定権限）に切替（09 §7「保守期間中」） | 削除は戻せるが記録する |
 | 保守期間中 | 並走 | 09 §2〜§6 のとおり。月次で見届け役と状況共有 | — |
-| 保守満了 | 旧権限の削除（第 2 弾） | Safe の署名者からオーナーの Ledger を外し UNI 側の鍵に差し替え（**不可逆**）。オーナー保有の紙バックアップ（R-1）を UNI 側に渡し、再導出で一致確認のうえオーナー側の写しは廃棄（廃棄を両者で確認） | **不可逆** |
+| 保守満了 | 旧権限の削除（第 2 弾） | Safe の署名者 1（会社 MetaMask。シードが石川の手を経ている）を UNI が新規生成した鍵へ `swapOwner`（Safe 上の TX、2 署名）し、石川側の MetaMask 拡張・Foundry keystore `deployer` から当該アカウントを削除（**不可逆**）。オーナー保有の紙バックアップ（R-1）を UNI 側に渡し、再導出で一致確認のうえオーナー側の写しは廃棄（廃棄を両者で確認） | **不可逆** |
 
 ## 2. 引き渡すものの順序（依存関係）
 
@@ -41,7 +41,7 @@ Part B 完了後に §3 の Safe 行を確定値で埋め、譲渡契約の締�
   └ コード（GitHub org 所有権）
       └ 実行基盤の権限（WP / SSH / GCP / Vercel / Cloudflare / Filebase / ブラストエンジン / お名前.com）
           └ 認証情報の所在（07 §3 の各行。値ではなく「誰が持つか」）
-              └ オンチェーン権限（Safe 署名者・冷蔵鍵・PACK_CUSTODY の会社 MetaMask）
+              └ オンチェーン権限（Safe 署名者・PACK_CUSTODY の会社 MetaMask）
                   └ 紙バックアップ（PVM_CUSTODY R-1）と復旧コード
 ```
 
@@ -60,7 +60,7 @@ Part B 完了後に §3 の Safe 行を確定値で埋め、譲渡契約の締�
 | 6 | Filebase / Pinata（IPFS ピン） | UNI 側アカウントで**同じ CID を再ピン**してから、オーナー側の課金停止 | #6 | オーナー側のピンを解除（両方で CID 到達を確認した後） | ピン解除は CID が消える方向なので最後 |
 | 7 | ブラストエンジン / WP Mail SMTP 設定 | 契約名義を UNI へ。SMTP 認証情報のローテーション（11 §6） | #7 | 旧認証情報の失効 | 送信停止を避けるため平日昼に |
 | 8 | Signer の HMAC 鍵（`wp2026a` / `sg2026a`） | ローテーション: 新旧 2 本を両側に並べる → 新に切替 → 旧を外す（`ops/RELEASE_STATE_20260902.md` §2-a） | #8 | 旧鍵の削除 | 片側だけ更新すると burn / 出庫が止まる |
-| 9 | **Safe 2-of-3（ADMIN）** | Part B 完了が前提。署名者: 会社 MetaMask（UNI 側管理へ）・オーナーの Ledger・冷蔵鍵（UNI 側保管へ、T+3） | #9 | 満了時にオーナーの Ledger を UNI 側の鍵へ `swapOwner`（Safe 上の TX、2 署名） | **swapOwner は不可逆**。Sepolia で先にリハ（KMS runbook §4.0-c） |
+| 9 | **Safe 2-of-3（ADMIN）** | Part B 完了が前提。署名者: 会社 MetaMask（T+3 にシード封緘物を UNI へ）・Ledger A・Ledger B（いずれも最初から UNI 管理。U-9） | #9 | 満了時に会社 MetaMask を UNI 新規鍵へ `swapOwner`（Safe 上の TX、2 署名） | **swapOwner は不可逆**。Sepolia で先にリハ（KMS runbook §4.0-c） |
 | 10 | 会社 MetaMask（PACK_CUSTODY・POL 補充元） | シードの所在確認（07 §8 #7）→ 封緘 → UNI 側へ引き渡し、**別端末で復元して同一アドレスを確認** | #10 | オーナー側の MetaMask から削除 | 復元確認前に削除しない |
 | 11 | PVM_CUSTODY の紙（R-1） | 封緘のまま UNI 側へ。`SEALED_BACKUP_RUNBOOK.md` の復旧テスト手順で再導出一致を確認 | #11 | オーナー側の写しは持たない（元から 1 部） | 紛失＝PVM 500 体の最終手段を失う |
 | 12 | 各 SaaS（OpenAI / Anthropic / Google Sheets / Etherscan / RPC） | UNI 側で再契約し、`wp-config-secrets.php` と Signer `.env` の値を差し替え（11 §6） | #12 | 旧キーの失効 | 差し替え順は 11 §5 |
