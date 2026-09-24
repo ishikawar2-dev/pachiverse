@@ -16,7 +16,7 @@
 | # | 項目 | 内容（事実） | 金額レンジの根拠 | 状態（2026-09-15） | 根拠資料の所在 | 影響の性質 |
 |---|---|---|---|---|---|---|
 | A-1 | 署名サーバの鍵管理 | 3 鍵（MINTER / PVM_CUSTODY / BURNER）がクラウド VM 上に平文 | 工数表 §7-1: 60〜100 万円 | 計画あり（runbook 確定・リハ成功・実施は 10 月） | members `ops/KEY_MANAGEMENT_MIGRATION.md`（PR #51）、signer PR #1/#2、[DECISIONS.md](DECISIONS.md) 2026-09-15 | (a) |
-| A-2 | ADMIN 権限の集中 | コントラクトの DEFAULT_ADMIN_ROLE が MetaMask 1 本 | 工数表 §7-2: 40〜60 万円 | 計画あり（Safe 2-of-3 の署名者確定、UNI 側の Ledger 2 台調達待ち） | 同上 runbook Part B | (a) |
+| A-2 | ADMIN 権限の集中 | コントラクトの DEFAULT_ADMIN_ROLE が MetaMask 1 本 | 工数表 §7-2: 40〜60 万円 | 計画あり（Safe 2-of-3 の署名者確定、新品 Ledger 1 台の調達と既存機の譲渡待ち） | 同上 runbook Part B | (a) |
 | A-3 | 単一障害点・運用の属人性 | Signer は 1 台構成（nonce 管理上、同時稼働不可）。運用担当 1 名、2 人目未選定 | 工数表 §7-3: 80〜130 万円（付録 B-7 と同額） | 未着手（人選はオーナー判断。稼働記録は 9/15 開始） | [KNOWN_ISSUES.md](KNOWN_ISSUES.md)「壊れやすい箇所」、members `ops/OPERATIONS_LOG.md` | (a) |
 | A-5 | 第三者セキュリティ監査の未了 | コントラクト・署名サーバ・会員サイトのいずれも外部監査記録なし | 工数表 §7-5: 100〜170 万円。指摘是正費は未見積 | 計画あり（10 月スコープ確定・発注、11 月開始） | 03_TRANSFER_PLAN §3・§5 | (a) |
 | C | WordPress 依存部分の再調達差 | 会員システムは WordPress + 自作プラグイン（PHP 約 6.8 万行）。共用サーバー前提の設計 | 金額未算定（根拠: 工数表 第 3 章の該当工程と外注見積の差。§3.3） | — | 工数表 第 3 章・第 4 章、03_TRANSFER_PLAN §2.2 | (b) |
@@ -49,7 +49,7 @@
 
 **A-1 鍵管理（60〜100 万円）**。工数表 v1.1 時点は「コード実装済み・実施は 9/10 以降」だったが、9/15 時点では次まで進んだ: 移行方式は既存 3 鍵を Google Cloud KMS（HSM）へインポート（新鍵切替なし）、2026-09-14 に捨て鍵でインポート→署名→アドレス復元一致のリハーサル成功、未決事項 8 件（Q-4/Q-9/Q-10/R-1〜R-7）はオーナーが 9/15 に確定し runbook §6 に反映。前提作業 finalizeMinting（9/8）・freezeMetadata（9/14）は完了。**未実施**: signer PR #1/#2 と members PR #51 のマージ、本番鍵インポート（Part A、後戻り不可）、移行翌日の実 TX 検証、VM 平文の後始末。KMS 利用料は月 $7.5 前後（Q-9）。控除は「実施の残工数」に限定してよいが、実施完了までは工数表の値をそのまま置く。
 
-**A-2 ADMIN 集中（40〜60 万円）**。Safe 2-of-3 の署名者は確定（会社 MetaMask・UNI 管理の Ledger 2 台。2026-09-24 U-9）。Safe へ移すのは DEFAULT_ADMIN_ROLE のみ。UNI 側の Ledger 2 台の調達・初期化と Part A 完了（済）が前提のため、実施は 10 月中の見込み。旧 ADMIN の除去は Safe 経由の `revokeRole`（R-6）。
+**A-2 ADMIN 集中（40〜60 万円）**。Safe 2-of-3 の署名者は確定（会社 MetaMask・UNI 管理の Ledger 2 台。2026-09-24 U-9）。Safe へ移すのは DEFAULT_ADMIN_ROLE のみ。新品 Ledger 1 台の調達・既存機の譲渡と UNI 側での初期化、Part A 完了（済）が前提のため、実施は 10 月中の見込み。旧 ADMIN の除去は Safe 経由の `revokeRole`（R-6）。
 
 **A-3 単一障害点・属人性（80〜130 万円）**。Signer は nonce 管理のため 1 インスタンス固定（`docs/KNOWN_ISSUES.md`「絶対に壊してはいけないもの」）。運用は PO・実装・レビュー・デプロイ承認・鍵操作が 1 名に集中し、2 人目の担当は未選定（03_TRANSFER_PLAN §5）。9/15 に稼働・インシデント記録（`ops/OPERATIONS_LOG.md`）を新設し週次更新を開始したが、2 人目のハンズオン・復旧リハ・デプロイ自動化は未着手。付録 B-7「運用の複数名化と手順の外部化」80〜130 万円は本項と同一内容のため重複計上しない。
 

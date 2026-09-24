@@ -74,7 +74,7 @@
 | PVM_CUSTODY の紙バックアップ 1 部 | **作成済み（2026-09-16）。石川の個人手帳に封緘して保管**（Safe 冷蔵鍵とは別の場所にすること。紙からアドレスを再導出して一致確認済み） | オーナー | 譲渡時は紙ごと引き渡し、UNI 側で再導出確認 |
 | 会社 MetaMask（ADMIN / PACK_CUSTODY）のシード | オーナー管理（保管場所は**要確認**、別紙） | オーナー | 未ローテーション。ADMIN は Safe へ移行予定、PACK_CUSTODY はこのまま |
 | Foundry keystore `deployer`（会社 MetaMask の鍵の取込） | Mac `~/.foundry/keystores/deployer`（パスワードはオーナーのみ） | オーナー | Safe 移行後は `revokeRole` 等の用途が Safe に置き換わる |
-| Ledger A / B（Safe 署名者 2・3） | **UNI 側で新品を公式直販で調達・初期化**（2026-09-24 U-9。オーナーの既存 Ledger は使わない） | UNI（高橋代表） | Part B で使用。保管場所は KMS runbook §5 に「場所の説明」のみ記録 |
+| Ledger A / B（Safe 署名者 2・3） | **A は新品を公式直販で調達、B はオーナーの既存機をリセットして UNI へ譲渡。初期化は 2 台とも高橋代表**（2026-09-24 U-9・U-14） | UNI（高橋代表） | Part B で使用。保管場所は KMS runbook §5 に「場所の説明」のみ記録 |
 | WP → Signer HMAC（key_id `wp2026a`） | WP 本番 `wp-config-secrets.php`（`PV_SIGNER_OUTBOUND_KEYS`）⇔ VM `.env`（`SIGNER_INBOUND_KEYS`）。stg には未設定 | 運用担当 | 2026-09-02 配置。ローテーション時は両側に新旧 2 本を並べる |
 | Signer → WP HMAC（key_id `sg2026a`） | VM `.env`（`WP_OUTBOUND_KEY_ID/SECRET`）⇔ WP `PV_INDEXER_CALLBACK_KEYS` / `PV_SIGNER_CALLBACK_KEYS` | 運用担当 | 同上 |
 | WordPress DB 接続情報・salts | 本番 `wp-config.php` / `wp-config-secrets.php`（WP ルート直下、`.htaccess` で直アクセス拒否）。追記前バックアップ `wp-config-secrets.php.bak-<stamp>` あり | 運用担当 | **未ローテーション**（CPA_REVIEW_GUIDE §8 の未着手項目、05 §3.7） |
