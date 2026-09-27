@@ -52,7 +52,7 @@
 | インシデント対応 | members `ops/INCIDENT_RESPONSE.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-21 | 外部連絡先は §7 |
 | 鍵管理移行（KMS / Safe） | members `ops/KEY_MANAGEMENT_MIGRATION.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | Part A 完了・Part B 未実施・2026-09-24 | §5.3 に Part A の実行記録。Part B は U-9・U-14 の構成で書き直し済み |
 | 封緘バックアップと復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（復旧テスト未実施）・2026-09-24 | 秘密の値は書かない。§3.3 が UNI 側 Ledger の初期化手順 |
-| Signer 障害復旧 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 草案（リハーサル未実施）・2026-09-21 | リハーサル記録欄は §7 |
+| Signer 障害復旧 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定（リハーサル実施済み）・2026-09-28 | リハーサル記録は §7（初回 2026-09-27、以後は年 2 回） |
 | 外部死活監視の導入手順 | members `ops/EXTERNAL_UPTIME_MONITORING.md` | 運用引継ぎ | UNI 運用 | 草案（手順のみ・未導入）・2026-09-21 | 導入後の稼働率は OPERATIONS_LOG §3 へ |
 | OT カード移行 runbook | members `ops/OT_MIGRATION_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（値は空欄）・2026-09-22 | 実施日はオーナー判断。設計は §2.5 の 17 |
 | 月次メール・サポート回答方針 | members `ops/SC_MAIL_MONTHLY_RUNBOOK.md`、`docs/14_support_reply_policy.md` | 運用引継ぎ | UNI 運用 | 確定・2026-09-01 / 2026-09-15 | 14 がサポート回答の正本 |
@@ -117,7 +117,7 @@
 | 10 | OSS ライセンス一覧・月額ランニングコスト | DD | 監査/DD・UNI 運用 | 石川 | 未定 | 07 §8 #16 |
 | 11 | 第三者配布版（07 の §3 等を別紙化、08 の §9 を除外） | DD・監査 | 監査/DD・評価人 | 石川 | 監査発注前 | 07 §1、08 冒頭 |
 | 12 | 封緘バックアップの復旧テスト記録 | 運用引継ぎ・DD | UNI 運用・評価人 | 石川（Ledger 分は UNI） | Part B と同時 | 03 §4.1 策 2、SEALED_BACKUP_RUNBOOK |
-| 13 | Signer 復旧リハーサル記録・外部死活監視の稼働率 | 運用引継ぎ・監査 | UNI 運用・監査/DD | 石川 | 未定 | SIGNER_RECOVERY_RUNBOOK §7、EXTERNAL_UPTIME_MONITORING |
+| 13 | 外部死活監視の稼働率 | 運用引継ぎ・監査 | UNI 運用・監査/DD | 石川 | 未定 | EXTERNAL_UPTIME_MONITORING（Signer 復旧リハーサルの記録は 2026-09-28 に §2 の「Signer 障害復旧」の行へ移した） |
 | 14 | 引き渡し手順書の確定版 | 運用引継ぎ | UNI 運用 | 石川 | Part B 完了後・契約日確定後 | 12 冒頭 |
 | 15 | 法務意見書 | DD | UNI 運用 | UNI が取得 | 譲渡後 | U-11。本件の譲渡資料には含めない（03 §1 でスコープ外） |
 
