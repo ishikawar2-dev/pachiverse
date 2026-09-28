@@ -5,7 +5,8 @@
 売上・顧客基盤の資産価値の算定には使わない（docs/03_TRANSFER_PLAN.md §2.4）。
 
 使い方:
-  scripts/usage_scale.py <prod_db_export.json> [--asof 2026-09-13T15:00:46+09:00] > docs/06_USAGE_SCALE.md
+  scripts/usage_scale.py <prod_db_export.json> [--asof 2026-09-13T15:00:46+09:00] \
+      [--input-location '<入力 JSON の置き場所>'] > docs/06_USAGE_SCALE.md
 
 入力は members.pachiverse.com の `prod_db_export_readonly.php` が出す JSON
 （{"exported_at", "prefix", "users":[{"ID","user_email","user_registered"}], "meta":[[user_id, meta_key, meta_value], ...]}）。
@@ -69,6 +70,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('export')
     ap.add_argument('--asof', help='基準時刻（既定: JSON の exported_at）')
+    ap.add_argument('--input-location', help='入力 JSON の置き場所（Git 外）。指定すると表の冒頭に書く')
     a = ap.parse_args()
     d = json.load(open(a.export))
     asof = parse_dt(a.asof or d['exported_at'])
@@ -104,6 +106,9 @@ def main():
     print()
     print(f'基準時刻: {asof.isoformat()}　入力: `{a.export.split("/")[-1]}`（exported_at {d["exported_at"]}）　生成: `scripts/usage_scale.py`（再実行で同じ表が出る）')
     print()
+    if a.input_location:
+        print(f'入力の所在: {a.input_location}（**Git 外**。個人情報を含むため第三者には渡さず、本表のみを渡す）')
+        print()
     print('本表は「本番で稼働し、会員に使われている」ことを示す資料。売上・顧客基盤の資産価値の算定には使わない（`docs/03_TRANSFER_PLAN.md` §2.4）。')
     print()
     print('## 1. 3 段の値')
