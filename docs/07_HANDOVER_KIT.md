@@ -78,7 +78,7 @@
 | WP → Signer HMAC（key_id `wp2026a`） | WP 本番 `wp-config-secrets.php`（`PV_SIGNER_OUTBOUND_KEYS`）⇔ VM `.env`（`SIGNER_INBOUND_KEYS`）。stg には未設定 | 運用担当 | 2026-09-02 配置。ローテーション時は両側に新旧 2 本を並べる |
 | Signer → WP HMAC（key_id `sg2026a`） | VM `.env`（`WP_OUTBOUND_KEY_ID/SECRET`）⇔ WP `PV_INDEXER_CALLBACK_KEYS` / `PV_SIGNER_CALLBACK_KEYS` | 運用担当 | 同上 |
 | WordPress DB 接続情報・salts | 本番 `wp-config.php` / `wp-config-secrets.php`（WP ルート直下、`.htaccess` で直アクセス拒否）。追記前バックアップ `wp-config-secrets.php.bak-<stamp>` あり | 運用担当 | **未ローテーション**（CPA_REVIEW_GUIDE §8 の未着手項目、05 §3.7） |
-| WP 管理者アカウント（`manage_options`）、wp-admin Basic 認証 | WP DB / `wp-admin/.htaccess` + `.htpasswd`（本番ユーザー `PV_Admin` と `ishikawar2`、stg `ishikawar2`） | 運用担当・サポート担当（editor ロール） | Basic 認証は 3/24 設定・stg は 9/2 再設定 |
+| WP 管理者アカウント（`manage_options`）、wp-admin Basic 認証 | WP DB / `wp-admin/.htaccess` + `.htpasswd`（本番ユーザー `PV_Admin`、stg `ishikawar2`。9/2 に案内した本番への `ishikawar2` の追加は未実施とみられる） | 運用担当・サポート担当（editor ロール） | Basic 認証は本番 3/24・stg 4/9 設定（`.htaccess` の日付）。`.htpasswd` は両環境とも 3/20 作成で以後未更新（2026-09-28 に更新日時で確認。「stg は 9/2 再設定」の記載は誤り） |
 | サポート受信箱 IMAP / SMTP、iCloud 分岐用お名前 SMTP | `wp-config-secrets.php`（`UNI_SUPPORT_IMAP_*` / `UNI_SUPPORT_SMTP_*`、`UNI_SAKURA_SMTP_*` は予備） | 運用担当 | 要確認 |
 | Anthropic / OpenAI / PolygonScan の API キー（WP 側） | `wp-config-secrets.php`（`UNI_SUPPORT_ANTHROPIC_API_KEY` / `UNI_OPENAI_API_KEY` / `UNI_POLYGONSCAN_API_KEY`） | 運用担当 | 要確認 |
 | ブラストエンジン・SendGrid Webhook トークン、サポート inbound トークン | `wp-config-secrets.php`（`UNI_BLASTENGINE_WEBHOOK_TOKEN` 等）。本番設定の実確認は未（members KNOWN_ISSUES 未確認 14） | 運用担当 | 要確認 |
