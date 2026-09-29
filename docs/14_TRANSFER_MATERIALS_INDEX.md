@@ -9,7 +9,7 @@
 - **読者**: 「評価人」＝無形資産評価書を作る会計士・税理士。「監査/DD」＝第三者セキュリティ監査の会社と、買い手側のデューデリジェンス。「UNI 運用」＝譲渡後の UNI（見届け役は高橋代表、DECISIONS 2026-09-24 U-8）。
 - **用途**: 「時価根拠」（評価書の根拠）／「DD」（事実確認・開示）／「監査」（第三者監査の提供資料・証跡）／「運用引継ぎ」（譲渡後の運用再開）。
 - **所在の書き方**: 「親」＝ `~/Developer/pachiverse`（GitHub `ishikawar2-dev/pachiverse`）、「members」＝ `members.pachiverse.com/`（GitHub `pachiverse01-ai/pachiverse-members`）。**Git 外**＝どのリポジトリにも入っておらず、オーナーの Mac 上でだけ存在を確認したもの。
-- **状態と日付**: 確定／草案（初稿・骨子・ドラフトを含む）／作成予定。日付は Git の最終コミット日、Git 外はファイルの更新日（いずれも 2026-09-24 に取得）。
+- **状態と日付**: 確定／草案（初稿・骨子・ドラフトを含む）／作成予定。日付は Git の最終コミット日、Git 外はファイルの更新日（いずれも 2026-09-30 に取り直し）。
 - **表現の前提**: IP は石川に帰属し、本件一式は「石川が企画した」と表記する（DECISIONS 2026-09-24 F-4・F-5）。Owner's Pass ERC721 は UNI の資産で譲渡対象外（F-3）。会員 DB は UNI/VB の顧客データで譲渡対象外（U-10）。
 - **書かないもの**: 秘密の値（鍵・パスワード・API キー）と会員の個人情報。個人情報を含むローカルファイル（正規データ・質疑応答一覧など）は本書に載せない（07 §2「データ」行）。
 - **第三者に渡すとき**: 07 は §3 と §2 のホスト名等を別紙にした版、08 は §9 を外した版を渡す（各書の冒頭の規定）。本書も「所在」列にオーナーの Mac 上のパスを含むため、第三者版では所在列を別紙に分ける（§3 #11 に含める。オーナー未確認）。第三者版はまだ無い。
@@ -20,24 +20,24 @@
 
 | 資料名 | 所在 | 用途 | 主な読者 | 状態・最終更新日 | 備考 |
 |---|---|---|---|---|---|
-| 開発工数表 v1.2（原価法） | 親直下 `Pachiverse_開発工数表_v1.2_2026-09-15_draft.md`（**Git 外**） | 時価根拠 | 評価人 | 草案・2026-09-24 | 数式の修正点は 03 §2.2。10 月に確定し、12 月に OT カードの工程を追加（03 §3）。確定版は §3 #2 |
+| 開発工数表 v1.2（原価法） | 親直下 `Pachiverse_開発工数表_v1.2_2026-09-15_draft.md`（**Git 外**） | 時価根拠 | 評価人 | 草案・2026-09-30 | 数式の修正点は 03 §2.2。10 月に確定し、12 月に OT カードの工程を追加（03 §3）。確定版は §3 #2 |
 | 実装規模の証跡 | 親 `docs/04_DEV_EFFORT_EVIDENCE.md`（生成: `scripts/dev_effort_evidence.sh`） | 時価根拠・DD | 評価人・監査/DD | 確定（再生成可）・2026-09-24 | 工数表 v1.2 の付録。規模の証跡で、工数の証跡ではない。§8 に企画着手（2026-01-22）からの時系列 |
-| 陳腐化減価の控除項目メモ | 親 `docs/05_DEPRECIATION_ITEMS.md` | 時価根拠・DD | 評価人・監査/DD | 草案（初稿）・2026-09-24 | 係数は書かず控除項目を積み上げる。§2b に開示事項（K: Owner's Pass の文言など） |
+| 陳腐化減価の控除項目メモ | 親 `docs/05_DEPRECIATION_ITEMS.md` | 時価根拠・DD | 評価人・監査/DD | 草案（初稿）・2026-09-30 | 係数は書かず控除項目を積み上げる。§2b に開示事項（K: Owner's Pass の文言など） |
 | 利用規模 3 段 | 親 `docs/06_USAGE_SCALE.md`（生成: `scripts/usage_scale.py`） | 時価根拠 | 評価人 | 確定（基準時刻 2026-09-13）・2026-09-28 | 稼働の証拠。売上・顧客基盤の価値には使わない。入力 JSON は members `正規データ/2026-09_取り込み相違調査/04_DB抽出/prod_db_export_2026-09-13c.json`（**Git 外**。個人情報を含むため第三者には 06 の表のみを渡す。2026-09-28 に再実行して数値の一致を確認） |
 | UNI 側の取得理由書 | 親 `docs/13_UNI_ACQUISITION_RATIONALE.md` | 時価根拠・DD | 評価人・UNI 運用 | 草案（初稿）・2026-09-24 | 代表決裁の添付（U-6）。代表が内容確認済み（2026-09-24）。金額は評価書の受領後。§10 に添付資料一覧 |
-| 譲渡評価と計画 | 親 `docs/03_TRANSFER_PLAN.md` | 時価根拠 | 評価人 | 草案（随時更新）・2026-09-24 | §2.4 が時価の根拠の構成。本書はフェーズ H の成果物 |
-| 設計判断の記録（譲渡関連） | 親 `docs/DECISIONS.md`（2026-09-15 の譲渡枠組み・時価根拠・範囲の各エントリ、2026-09-24 の 3 件） | 時価根拠・DD | 評価人・監査/DD | 確定・2026-09-24 | 評価手法の固定（09-15）、U-1〜U-15・F-1〜F-5・O-1〜O-8（09-24） |
+| 譲渡評価と計画 | 親 `docs/03_TRANSFER_PLAN.md` | 時価根拠 | 評価人 | 草案（随時更新）・2026-09-30 | §2.4 が時価の根拠の構成。本書はフェーズ H の成果物 |
+| 設計判断の記録（譲渡関連） | 親 `docs/DECISIONS.md`（2026-09-15 の譲渡枠組み・時価根拠・範囲の各エントリ、2026-09-24 の 3 件） | 時価根拠・DD | 評価人・監査/DD | 確定・2026-09-30 | 評価手法の固定（09-15）、U-1〜U-15・F-1〜F-5・O-1〜O-8（09-24） |
 
 ### 2.2 引き渡し・契約
 
 | 資料名 | 所在 | 用途 | 主な読者 | 状態・最終更新日 | 備考 |
 |---|---|---|---|---|---|
-| 引き継ぎパッケージ | 親 `docs/07_HANDOVER_KIT.md` | 運用引継ぎ・DD | UNI 運用・監査/DD | 草案（初稿）・2026-09-24 | §2 資産目録・§3 認証情報の所在・§4 運用カレンダー・§6 runbook 索引・§8 未確認事項。private 運用版 |
+| 引き継ぎパッケージ | 親 `docs/07_HANDOVER_KIT.md` | 運用引継ぎ・DD | UNI 運用・監査/DD | 草案（初稿）・2026-09-30 | §2 資産目録・§3 認証情報の所在・§4 運用カレンダー・§6 runbook 索引・§8 未確認事項。private 運用版 |
 | 保守・引継ぎ期間の条件案 | 親 `docs/09_MAINTENANCE_HANDOVER_TERMS.md` | 運用引継ぎ・DD | UNI 運用・評価人 | 草案（初稿）・2026-09-24 | 契約書ではない。無償 12 ヶ月は譲渡翌月から（U-3）。§8 に IP・成果物の帰属 |
 | 権限移転・引き渡し手順書 | 親 `docs/12_TRANSFER_HANDOFF_PROCEDURE.md` | 運用引継ぎ | UNI 運用 | 草案（骨子・オーナー未確認）・2026-09-24 | Safe 2-of-3（Part B）の完了後に §3 の Safe 行を確定（§3 #14） |
 | インフラの現状と移行案 | 親 `docs/11_INFRA_MIGRATION.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 草案（初稿）・2026-09-24 | 第三者配布版の方針（ホスト名・IP を書かない）で作成済み。移設の実施は買い手判断 |
 | 会員データの個人情報保護法上の整理メモ | 親 `docs/10_PII_TRANSFER_MEMO.md` | DD | 監査/DD | 草案（初稿・弁護士確認前）・2026-09-24 | U-10 で会員 DB は譲渡対象外・通知不要に変更。§5 の弁護士確認論点は残る |
-| 監査スコープ書（見積依頼用） | 親 `docs/08_AUDIT_SCOPE.md` | 監査 | 監査/DD | 草案（初稿・要確認あり）・2026-09-24 | §5 が監査会社への提供資料一覧。第三者版は §9 を外す |
+| 監査スコープ書（見積依頼用） | 親 `docs/08_AUDIT_SCOPE.md` | 監査 | 監査/DD | 草案（初稿・要確認あり）・2026-09-30 | §5 が監査会社への提供資料一覧。第三者版は §9 を外す |
 
 ### 2.3 運用・技術（runbook）
 
@@ -45,19 +45,19 @@
 
 | 資料名 | 所在 | 用途 | 主な読者 | 状態・最終更新日 | 備考 |
 |---|---|---|---|---|---|
-| 全体像（概要・構成・オンチェーン） | 親 `docs/00_OVERVIEW.md`・`01_ARCHITECTURE.md`・`02_ONCHAIN.md`、members `docs/00_OVERVIEW.md`・`01_ARCHITECTURE.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-01〜09-21 | 読む順は 07 §6「全体を把握する」 |
-| 確定値の正本（アドレス・CID・鍵の所在） | members `ops/RELEASE_STATE_20260902.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-16 | 07 と食い違えばこちらが優先（07 §1） |
-| 日次運用・burn・出庫・緊急停止 | members `ops/DAY_OF_RUNBOOK_20260909.md`、`ops/RELEASE_RUNBOOK_20260909.md` | 運用引継ぎ | UNI 運用 | 確定・2026-09-24 / 2026-09-02 | 日次チェック・§5.5 鍵漏洩時の退避 |
-| デプロイ手順とリリース履歴 | members `ops/DEPLOY_CHECKLIST.md`、`ops/rollback/` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-22 | 本番デプロイは main ベース必須。§6 がリリース履歴 |
-| インシデント対応 | members `ops/INCIDENT_RESPONSE.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-21 | 外部連絡先は §7 |
-| 鍵管理移行（KMS / Safe） | members `ops/KEY_MANAGEMENT_MIGRATION.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | Part A 完了・Part B 未実施・2026-09-24 | §5.3 に Part A の実行記録。Part B は U-9・U-14 の構成で書き直し済み |
+| 全体像（概要・構成・オンチェーン） | 親 `docs/00_OVERVIEW.md`・`01_ARCHITECTURE.md`・`02_ONCHAIN.md`、members `docs/00_OVERVIEW.md`・`01_ARCHITECTURE.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-01〜09-30 | 読む順は 07 §6「全体を把握する」 |
+| 確定値の正本（アドレス・CID・鍵の所在） | members `ops/RELEASE_STATE_20260902.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-28 | 07 と食い違えばこちらが優先（07 §1） |
+| 日次運用・burn・出庫・緊急停止 | members `ops/DAY_OF_RUNBOOK_20260909.md`、`ops/RELEASE_RUNBOOK_20260909.md` | 運用引継ぎ | UNI 運用 | 確定・2026-09-30 / 2026-09-02 | 日次チェック・§5.5 鍵漏洩時の退避 |
+| デプロイ手順とリリース履歴 | members `ops/DEPLOY_CHECKLIST.md`、`ops/rollback/` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-30 | 本番デプロイは main ベース必須。§6 がリリース履歴 |
+| インシデント対応 | members `ops/INCIDENT_RESPONSE.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-28 | 外部連絡先は §7 |
+| 鍵管理移行（KMS / Safe） | members `ops/KEY_MANAGEMENT_MIGRATION.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | Part A 完了・Part B 未実施・2026-09-30 | §5.3 に Part A の実行記録。Part B は U-9・U-14 の構成で書き直し済み |
 | 封緘バックアップと復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 一部実施（2-2＝PVM_CUSTODY の紙は 2026-09-16 に復旧テスト済み。最優先の 2-1 と 2-1b・2-5・2-6・2-8・2-9 は未、2-3・2-4 は UNI の Ledger 調達後）・2026-09-28 | 秘密の値は書かない。§3.3 が UNI 側 Ledger の初期化手順 |
-| Signer 障害復旧 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定（リハーサル実施済み）・2026-09-28 | リハーサル記録は §7（初回 2026-09-27、以後は年 2 回） |
+| Signer 障害復旧 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定（リハーサル実施済み）・2026-09-30 | リハーサル記録は §7（初回 2026-09-27、以後は年 2 回） |
 | 外部死活監視の導入手順 | members `ops/EXTERNAL_UPTIME_MONITORING.md` | 運用引継ぎ | UNI 運用 | 草案（手順のみ・未導入）・2026-09-21 | 導入後の稼働率は OPERATIONS_LOG §3 へ |
-| OT カード移行 runbook | members `ops/OT_MIGRATION_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（値は空欄）・2026-09-22 | 実施日はオーナー判断。設計は §2.5 の 17 |
-| 月次メール・サポート回答方針 | members `ops/SC_MAIL_MONTHLY_RUNBOOK.md`、`docs/14_support_reply_policy.md` | 運用引継ぎ | UNI 運用 | 確定・2026-09-01 / 2026-09-15 | 14 がサポート回答の正本 |
-| Signer I/F・出庫仕様・突合 | members `docs/12_signer_interface_v1.md`・`docs/schemas/signer-v1/`・`13_pvm_withdrawal.md`・`10_reconciliation_runbook.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-02〜09-15 | schemas が signer-v1 契約の正本 |
-| 既知問題・技術的負債 | 親 `docs/KNOWN_ISSUES.md`、members `docs/KNOWN_ISSUES.md` | DD・監査 | 監査/DD | 随時更新・2026-09-21 / 2026-09-22 | 05 §3.7（残存する既知問題）の出典 |
+| OT カード移行 runbook | members `ops/OT_MIGRATION_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（値は空欄）・2026-09-28 | 実施日はオーナー判断。設計は §2.5 の 17 |
+| 月次メール・サポート回答方針 | members `ops/SC_MAIL_MONTHLY_RUNBOOK.md`、`docs/14_support_reply_policy.md` | 運用引継ぎ | UNI 運用 | 確定・2026-09-29 / 2026-09-15 | 14 がサポート回答の正本 |
+| Signer I/F・出庫仕様・突合 | members `docs/12_signer_interface_v1.md`・`docs/schemas/signer-v1/`・`13_pvm_withdrawal.md`・`10_reconciliation_runbook.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-13〜09-30 | schemas が signer-v1 契約の正本 |
+| 既知問題・技術的負債 | 親 `docs/KNOWN_ISSUES.md`、members `docs/KNOWN_ISSUES.md` | DD・監査 | 監査/DD | 随時更新・2026-09-29 / 2026-09-30 | 05 §3.7（残存する既知問題）の出典 |
 | 機体画像の R2 移設 runbook | 親 `docs/R2_MACHINE_ASSETS_MIGRATION.md` | 運用引継ぎ | UNI 運用 | 確定（実施済み）・2026-09-15 | UNI の Cloudflare へ移すときの手順の元になる（07 §2） |
 
 ### 2.4 稼働・監査の証跡
@@ -65,12 +65,12 @@
 | 資料名 | 所在 | 用途 | 主な読者 | 状態・最終更新日 | 備考 |
 |---|---|---|---|---|---|
 | 稼働・インシデント記録 | members `ops/OPERATIONS_LOG.md` | 監査・時価根拠・DD | 評価人・監査/DD | 週次更新中（第 3 週 9/23〜9/29 を 2026-09-30 に確定、次回 10/7）・2026-09-30 | 9/9 Reveal 以降を記録（遡及記入を含む）。§5.3 に不可逆操作の tx hash。読み取りは `ops/weekly-ops-readout.sh` |
-| 内部統制の地図（CPA 向け） | members `ops/CPA_REVIEW_GUIDE.md` | 監査・DD | 監査/DD・評価人 | 確定・2026-09-21 | 本文の「最終更新」表記は 2026-06-02 のまま。§8 に未着手項目 |
+| 内部統制の地図（CPA 向け） | members `ops/CPA_REVIEW_GUIDE.md` | 監査・DD | 監査/DD・評価人 | 確定・2026-09-28 | 本文の「最終更新」表記は 2026-06-02 のまま。§8 に未着手項目 |
 | 開発ポリシー | members `ops/DEVELOPMENT_POLICY.md` | 監査・DD | 監査/DD | 確定・2026-09-21 | 本文の「最終更新」表記は 2026-06-01 のまま |
-| CI・テストの実行記録 | GitHub Actions（members `test.yml`）、集計は親 `docs/04_DEV_EFFORT_EVIDENCE.md` §5〜§6 | 監査・時価根拠 | 監査/DD・評価人 | 継続・2026-09-24 | 無料枠超過時はローカル同等検証を PR コメントに記録する運用 |
+| CI・テストの実行記録 | GitHub Actions（members `test.yml`）、集計は親 `docs/04_DEV_EFFORT_EVIDENCE.md` §5〜§6 | 監査・時価根拠 | 監査/DD・評価人 | 継続・2026-09-27 | 2026-09-27 から無料枠の有無にかかわらずローカル同等検証を優先し、結果を PR コメントに記録する（`scripts/local-ci.sh --comment`） |
 | 監査ログ（SHA256 ハッシュチェーン） | 本番 WordPress DB `wp_uni_audit_log`（リポジトリ外） | 監査 | 監査/DD | 稼働中 | DB は譲渡対象外（U-10）。提供は会員 PII 列をマスクしたエクスポート（08 §5） |
 | 公平性の開示と manifest | members `ops/FAIRNESS_DISCLOSURE_20260909.md`、親 `transparency/`（`allocation-manifest.json`・`artwork-manifest.json`）・`transparency.html` | DD・監査 | 監査/DD | 確定・2026-09-15 / 2026-09-21 | レアリティ配分・trait 順の凍結の証跡 |
-| OT カードの anvil リハーサル結果 | `pachiverse-contracts/ops/ot-rehearsal-result-2026-09-16.md` | 監査 | 監査/DD | 確定・2026-09-16 | 追加監査（08 §3.4）の前提資料 |
+| OT カードの anvil リハーサル結果 | `pachiverse-contracts/ops/ot-rehearsal-result-2026-09-16.md` | 監査 | 監査/DD | 確定・2026-09-17 | 追加監査（08 §3.4）の前提資料 |
 
 ### 2.5 資産（コード・アート・チェーン）
 
@@ -78,15 +78,15 @@
 
 | 資料名 | 所在 | 用途 | 主な読者 | 状態・最終更新日 | 備考 |
 |---|---|---|---|---|---|
-| 公開サイト＋購読 API | 親リポジトリ（GitHub `ishikawar2-dev/pachiverse`） | DD・運用引継ぎ | 監査/DD・UNI 運用 | 稼働中・2026-09-24 | 公開・非公開の別は要確認（07 §8 #1） |
-| 会員システム（WordPress＋`uni_memberpage`） | members（GitHub `pachiverse01-ai/pachiverse-members`、private） | DD・監査・運用引継ぎ | 全読者 | 稼働中・2026-09-24 | 入口は members `docs/00_OVERVIEW.md` |
+| 公開サイト＋購読 API | 親リポジトリ（GitHub `ishikawar2-dev/pachiverse`） | DD・運用引継ぎ | 監査/DD・UNI 運用 | 稼働中・2026-09-30 | GitHub 上は public（2026-09-30 確認、07 §8 #1） |
+| 会員システム（WordPress＋`uni_memberpage`） | members（GitHub `pachiverse01-ai/pachiverse-members`、private） | DD・監査・運用引継ぎ | 全読者 | 稼働中・2026-09-30 | 入口は members `docs/00_OVERVIEW.md` |
 | スマートコントラクト | `pachiverse-contracts`（GitHub `pachiverse01-ai/pachiverse-contracts`）、`DEPLOY_PVM_20260909.md`、`DEPLOY_OT_PREP.md` | DD・監査 | 監査/DD | 稼働中・2026-09-22 | README 冒頭「Foundry / Solidity 0.8.24 / OpenZeppelin v5」。OT カードは mainnet 未デプロイ |
 | 署名基盤 Signer | `pachiverse-signer`（GitHub `pachiverse01-ai/pachiverse-signer`） | DD・監査・運用引継ぎ | 監査/DD・UNI 運用 | 稼働中・2026-09-17 | README 冒頭「鍵を持つのはここだけ」。鍵は Cloud KMS（07 §3） |
 | NFT アート生成パイプライン | `pvm-art`（GitHub `pachiverse01-ai/pvm-art`）、`PIPELINE.md`・`INVENTORY_2026-09-05.md`・`ipfs-restore/RESTORE_RUNBOOK.md` | DD・運用引継ぎ | 監査/DD・UNI 運用 | 確定・2026-09-15 | sha256 マニフェスト `out/MANIFEST_*.sha256` と CID 記録は Git 管理 |
 | PVM 500 体の原本画像（4096 PNG 約 10GB）・WEBP | `pvm-art/out/images4096/`・`out/webp/`（**Git 外**） | DD・運用引継ぎ | UNI 運用 | 確定（別置きバックアップ未） | 引き渡し前にマニフェストで照合（07 §2、§8 #12） |
 | メタバース World Foundation v1.3.1 | `pachiverse-world`（GitHub `pachiverse01-ai/pachiverse-world-foundation`）、`VALIDATION_STATUS_v1.3.1.md`、`docs/world/DOCUMENTATION_MAP.md` | DD・時価根拠 | 評価人・監査/DD | 草案（グレーボックス段階）・2026-09-11 | G1・P1-10 未了（05 J）。2027 年 2 月リリース予定（O-4） |
-| OT カード設計書 v0.3 | members `docs/17_owner_ticket_card_spec.md` | DD・監査 | 監査/DD・評価人 | 草案（実装は 3d-2c まで）・2026-09-22 | 取得対象に含める（O-3）。評価基準日までに未完成の部分は評価外 |
-| Owner's Pass「正本ではない」宣言の準備書 | members `docs/18_owners_pass_declaration_prep.md` | DD | 監査/DD | 草案（オーナー・法務未確認）・2026-09-22 | Owner's Pass は UNI の資産で譲渡対象外（F-3）。利益分配の文言は 05 K の開示事項 |
+| OT カード設計書 v0.3 | members `docs/17_owner_ticket_card_spec.md` | DD・監査 | 監査/DD・評価人 | 草案（実装は 3d-2c まで）・2026-09-30 | 取得対象に含める（O-3）。評価基準日までに未完成の部分は評価外 |
+| Owner's Pass「正本ではない」宣言の準備書 | members `docs/18_owners_pass_declaration_prep.md` | DD | 監査/DD | 草案（オーナー・法務未確認）・2026-09-30 | Owner's Pass は UNI の資産で譲渡対象外（F-3）。利益分配の文言は 05 K の開示事項 |
 | オンチェーン資産（PVM・PVPACK ほか） | Polygon（アドレスの正本は members `ops/RELEASE_STATE_20260902.md` §1、一覧は 07 §2） | DD・監査 | 監査/DD | finalize・freeze 済み | 公開情報。Polygonscan Verified |
 | Genaverse マーケットプレイス設計書（未実装） | members `docs/00_README_FOR_CLAUDE_CODE.md`〜`07_open_questions.md` | DD | 監査/DD | 草案（設計のみ）・2026-05-29 ほか | 実装範囲外（親 00 重要な制約 9） |
 
@@ -97,7 +97,7 @@
 | 要件定義書 v1.0 | 親直下 `Pachiverse_要件定義書_v1.0_2026-07-07.docx`（**Git 外**。`.gitignore` の `*.docx`） | DD | 監査/DD・評価人 | 確定・2026-07-07 | 会員システムの as-built 要件（親 00「このリポジトリ外の資料」） |
 | 開発工数表 v1.0 | 親直下 `Pachiverse_開発工数表_v1.0_2026-07-07.docx`（**Git 外**） | 時価根拠 | 評価人 | 確定（旧版）・2026-07-07 | 工程別工数・実装規模の計測値 |
 | 開発工数表 v1.1 | 親直下 `Pachiverse_開発工数表_v1.1_2026-09-07.md`・同 `.docx`（**Git 外**） | 時価根拠 | 評価人 | 確定（旧版）・2026-09-07 | 05 の金額の出典（第 7 章・付録 B）。メタバースは対象外の版 |
-| 2026-09-07 内部全面レビュー報告書 | `~/Downloads/members-review-2026-09-07.html`（**Git 外**） | 監査・DD | 監査/DD | 確定（本文 2026-09-07、末尾 §11 に対応状況を付記 2026-09-24） | §0 の 10 件は 9 件解消・#3（editor ロール）保留。正本は members `docs/KNOWN_ISSUES.md` の対応表。重複指摘を避けるため監査会社へ提供 |
+| 2026-09-07 内部全面レビュー報告書 | `~/Downloads/members-review-2026-09-07.html`（**Git 外**） | 監査・DD | 監査/DD | 確定（本文 2026-09-07、末尾 §11 に対応状況を付記 2026-09-24、#3 の解消を 2026-09-30 に追記） | §0 の 10 件はすべて対応済み（最後の #3 editor ロールは 2026-09-28 に案 2 で解消、members D36）。正本は members `docs/KNOWN_ISSUES.md` の対応表。重複指摘を避けるため監査会社へ提供 |
 | ヒアリング項目メモ | `~/Downloads/ヒアリング項目_会計士税理士_UNI現代表_2026-09-15.txt`（**Git 外**） | 時価根拠・DD | 評価人 | (1) 会計士・税理士分は質問票（未実施）、(2) UNI 現代表分は回答済み・2026-09-24 | 決定内容の正本は DECISIONS 2026-09-24 |
 | 旧 NFT 14 種の原本 | 親直下 `Pachiverse_NFT_mint _backup/`（**Git 外**。削除禁止） | 運用引継ぎ・DD | UNI 運用 | 確定 | IPFS 復旧材料。Owner's Pass の画像原本も含むが、Owner's Pass 自体は UNI の資産（F-3） |
 

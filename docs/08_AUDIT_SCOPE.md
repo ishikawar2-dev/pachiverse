@@ -78,7 +78,7 @@ Pachiverse（パチンコ・パチスロ機体をモチーフにした NFT と�
 | # | フロー | 起点 | 経路 | 不変条件 |
 |---|---|---|---|---|
 | F-1 | Pack Reveal（開封） | 会員が WP で開封 | WP 内で inventory 行の条件付き UPDATE + usermeta CAS → 事前固定割当から Machine を確定 | 同一 Pack の二重開封なし。Pool A 300 / Pool B 200 = 500 体 |
-| F-2 | 日次 burn | WP cron がバッチ作成 → 運用者が手動 dispatch | WP → Signer `erc1155_batch_burn`（BURNER 鍵）→ PVPACK `burnBatchFromCustody` | burn 元は custody 固定。request_id 冪等で二重 burn なし |
+| F-2 | 日次 burn | WP cron がバッチ作成 → 自動 dispatch（2026-09-21 から Phase 2。それ以前は運用者が手動） | WP → Signer `erc1155_batch_burn`（BURNER 鍵）→ PVPACK `burnBatchFromCustody` | burn 元は custody 固定。request_id 冪等で二重 burn なし |
 | F-3 | PVM 出庫 | 会員申請 → 運用者承認 → 手動 dispatch | WP → Signer `erc721_transfer`（PVM_CUSTODY 鍵）→ 会員ウォレット | 承認なしの自動送信なし。保留残高で二重利用を防ぐ |
 | F-4 | receipt 反映 | Signer 内蔵 Receipt Checker | Signer → WP `/signer/receipt`（HMAC）→ 業務状態を confirmed / failed に | `submitted` は成功ではない。confirmed は receipt のみで判定 |
 | F-5 | PV Coin 増減 | ガチャ・ログインボーナス・管理者付与 | `uni_coin_apply_delta()`（InnoDB `SELECT ... FOR UPDATE` + INSERT のみ台帳） | 残高と台帳の整合。日次スナップショットで突合 |
@@ -88,7 +88,7 @@ Pachiverse（パチンコ・パチスロ機体をモチーフにした NFT と�
 | 役割 | 保持形態 | 状態 |
 |---|---|---|
 | DEFAULT_ADMIN_ROLE（PVM / PVPACK） | 会社ウォレット（MetaMask、1 本） | **Safe 2-of-3 への移行は未実施**（Part B、10 月予定。要確認 Q-3） |
-| MINTER / PVM_CUSTODY / BURNER | Cloud KMS（HSM、インポート方式） | 2026-09-16 移行完了。VM の `.env` に平文鍵なし。**平文の `.env` バックアップと VM スナップショットの削除は残作業**（KMS runbook §3.12 / R-7） |
+| MINTER / PVM_CUSTODY / BURNER | Cloud KMS（HSM、インポート方式） | 2026-09-16 移行完了。VM の `.env` に平文鍵なし。平文の `.env` バックアップの shred と VM スナップショット等の確認（削除対象 0 件）は 2026-09-21 に完了（KMS runbook §3.12 / R-7） |
 | PACK_CUSTODY（Pack 500 枚の保管） | 会社ウォレット（Signer は鍵を持たない） | 変更予定なし |
 | WP ↔ Signer の HMAC 鍵 | WP の秘密設定ファイル ⇔ VM の `.env`。key_id で rotation 対応 | 配置済み。ローテーション実績なし |
 | WP 管理者・DB 接続情報・salts | WP 設定ファイル（`.htaccess` で直アクセス拒否）、`/wp-admin/` に Basic 認証 | **DB パスワード・salts は未ローテーション**（既知・§8 参照） |
@@ -145,11 +145,11 @@ Pachiverse（パチンコ・パチスロ機体をモチーフにした NFT と�
 |---|---|---|
 | K-1 | Signer は**単一インスタンス前提**（nonce 予約が SQLite に閉じる）。水平展開不可はテストで固定した設計判断 | 02_ONCHAIN §4、signer README |
 | K-2 | Signer のエンドポイントは**公開 HTTPS（Caddy + Let's Encrypt）で、認証は HMAC のみ**。設計文書は「VPN / IP allowlist / Cloudflare Access のいずれかを前段に置く」と定めるが、会員サイトが固定 IP を持たない共用サーバーのため IP allowlist を適用できていない。**設計と実態の差**として監査で評価を求める | RELEASE_STATE §2-a、02_ONCHAIN §11 |
-| K-3 | KMS は**インポート方式**（新鍵生成ではない）。過去に平文鍵が置かれた場所（VM の `.env` バックアップ、VM スナップショット）からの漏洩リスクは、§3.12 の後始末が完了するまで残る。PVM_CUSTODY のみ紙 1 部の封緘バックアップが HSM 外に存在する（R-1） | KEY_MANAGEMENT_MIGRATION §1.4、§5.3 |
+| K-3 | KMS は**インポート方式**（新鍵生成ではない）。過去に平文鍵が置かれた場所（VM の `.env` バックアップ、VM スナップショット）は、§3.12 の後始末で 2026-09-21 に片付けた（`.env` バックアップは shred、スナップショット等の削除対象は 0 件）。PVM_CUSTODY のみ紙 1 部の封緘バックアップが HSM 外に存在する（R-1） | KEY_MANAGEMENT_MIGRATION §1.4、§5.3 |
 | K-4 | DEFAULT_ADMIN_ROLE は会社ウォレット 1 本（Safe 移行前）。監査開始時点で Safe 2-of-3 へ移行済みかは要確認 Q-3 | 同 §4 |
 | K-5 | PV Coin 台帳は `wp_usermeta` と台帳テーブルが両方 InnoDB のときだけトランザクション保護され、非 InnoDB では無ロック経路へ**黙ってフォールバック**する（管理画面に警告は出る） | members KNOWN_ISSUES |
-| K-6 | サポート担当が WP `editor` ロールで実運用しており、editor が到達できる機能の絞り込み（§8 #3）は**オーナー判断で保留中** | members メモリ、05 §3.4 |
-| K-7 | 日次 burn の dispatch は**手動**（Phase 1）。自動化（Phase 2）は稼働実績を見て判断。dispatch 未実施で 5 日滞留した前例あり（放置は安全側） | OPERATIONS_LOG I-05 |
+| K-6 | サポート担当が WP `editor` ロールで実運用している。2026-09-28 に権限を 2 レベルに分けた（閲覧＝editor、送信・会員更新・除外 CSV・一斉送信＝管理者のみ。閲覧も監査ログに記録。§8 #3）。editor に全桁の閲覧を残す点は**受容リスク**としている | members DECISIONS D36、members KNOWN_ISSUES「受容したリスク」R1・R2 |
+| K-7 | 日次 burn の dispatch は 2026-09-21 から**自動**（Phase 2。手動へ降格したときはメールで通知）。手動の時期（Phase 1）に dispatch 未実施で 5 日滞留した前例あり（放置は安全側） | OPERATIONS_LOG §5.1・I-05 |
 | K-8 | 会員データ（本名・生年月日・電話・メール）を WP DB が保持し、サポート AI 分類に渡す前にマスクする実装が 2026-09-15 に入った | DEPLOY_CHECKLIST 2026-09-15 |
 | K-9 | `wp_ajax_nopriv_*`（未ログインで到達可）が 2 件存在する（初回ログイン案内メールの再発行。氏名 + 生年月日 + 電話の完全一致、失敗 5 回 / IP / 1h ロック） | members 01_ARCHITECTURE |
 | K-10 | Owner's Pass ERC721 のオンチェーン description に利益分配を示唆する英文があり変更不可。法務論点として別途扱う（技術監査の対象外） | 03_TRANSFER_PLAN §5、05 K |
@@ -203,14 +203,14 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | 観点 | 具体的な確認事項 |
 |---|---|
 | 認証 | 会員ステータス判定（`status` / `vb_member` / `uni_member` の 3 メタ）がログイン時・ゲート・AJAX で一貫して効くこと。停止会員の既存セッション遮断（§8 #1 の修正が有効か）。初回パスワード設定・リセットのトークン強度・単回性・TTL。メール変更確認のトークン比較 |
-| 権限 | 管理画面 POST が `current_user_can('manage_options')` + `check_admin_referer()` の両方を通ること。editor ロールで到達できる機能の一覧化（K-6）。`wp_ajax_nopriv_*` 2 件の列挙耐性 |
+| 権限 | 管理画面 POST が `current_user_can('manage_options')` + `check_admin_referer()` の両方を通ること。サポートコンソールの 2 レベル（閲覧＝editor、管理＝manage_options）の振り分けが `uni_support_console_ajax_levels()` の表どおりに効くこと（表に無い action は管理扱い。K-6）。`wp_ajax_nopriv_*` 2 件の列挙耐性 |
 | CAS / トランザクション | PV Coin（`SELECT ... FOR UPDATE` + INSERT のみ台帳）、Pack Reveal（usermeta ロック + inventory 行の条件付き UPDATE + 残高 CAS の三重防御）、ガチャチケット（CAS、2026-09-15 修正）、会員間 NFT 送信・交換（CAS）、出庫申請（−qty / +hold のトランザクション）、attempt の `UNIQUE KEY` による二重 request_id 防止。非 InnoDB フォールバック（K-5）の扱い |
 | 状態機械 | attempt: `created → dispatched → submitted → confirmed | failed`。未決着中の新規 request_id 発行禁止。出庫: `requested → approved → dispatched → submitted → confirmed / failed → approved`。burn: `pending_burn → batched → dispatched → submitted → confirmed / failed`。手動 `failed` 化による二重 burn の運用ガード |
 | 入力検証 | 出庫先アドレス（20 byte、custody / zero / dead 除外、大小文字無視の再確認）、CSV 取込、AJAX パラメータ、REST の引数 |
 | SQL | `$wpdb->prepare()` の一貫使用（規約）。テーブル名の組み立て。`dbDelta` による init 時スキーマ作成 |
 | XSS / 出力 | 管理画面の `esc_html` / `esc_attr` / `esc_url`。会員向けページのインライン JS（`&` の変換事故の前例あり） |
 | PII | 会員本名・生年月日・電話・メールの保存範囲、外部送信（Anthropic / OpenAI / Google Sheets / メール）前のマスク、ログへの混入、CSV エクスポートの権限、購読者・配信停止トークン |
-| Webhook / REST | ブラストエンジン / SendGrid Event Webhook のクエリトークン認証（fail-closed 化済み。本番トークン設定の実確認は要確認 Q-9）、配信停止エンドポイント、公開 Collection API の情報露出（未 Reveal の rarity / trait を出さない）、無効化済み `support-inbound.php` の REST ルート残置 |
+| Webhook / REST | ブラストエンジン Event Webhook のクエリトークン認証（fail-closed 化済み。本番トークンの設定は 2026-09-21 に確認済み。SendGrid の受信口は 2026-09-27 に廃止）、配信停止エンドポイント、公開 Collection API の情報露出（未 Reveal の rarity / trait を出さない）、無効化済み `support-inbound.php` の REST ルート残置 |
 | 監査ログ | SHA256 ハッシュチェーン（`prev_hash → row_hash`、`hash_ver`）の改ざん耐性、日次自動検証、記録対象の網羅（特権操作が全て記録されるか） |
 | ハードニング | REST ユーザー列挙遮断、XML-RPC 停止、アプリケーションパスワード無効化、セキュリティヘッダ、`DISALLOW_FILE_EDIT`、`.htaccess` の拒否設定、`/wp-admin/` Basic 認証の適用範囲 |
 | デプロイ | main ベース必須（G1）、require 照合（G2）、sha256 照合（G3）、死活（G4）。FTPS デプロイでの部分配置リスク。ロールバック手順 |
@@ -271,7 +271,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 |---|---|---|
 | 2026-09 下旬 | 本スコープ書の確定、3 社へ見積依頼 | オーナー |
 | 2026-10 上旬 | 見積受領・比較、質疑、1 社選定、NDA・契約 | オーナー |
-| 2026-10 中 | 監査前の前提整備: Safe 2-of-3 移行（Part B）、KMS 後始末（§3.12 / R-7）、ステージング環境の整備、対象コミットの固定 | オーナー |
+| 2026-10 中 | 監査前の前提整備: Safe 2-of-3 移行（Part B）、ステージング環境の整備、対象コミットの固定（KMS 後始末 §3.12 / R-7 は 2026-09-21 に完了） | オーナー |
 | **2026-11-01 〜** | **監査開始**（初回スコープ S-1〜S-17）。想定 4〜6 週 | 監査会社 |
 | 2026-11 中〜下旬 | Critical / High の即時通知 → 売り手側で是正着手 | 双方 |
 | 2026-12 上旬 | 初回レポート（ドラフト）受領 → 是正完了 → 再確認 1 回 | 双方 |
@@ -286,7 +286,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | 役割 | 担当 | 備考 |
 |---|---|---|
 | 発注者・技術窓口・是正実装 | オーナー | 開発・運用の全権限を持つ。質疑は 2 営業日以内に回答 |
-| 買い手側の見届け役 | UNI 社の指名者（要確認 Q-13） | レポートの共有先。監査には直接関与しない |
+| 買い手側の見届け役 | UNI 社の高橋代表（親 DECISIONS U-8） | レポートの共有先。監査には直接関与しない |
 | 監査実施 | 監査会社（コントラクト担当・アプリケーション担当・インフラ担当の 3 領域を 1 社でカバーできることを希望） | 領域ごとに別会社へ分割発注する案は運用負荷のため避けたい |
 
 ### 7.3 見積依頼の依頼文案（3 社共通・定型）
@@ -345,23 +345,23 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 
 ## 8. 既知の指摘と対応状況（2026-09-07 内部全面レビュー §0 の 10 件）
 
-2026-09-07 に実施した内部全面レビュー（対象 main@9fda2ff、CRITICAL 3 / HIGH 19 / MEDIUM 約 40）のうち、「9/9 の Reveal 公開までに判断が要る 10 件」（§0）の 2026-09-16 時点の状態。監査会社には報告書全文を提供する。
+2026-09-07 に実施した内部全面レビュー（対象 main@9fda2ff、CRITICAL 3 / HIGH 19 / MEDIUM 約 40）のうち、「9/9 の Reveal 公開までに判断が要る 10 件」（§0）の 2026-09-30 時点の状態。監査会社には報告書全文を提供する。
 
 | §0 # | 内容（レビュー報告書の節） | 状態 | 対応 | 根拠 |
 |---|---|---|---|---|
 | 1 | 停止会員が既存セッションで全機能を使える（§1-1） | **対応済み** | ゲート・AJAX で会員ステータスを毎回判定し即時遮断 | members PR #53（9/8）、DECISIONS 2026-09-07 |
 | 2 | 毎リクエスト 500 回の SELECT（§2-5） | **対応済み** | クエリ集約 | PR #53 |
-| 3 | editor ロールが公開 URL から一斉メール・会員更新・PII CSV に到達できる（§1-2） | **未対応・保留** | サポート担当が editor で実運用中。「閲覧は維持し変更操作を締める」案で再検討中（オーナー判断 9/8）。**監査開始までに方針を決める（要確認 Q-14）** | 05_DEPRECIATION_ITEMS §3.4 |
+| 3 | editor ロールが公開 URL から一斉メール・会員更新・PII CSV に到達できる（§1-2） | **対応済み** | 案 2（2026-09-28）: 閲覧（検索・会員詳細・受信箱）は editor に残し、送信・会員更新・除外 CSV・一斉送信・日時設定は管理者のみ。閲覧・振り分け・拒否も監査ログに記録。editor から管理者を乗っ取れる 2 経路は同日に先に暫定封鎖。editor に全桁の閲覧を残す点は受容リスク（K-6） | members PR #226（暫定）・#232、members DECISIONS D36 |
 | 4 | Signer 応答タイムアウト後に confirmed receipt を拒否する（§3-1） | **対応済み** | `dispatched` 状態でも receipt を受理 | PR #53、DECISIONS 2026-09-07 |
-| 5 | Webhook トークン未設定時に無認証で通す（§5-1） | **対応済み（コード）** | fail-closed 化。**本番でトークンが設定済みかの実確認は未**（要確認 Q-9） | PR #53、members KNOWN_ISSUES 未確認 14 |
+| 5 | Webhook トークン未設定時に無認証で通す（§5-1） | **対応済み** | fail-closed 化。本番でトークンが設定済みであることを 2026-09-21 に確認（値は転記していない） | PR #53、members KNOWN_ISSUES 未確認 14 |
 | 6 | 初回パスワードに記号を含めた会員がログイン不能（§1-3） | **対応済み** | `check_password` フィルタで旧形式を救済・再ハッシュ | PR #54、DECISIONS 2026-09-08 |
 | 7 | ガチャチケットが CAS でなく 1 枚から 2 回引ける（§2-3） | **対応済み** | `uni_member_item_qty_apply_delta()` の CAS に統一。競合は 503 `ticket_conflict`。統合テスト `GachaTicketCasIntegrationTest` | PR #102（9/15 本番反映） |
 | 8 | 旧「移管申請」経路でパックが出庫対象（§2-5）／承認後も残高拘束なし（§2-10） | **対応済み** | 前半: パック・OT を出庫対象外に固定（PR #90、9/14）。後半: 申請時に −qty / +hold をトランザクション化、却下で戻す（PR #103、9/15）。統合テスト `WithdrawHoldBalanceIntegrationTest` | DEPLOY_CHECKLIST 2026-09-14 / 09-15 |
 | 9 | 差出人の無検証上書き（§4-2）＋ PII を AI プロンプトに生で渡す（§4-3） | **対応済み** | 前半: 自ドメイン限定（PR #63、9/9）。後半: 電話・生年月日・メール・氏名をマスクしてから AI へ（PR #104 / #105、9/15）。ユニットテスト `SupportAiPiiMaskTest` | 同上 |
 | 10 | Reveal All に確認ダイアログがない（§7-3） | **対応済み** | ダイアログ追加 | PR #53 |
 
-集計: 対応済み 9 件（うち #5 は本番設定の実確認が残る）、保留 1 件（#3）。
-注: 親 `05_DEPRECIATION_ITEMS.md` §3.4 の表は 2026-09-15 午前時点（#7 / #8 後半 / #9 後半が未修正）の記述で、同日午後の PR #102〜#105 の本番反映を反映していない。評価書提出前に 05 を更新する。
+集計: 対応済み 10 件、保留 0 件。
+注: 親 `05_DEPRECIATION_ITEMS.md` §3.4 の表も同じ 2026-09-30 時点に揃えてある。
 
 ### 8.1 §0 以外で監査会社に先に開示する既知問題
 
@@ -370,7 +370,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | E-1 | 非 InnoDB 環境でコイン台帳が無ロック経路へフォールバック（K-5） | 未対応（設計上の既知事項。本番は InnoDB） | members KNOWN_ISSUES |
 | E-2 | DB パスワード・WordPress salts の未ローテーション | 未対応 | CPA_REVIEW_GUIDE §8、07 §3 |
 | E-3 | サーバー固有パスのハードコード（ログ出力先） | 未対応 | members KNOWN_ISSUES |
-| E-4 | KMS 移行の後始末（平文 `.env` バックアップの shred、VM スナップショット削除、捨て鍵の IAM 取消） | 未完了（10 月） | KEY_MANAGEMENT_MIGRATION §3.12 / R-7 |
+| E-4 | KMS 移行の後始末（平文 `.env` バックアップの shred、VM スナップショット削除、捨て鍵の IAM 取消） | 対応済み（2026-09-21。shred 済み、スナップショット等の削除対象は 0 件、捨て鍵の IAM は取り消し済み。捨て鍵の cryptoKey 自体の削除のみ 2026-10-15 以降） | KEY_MANAGEMENT_MIGRATION §3.12 / R-7 / §5.3 |
 | E-5 | Safe 2-of-3 への ADMIN 移行（K-4） | 未実施（10 月） | 同 §4 |
 | E-6 | Signer エンドポイントの前段防御なし（K-2） | 設計と実態の差。監査で評価を求める | RELEASE_STATE §2-a |
 | E-7 | 本番のみに存在するプラグイン（WP Mail SMTP 等）がリポジトリにない | 棚卸し未 | members KNOWN_ISSUES 未確認 4 |
@@ -387,17 +387,17 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | Q-1 | 動的テスト（侵入テスト）の環境 | (a) 会員サイト stg のみ、Signer はローカル anvil 構成 ／ (b) Signer の stg インスタンスを一時的に立てる（single-active 制約のため本番と別 VM・別 DB・Amoy 接続） ／ (c) 静的レビューのみで動的テストなし | 見積依頼前 |
 | Q-2 | 監査費用の予算上限 | 03_TRANSFER_PLAN §5 の目安 100〜170 万円（是正費・追加監査は別）。3 社の見積で確定 | 見積比較時 |
 | Q-3 | Safe 2-of-3 移行（Part B）を監査開始前に完了させるか | 完了させる（推奨。K-4 が「解消済み」で監査に入れる）／ 監査中に実施し再確認で検証 | 10 月中 |
-| Q-4 | 会社ウォレットのシード・復旧コードの封緘バックアップ（SEALED_BACKUP_RUNBOOK）の実施状況 | 監査の運用観点（§4.4）で問われる。未実施なら「未実施」と開示 | 10 月中 |
+| Q-4 | 会社ウォレットのシード・復旧コードの封緘バックアップ（SEALED_BACKUP_RUNBOOK）の実施状況 | 監査の運用観点（§4.4）で問われる。未実施なら「未実施」と開示。2026-09-30 時点: 2-2（PVM_CUSTODY の紙）は 9/16 に封緘・復旧テスト済み。最優先の 2-1（会社 MetaMask のシード）ほかは未実施、2-3・2-4 は UNI の Ledger 調達後 | 10 月中 |
 | Q-5 | 本番 DB・Signer SQLite・VM ディスクの定期バックアップ方針 | 現状は 9/8 の手動ダンプ 1 回のみ確認。頻度と保管先を決めて記録 | 10 月中 |
 | Q-6 | 本番のみに存在するプラグイン・ファイルの棚卸し（WP Mail SMTP ほか） | `wp plugin list` の結果を S-16 の資料に添える | 見積依頼前 |
 | Q-7 | 公開サイトの Vercel Functions（X-2）をオプション見積に含めるか | 含める（購読者 PII の防御線が `ADMIN_TOKEN` のみのため）／ 内製是正で済ませる | 見積依頼前 |
 | Q-8 | 旧コントラクト 3 本と Owner's Pass の「管理不能の事実確認」をデスクレビューとして S-1 に含めるか | 含める（DD 開示事項 05 K の第三者確認になる）／ 含めない | 見積依頼前 |
-| Q-9 | 本番で `UNI_BLASTENGINE_WEBHOOK_TOKEN` 等の Webhook トークンが設定済みか | 本番設定ファイルで確認（値は転記しない）。§8 #5 の完了条件 | 見積依頼前 |
+| ~~Q-9~~ | 本番で `UNI_BLASTENGINE_WEBHOOK_TOKEN` 等の Webhook トークンが設定済みか | **確認済み（2026-09-21）: 定義済み**（値は転記していない。members KNOWN_ISSUES 未確認 14）。§8 #5 の完了条件 | 済 |
 | Q-10 | 監査ログのエクスポートに含める列とマスク方法 | 会員 PII（本名・メール）を含む `note` 列等の扱い。監査会社と NDA 後に決めてもよい | 契約時 |
 | Q-11 | 質疑の連絡手段 | Slack（共有チャンネル）／ メール／ 監査会社のポータル | 契約時 |
 | Q-12 | レポートの真正性担保の形式 | 押印 PDF ／ 電子署名 ／ 監査会社の Web 上での公開証明。評価書の添付資料として会計士・税理士が求める形式を事前ヒアリング（03 §2.4）で確認 | 会計士ヒアリング後 |
-| Q-13 | UNI 社側の見届け役（レポート共有先）の指名 | 03_TRANSFER_PLAN §4.1 策 4 と同一人物でよいか | 10 月中 |
-| Q-14 | §0 #3（editor ロールの権限）の方針 | (a) 閲覧維持・変更操作を manage_options に限定（案 2）／ (b) サポート専用ロールを新設 ／ (c) 現状維持を「受容」として開示 | 監査開始前 |
+| ~~Q-13~~ | UNI 社側の見届け役（レポート共有先）の指名 | **決定（2026-09-24）: 高橋代表**（親 DECISIONS U-8。03_TRANSFER_PLAN §4.1 策 4 の見届け役と同一） | 済 |
+| ~~Q-14~~ | §0 #3（editor ロールの権限）の方針 | **決定（2026-09-28）: (a) 案 2**。実装・本番配置済み（§8 #3、members DECISIONS D36）。当時の選択肢: (a) 閲覧維持・変更操作を manage_options に限定（案 2）／ (b) サポート専用ロールを新設 ／ (c) 現状維持を「受容」として開示 | 済 |
 | Q-15 | 全面レビューの §0 以外（HIGH / MEDIUM 約 50 件）の対応状況一覧を作るか | 作る（監査会社への重複防止と、評価書での「既知・対応済み」の証跡になる）／ 報告書と PR 履歴の提示で足りるとする | 見積依頼前 |
 | Q-16 | 3 社の候補 | コントラクト・Web アプリ・クラウドの 3 領域を 1 社で受けられる会社を優先。国内の Web3 監査会社／ 国内の Web アプリ診断会社（コントラクトは提携先）／ 海外のコントラクト専業（日本語レポート不可の場合は除外） | 9 月下旬 |
 | Q-17 | 対象コミットの固定時期 | 監査開始日の前営業日に各リポジトリの main を固定し、監査中のデプロイは是正分のみに限定する運用でよいか | 契約時 |
