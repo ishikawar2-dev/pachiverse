@@ -342,6 +342,7 @@ AI に描かせるとワードマークが個体ごとに崩れるため（ブ�
 - `traits.yaml` の `brand_layer` が `~/Developer/pachiverse/assets/logo-square.png` を絶対パスで参照する
   → 親リポジトリの `assets/` を動かすと合成が壊れる
 - 横長高解像度版ロゴの有無は**ユーザー確認中**（未確定）
+- 2026-09-30 追記: 横長高解像度版はサイト用のロゴ `Pachiverse_logo_trans.png`（1586×330）に決まった。`pvm-art/art-src/brand-wordmark.png` はこれと同じファイル（sha256 先頭 `f8bbf11c`）で、`pvm-art/run_production.sh` の `--brand-png` で焼き込んだ。上の `logo-square.png` の参照は 9/1 時点の記述（pvm-art `art-src/traits.yaml` の `brand_layer` も同日に訂正）
 
 ### Status
 Active

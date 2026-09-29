@@ -41,6 +41,19 @@ for entry in "${REPOS[@]}"; do
   echo "| $name | \`$head\` | $first | $last | $n | $add | $del | $loc |"
 done
 echo
+echo "### 1.1 作者別のコミット数（マージを除く）"
+echo
+echo "作者欄の名前ごとの件数（\`git log --no-merges --format=%an\`。メールアドレスは載せない）。ishikawar2-dev と pachiverse01-ai はいずれもオーナー個人が所有するアカウント（親 \`docs/07_HANDOVER_KIT.md\` §8 #1）。GitHub 上のマージコミットは除く。"
+echo
+echo "| リポジトリ | 作者 | コミット数 |"
+echo "|---|---|---|"
+for entry in "${REPOS[@]}"; do
+  IFS='|' read -r name path _ _ _ <<<"$entry"
+  git -C "$ROOT/$path" log --no-merges --format=%an | sort | uniq -c | sort -rn | while read -r cnt author; do
+    echo "| $name | $author | $cnt |"
+  done
+done
+echo
 echo "## 2. 月別コミット数（全リポジトリ合算。履歴の起点を示すだけで作業量ではない）"
 echo
 echo "| 月 | コミット数 |"
@@ -104,14 +117,14 @@ echo
 echo "- Git の記録は**実装規模の下限**。要件定義・設計・素材制作（Seedream 生成・QC）・運用（デプロイ・サポート・会員データ突合）・法務調整は行数に現れない。"
 echo "- **開発は 2026-01-22 に GitHub を使わずに始まり、売買に向けた可視化のため 2026-04 以降に段階的に GitHub へ上げた。** したがってコミット数・コミットのあった暦日は履歴の起点を示すだけで、開発期間や作業量の証跡には**ならない**。members.pachiverse.com の初回コミット以前の初期開発、pvm-art の 2026-09-15 以前の履歴（production.log・INVENTORY_2026-09-05.md に日付あり）も含まれない。"
 echo "- 行数は AI 支援開発を含む実装量であり、人手の行数ではない。工数表の人月は「同等物を外注で再調達した場合」の積算であり、本表から逆算するものではない。再調達原価の本体は外注見積 2〜3 社で、本表はその見積対象の規模を示す。"
-echo "- 公開サイト / contracts / signer / pachiverse-world の CI 実行数 0 は GitHub Actions を使っていないため（公開サイトは Vercel のデプロイチェック、contracts は forge をローカル実行、signer は npm test をローカル実行）。"
+echo "- 公開サイト / contracts / signer / pvm-art の CI 実行数 0 は GitHub Actions を使っていないため（公開サイトは Vercel のデプロイチェック、contracts は forge をローカル実行、signer は npm test をローカル実行）。pachiverse-world は GitHub Actions を使う。members.pachiverse.com は 2026-09-27 から無料枠の有無にかかわらずローカルの同等検証を優先し、結果を PR コメントに記録している（\`scripts/local-ci.sh --comment\`）ため、以後の実行数は検証回数を表さない。"
 echo "- 出力は生成日と各リポジトリの HEAD に依存する。§1 の HEAD ハッシュを添えて提示する。"
 echo
 echo "## 8. 開発の時系列（Git 以前を含む、日付付きの一次資料）"
 echo
 echo "| 日付 | 事実 | 根拠（所在） |"
 echo "|---|---|---|"
-echo "| 2026-01-22 02:52 | 会員サイト開発の着手（ChatGPT に「メンバーサイトを作成したい」と相談した記録。GitHub 不使用、ローカルとサーバー直編集で開始） | ChatGPT の会話履歴（オーナー保有。日時付きでエクスポート可能）。同日 06:13 に本番 DB の最初のユーザー登録があり整合する |"
+echo "| 2026-01-22 02:52 | 会員サイトの企画に着手（本件の開発着手日として記録。ChatGPT に「メンバーサイトを作成したい」と相談した記録。GitHub 不使用、ローカルとサーバー直編集で開始） | ChatGPT の会話履歴（オーナー保有。日時付きでエクスポート可能）。同日 06:13 に本番 DB の最初のユーザー登録があり整合する |"
 echo "| 2026-03-20 | 本番 WordPress コアの配置日 | サーバー上の WP コアファイルの更新日時 |"
 echo "| 2026-03-31 | 会員 4,620 行の本番取り込み（10 分割ファイル） | 取り込み run 記録・\`docs/DECISIONS.md\`・調査報告 |"
 echo "| 2026-04-11〜14 | 取り込み後の付与・除外リスト・サポート FAQ シード作成 | \`excluded_import_targets_from_prod_db_20260411.csv\`、\`Pachiverse_support_faq_seeds_2026-04-14.csv\` |"
@@ -119,7 +132,8 @@ echo "| 2026-04-19 | 公開サイト（pachiverse.com）の初回コミット | 
 echo "| 2026-05-29 | 会員システムの初回コミット（既存プラグインを取り込み） | Git |"
 echo "| 2026-07-07 | 要件定義書 v1.0・開発工数表 v1.0 | ルート直下の docx |"
 echo "| 2026-08-07 | contracts / signer の初回コミット、Generative Art 仕様書 | Git、\`Pachiverse_Generative_Art_Specification_2026-08-07.txt\` |"
-echo "| 2026-09-02 | 500 体のアート制作完了、コントラクト mainnet デプロイ | \`pvm-art/out/production.log\`、\`INVENTORY_2026-09-05.md\`、contracts の記録 |"
+echo "| 2026-09-02 | 500 体のアート制作完了（9/2 版）、コントラクト mainnet デプロイ | \`pvm-art/out/production.log\`（9/2 版の量産ログ）、\`INVENTORY_2026-09-05.md\`、contracts の記録 |"
+echo "| 2026-09-05 | デザイン刷新版の 500 体を制作（9/8 に差し替え。公開中の画像はこちら） | \`pvm-art/README.md\`「2026-09-05 デザイン刷新版」、\`pvm-art/out/qc-judgment-20260905.txt\`、\`pvm-art/art-src/selections-20260905.csv\` |"
 echo "| 2026-09-08 | IPFS 固定（CID 確定）、finalizeMinting | \`pvm-art/out/IMAGE_CID_20260908.txt\`、Polygon tx |"
 echo "| 2026-09-09 | Reveal（本番公開） | \`members.pachiverse.com/ops/DAY_OF_RUNBOOK_20260909.md\`、Polygon tx |"
 echo "| 2026-09-15 | pvm-art を Git 化、稼働記録の開始 | \`pachiverse01-ai/pvm-art\`、\`ops/OPERATIONS_LOG.md\` |"
