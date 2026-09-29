@@ -20,7 +20,7 @@
 
 | 区分 | 資産 | 所在 | 名義 | 譲渡時の手続き | 根拠資料 |
 |---|---|---|---|---|---|
-| コード | 公開サイト + 購読 API | GitHub `ishikawar2-dev/pachiverse`（public/private 要確認） | 個人（アカウント） | UNI の GitHub org へ transfer、Vercel 連携の再設定 | 01_ARCHITECTURE「デプロイ」、メモリ root-repo-gh-account-switch |
+| コード | 公開サイト + 購読 API | GitHub `ishikawar2-dev/pachiverse`（public。2026-09-30 確認） | 個人（アカウント） | UNI の GitHub org へ transfer、Vercel 連携の再設定 | 01_ARCHITECTURE「デプロイ」、メモリ root-repo-gh-account-switch |
 | コード | 会員システム（WordPress プラグイン `uni_memberpage`） | GitHub `pachiverse01-ai/pachiverse-members`（private） | 要確認（org `pachiverse01-ai` の所有者） | org の owner 権限付与または transfer | members `docs/00_OVERVIEW.md` |
 | コード | スマートコントラクト（Foundry） | `~/Developer/pachiverse/pachiverse-contracts`（remote は要確認） | 要確認 | 同上 | 01_ARCHITECTURE |
 | コード | 署名基盤 Signer（TypeScript） | `~/Developer/pachiverse/pachiverse-signer`（KMS 対応 PR #1/#2 は 2026-09-16 マージ済み） | 要確認 | 同上 | 02_ONCHAIN、05 §3.1 A-1 |
@@ -177,7 +177,7 @@
 
 **譲渡ブロッカー（先に解消する順）**: (1) #7 会社 MetaMask のシードの保管場所と、Owner's Pass ERC721・旧 ERC1155 の owner EOA の所在 → (2) #3 GCP プロジェクト（KMS 鍵の置き場所）と #1 GitHub org（IP 帰属の証跡）の所有者 → (3) #2 ドメイン登録者名義 → (4) #10 復旧コードの所在。**再契約で足りるもの**: #4〜#6・#9・#11（各サービスは UNI 側で新規契約し差し替え可能）。
 
-1. ~~GitHub org の所有者~~ **確認済み（2026-09-15）: `pachiverse01-ai` org と `ishikawar2-dev` はいずれもオーナー個人の所有。** 譲渡時に org を UNI の GitHub アカウントへ transfer する（残: `ishikawar2-dev/pachiverse` の可視性）。
+1. ~~GitHub org の所有者~~ **確認済み（2026-09-15）: `pachiverse01-ai` org と `ishikawar2-dev` はいずれもオーナー個人の所有。** 譲渡時に org を UNI の GitHub アカウントへ transfer する。`ishikawar2-dev/pachiverse` の可視性は public（2026-09-30 確認）。
 2. ~~ドメインの登録者名義~~ **確認済み（2026-09-15）: `pachiverse.com` / `vegasbank-nft.com` は UNI 名義で登録済み。名義変更は不要。** 残: サーバー契約（お名前.com 共用サーバー）の名義と `vegasbank-nft.com` の DNS 管理場所。
 3. ~~GCP の所有者~~ **確認済み（2026-09-15）: GCP プロジェクト `pachiverse-signer` はオーナー個人の所有。** 譲渡時に UNI の請求先アカウントへプロジェクトを移す（KMS 鍵はプロジェクトに紐づくため、移管で鍵ごと引き渡せる）。残: 組織 `pachiverse01-org` の扱いと、プロジェクトオーナーの 2 名化。
 4. Vercel（Hobby）、Vercel Redis / Upstash、Cloudflare（R2）の契約名義。R2 はオーナー個人アカウントだが会社化の要否。
