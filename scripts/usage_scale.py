@@ -11,6 +11,9 @@
 入力は members.pachiverse.com の `prod_db_export_readonly.php` が出す JSON
 （{"exported_at", "prefix", "users":[{"ID","user_email","user_registered"}], "meta":[[user_id, meta_key, meta_value], ...]}）。
 標準ライブラリのみ。個人情報は読むが出力しない（件数のみ）。
+
+テストアカウント（usermeta `uni_test_account = 1`。members `docs/DECISIONS.md` D42）は、「登録」の内訳に件数だけを出し、
+利用開始・活動・保有者・UNI/VB 由来・統合済みの値からは外す。印の付いた口座が入力に無ければ、出力は従来と同じ。
 """
 import argparse
 import collections
@@ -81,6 +84,10 @@ def main():
     ids = [str(u['ID']) for u in users]
 
     registered = len(ids)
+    # テストアカウントは登録（wp_users の全行）には含め、以降の指標からは外す
+    tests = {i for i in ids if str(meta[i].get('uni_test_account', '')).strip() == '1'}
+    ids = [i for i in ids if i not in tests]
+    test_note = f'・テスト {len(tests)}' if tests else ''
     merged = sum(1 for i in ids if meta[i].get('uni_account_merged_into'))
     roles = collections.Counter('administrator' if 'administrator' in meta[i].get('wp_capabilities', '')
                                 else 'editor' if 'editor' in meta[i].get('wp_capabilities', '')
@@ -115,7 +122,7 @@ def main():
     print()
     print('| 段 | 値 | 定義（本番 DB の根拠） |')
     print('|---|---:|---|')
-    print(f'| 登録 | {registered:,} | `wp_users` の全行。内訳: 会員 {roles["subscriber"]:,}・運営 {roles["administrator"] + roles["editor"]}。一括取り込み（2026-03-31）が大半で、`user_registered` は購入日ではない |')
+    print(f'| 登録 | {registered:,} | `wp_users` の全行。内訳: 会員 {roles["subscriber"]:,}・運営 {roles["administrator"] + roles["editor"]}{test_note}。一括取り込み（2026-03-31）が大半で、`user_registered` は購入日ではない |')
     print(f'| 利用開始 | {started:,} | usermeta `uni_initial_login_completed = 1`（初回ログインを完了し、マイページを開いた会員）。登録比 {started / registered:.1%} |')
     print(f'| 90 日活動 | {act90:,} | usermeta `uni_last_login_at` が基準時刻から 90 日以内。登録比 {act90 / registered:.1%}、利用開始比 {act90 / started:.1%} |')
     print()
@@ -147,6 +154,8 @@ def main():
     print('- 小口（万円）と PV Coin は会員側の残高（会社側の履行義務）であり、NFT の保有とは性質が異なる。§3 では区別して読む。')
     print('- 同一人物の重複口座は 2026-09-13 に 15 組を統合したが、抽出（9/13 15:00）はその前後どちらかであり、±10 人程度の差が出る。')
     print('- 個人情報は出力しない。再実行時は `prod_db_export_readonly.php` の最新 JSON を渡す。')
+    if tests:
+        print(f'- テストアカウント（usermeta `uni_test_account = 1`）{len(tests)} 件は「登録」の内訳にだけ出し、利用開始・活動・保有者・UNI/VB 由来・統合済みの値には含めない。')
 
 
 if __name__ == '__main__':
