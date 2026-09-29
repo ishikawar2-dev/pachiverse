@@ -51,7 +51,7 @@
 | デプロイ手順とリリース履歴 | members `ops/DEPLOY_CHECKLIST.md`、`ops/rollback/` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-22 | 本番デプロイは main ベース必須。§6 がリリース履歴 |
 | インシデント対応 | members `ops/INCIDENT_RESPONSE.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-21 | 外部連絡先は §7 |
 | 鍵管理移行（KMS / Safe） | members `ops/KEY_MANAGEMENT_MIGRATION.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | Part A 完了・Part B 未実施・2026-09-24 | §5.3 に Part A の実行記録。Part B は U-9・U-14 の構成で書き直し済み |
-| 封緘バックアップと復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（復旧テスト未実施）・2026-09-24 | 秘密の値は書かない。§3.3 が UNI 側 Ledger の初期化手順 |
+| 封緘バックアップと復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 一部実施（2-2＝PVM_CUSTODY の紙は 2026-09-16 に復旧テスト済み。最優先の 2-1 と 2-1b・2-5・2-6・2-8・2-9 は未、2-3・2-4 は UNI の Ledger 調達後）・2026-09-28 | 秘密の値は書かない。§3.3 が UNI 側 Ledger の初期化手順 |
 | Signer 障害復旧 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定（リハーサル実施済み）・2026-09-28 | リハーサル記録は §7（初回 2026-09-27、以後は年 2 回） |
 | 外部死活監視の導入手順 | members `ops/EXTERNAL_UPTIME_MONITORING.md` | 運用引継ぎ | UNI 運用 | 草案（手順のみ・未導入）・2026-09-21 | 導入後の稼働率は OPERATIONS_LOG §3 へ |
 | OT カード移行 runbook | members `ops/OT_MIGRATION_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（値は空欄）・2026-09-22 | 実施日はオーナー判断。設計は §2.5 の 17 |
@@ -64,7 +64,7 @@
 
 | 資料名 | 所在 | 用途 | 主な読者 | 状態・最終更新日 | 備考 |
 |---|---|---|---|---|---|
-| 稼働・インシデント記録 | members `ops/OPERATIONS_LOG.md` | 監査・時価根拠・DD | 評価人・監査/DD | 週次更新中・2026-09-24 | 9/9 Reveal 以降を記録（遡及記入を含む）。§5.3 に不可逆操作の tx hash。読み取りは `ops/weekly-ops-readout.sh` |
+| 稼働・インシデント記録 | members `ops/OPERATIONS_LOG.md` | 監査・時価根拠・DD | 評価人・監査/DD | 週次更新中（第 3 週 9/23〜9/29 を 2026-09-30 に確定、次回 10/7）・2026-09-30 | 9/9 Reveal 以降を記録（遡及記入を含む）。§5.3 に不可逆操作の tx hash。読み取りは `ops/weekly-ops-readout.sh` |
 | 内部統制の地図（CPA 向け） | members `ops/CPA_REVIEW_GUIDE.md` | 監査・DD | 監査/DD・評価人 | 確定・2026-09-21 | 本文の「最終更新」表記は 2026-06-02 のまま。§8 に未着手項目 |
 | 開発ポリシー | members `ops/DEVELOPMENT_POLICY.md` | 監査・DD | 監査/DD | 確定・2026-09-21 | 本文の「最終更新」表記は 2026-06-01 のまま |
 | CI・テストの実行記録 | GitHub Actions（members `test.yml`）、集計は親 `docs/04_DEV_EFFORT_EVIDENCE.md` §5〜§6 | 監査・時価根拠 | 監査/DD・評価人 | 継続・2026-09-24 | 無料枠超過時はローカル同等検証を PR コメントに記録する運用 |
