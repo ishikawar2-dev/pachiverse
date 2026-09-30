@@ -51,7 +51,7 @@
 | ウォレット | 会社ウォレット = ADMIN = PACK_CUSTODY = デプロイ・premint 署名者 | `0x502cef1173c162a39d8b23fa69579d862c2c728a`（MetaMask。同鍵を Foundry keystore `deployer` に取込済）。Pack 1101 / 1202 の custody 保有者（premint 300 / 200、9/14 の burn 64 枚後は 269 / 167。以後は開封分だけ減る）、POL 補充元（9/6 時点 1,325 POL） | 会社（呼称上）。実際の保管者はオーナー | **譲渡・引き継ぎ時の最重要アイテム**（02_ONCHAIN §11）。Safe 2-of-3 化後に ADMIN は Safe へ、PACK_CUSTODY は MetaMask のまま。鍵の引き渡し手順は Part B 完了後に別紙 | DAY_OF_RUNBOOK §0.3、KEY_MANAGEMENT_MIGRATION §1 |
 | ウォレット | PVM_CUSTODY（PVM 500 体の保管・出庫 TX 署名） | `0x3a6cf63047fC81f9B8a3ae3990fE4Af1F091ae49`。鍵は Cloud KMS `pv-signer/pvm-custody` v1（HSM、2026-09-16 移行済み）＋紙 1 部封緘（R-1、2026-09-16 作成・再導出一致） | 会社（用途上） | GCP プロジェクトと紙バックアップの引き渡し。ローテーション（500 体移転）は行わない（オーナー決定 9/15） | 同上、KMS runbook R-1 |
 | ウォレット | BURNER（Pack burn 署名）/ MINTER（finalize 済で実質無用） | `0xcE5cd2929e4f99D5493347962F53A81447fBA688` / `0x8CeAbd264ac7700E71eCAdB286DDc0E62Ff2b575`。鍵は Cloud KMS `pv-signer/burner` / `pv-signer/minter` v1（HSM、2026-09-16 移行済み） | 会社（用途上） | GCP プロジェクトごと。BURNER は Safe 経由で付け替え可能 | 同上 |
-| ウォレット | Safe 2-of-3（ADMIN の移行先。**未作成**） | 署名者予定: 会社 MetaMask・Ledger A（UNI 管理・日常署名、高橋代表）・Ledger B（UNI 管理・予備）。**2026-09-24 確定（DECISIONS U-9）** | 会社 | UNI 側で Ledger 2 台を調達・初期化（KMS runbook §4.1） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §5 |
+| ウォレット | Safe 2-of-3（ADMIN の移行先。**未作成**） | 署名者予定: 会社 MetaMask・Ledger A（UNI 管理・日常署名、高橋代表）・Ledger B（UNI 管理・予備）。**2026-09-24 確定（DECISIONS U-9）** | 会社 | Ledger 2 台（2 台とも新品。Ledger A は 2026-09-30 調達済み、Ledger B は調達待ち。2026-10-01 に U-14 を改訂）を UNI 側（高橋代表）が初期化（KMS runbook §4.1） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §5 |
 | コントラクト | PachiverseMachines（PVM, ERC721、finalize・freeze 済） | Polygon `0x55E3A05eaAc41aAeB596227CD4076e91033541b3`（Verified） | オンチェーン（ADMIN が実効的な所有） | ADMIN 権限の Safe 移行で引き渡し | RELEASE_STATE §1、`pachiverse-contracts/DEPLOY_PVM_20260909.md` §3 |
 | コントラクト | PachiverseMysteryPacks V2（PVPACK, ERC1155、finalize・freeze 済） | Polygon `0x2B5DaC082f664986e77b4f075617D1908BBd109C`（Verified） | 同上 | 同上 | 同上 |
 | コントラクト | **Owner's Pass ERC721**（会員へ送付済み 4,200 枚、1 人 1 枚。マイページの OT 1201 は枚数確認用の記録） | Polygon `0x1c19d0367236127a4d73c4816daee36fc23edd8a` | **owner 鍵なし（外部委託で作成、仕様不明。2026-09-15 確認）**。UNI の資産（在任中の 2025-02-02 デプロイ、UNI 費用負担。譲渡対象外、OT カードで置換。DECISIONS 2026-09-24 F-3） | 2026-09-15 仕様確認: mint・burn・pause・URI 変更の関数なし（実質 immutable、transferOwnership のみ）。transfer 可。metadata JSON はオンチェーン。**画像 CID は取得不能（要再ピン。原本 `Pachiverse_NFT_mint _backup/…/owners_pass_nft.gif` で CID 一致確認済み）**。description に利益分配の文言（変更不可・法務開示）。**同日夕の決定で方針変更: 時期を見て「正本ではない」と宣言し以後参照しない**（オーナーチケット会員カードへ移行）。開示事項 05 K | members `docs/DECISIONS.md` 2026-09-14、メモリ owner-ticket-canonical-owners-pass |
@@ -71,10 +71,10 @@
 | 認証情報 | 保管場所 | 保持者（役職） | ローテーション状況 |
 |---|---|---|---|
 | Signer 3 鍵（MINTER / PVM_CUSTODY / BURNER） | **Cloud KMS `pv-signer/{minter,pvm-custody,burner}` v1（HSM、2026-09-16 インポート済み）。VM の `.env` に平文鍵は無い。** 平文の `.bak` は 2026-09-21 に shred 済み、移行前スナップショット等は 0 件（R-7 クローズ）。平文鍵は R-1 の紙 1 部（PVM_CUSTODY）のみ | GCP プロジェクトオーナー 2 名（`pachiverse01@gmail.com`、`ishikawar2@gmail.com`）。VM SA に cryptoKey 単位 signerVerifier | ローテーションなし（インポート方式）。Part A は 2026-09-21 完了（members `ops/KEY_MANAGEMENT_MIGRATION.md` §5.3）。KMS のデータアクセス監査ログは 2026-09-21 15:4x JST から有効 |
-| PVM_CUSTODY の紙バックアップ 1 部 | **作成済み（2026-09-16）。石川の個人手帳に封緘して保管**（Safe 冷蔵鍵とは別の場所にすること。紙からアドレスを再導出して一致確認済み） | オーナー | 譲渡時は紙ごと引き渡し、UNI 側で再導出確認 |
+| PVM_CUSTODY の紙バックアップ 1 部 | **作成済み（2026-09-16）。オーナーが封緘して保管（場所は別紙）**（UNI 管理の Ledger とは別の場所にすること。紙からアドレスを再導出して一致確認済み。2026-10-01 改訂） | オーナー | 譲渡時は紙ごと引き渡し、UNI 側で再導出確認 |
 | 会社 MetaMask（ADMIN / PACK_CUSTODY）のシード | オーナー管理（保管場所は**要確認**、別紙） | オーナー | 未ローテーション。ADMIN は Safe へ移行予定、PACK_CUSTODY はこのまま |
 | Foundry keystore `deployer`（会社 MetaMask の鍵の取込） | Mac `~/.foundry/keystores/deployer`（パスワードはオーナーのみ） | オーナー | Safe 移行後は `revokeRole` 等の用途が Safe に置き換わる |
-| Ledger A / B（Safe 署名者 2・3） | **A は新品を公式直販で調達、B はオーナーの既存機をリセットして UNI へ譲渡。初期化は 2 台とも高橋代表**（2026-09-24 U-9・U-14） | UNI（高橋代表） | Part B で使用。保管場所は KMS runbook §5 に「場所の説明」のみ記録 |
+| Ledger A / B（Safe 署名者 2・3） | **2 台とも公式ストアの新品（Ledger Nano S Plus）。A は 2026-09-30 調達済み、B は調達待ち。初期化は 2 台とも高橋代表**（2026-09-24 U-9・U-14。2026-10-01 に U-14 を改訂し、B もオーナーの既存機ではなく新品に） | UNI（高橋代表） | Part B で使用。具体的な保管場所は記録しない（KMS runbook §5.3 には「建物が分かれているか・封が無事か」のはい／いいえだけを書く。2026-10-01） |
 | WP → Signer HMAC（key_id `wp2026a`） | WP 本番 `wp-config-secrets.php`（`PV_SIGNER_OUTBOUND_KEYS`）⇔ VM `.env`（`SIGNER_INBOUND_KEYS`）。stg には未設定 | 運用担当 | 2026-09-02 配置。ローテーション時は両側に新旧 2 本を並べる |
 | Signer → WP HMAC（key_id `sg2026a`） | VM `.env`（`WP_OUTBOUND_KEY_ID/SECRET`）⇔ WP `PV_INDEXER_CALLBACK_KEYS` / `PV_SIGNER_CALLBACK_KEYS` | 運用担当 | 同上 |
 | WordPress DB 接続情報・salts | 本番 `wp-config.php` / `wp-config-secrets.php`（WP ルート直下、`.htaccess` で直アクセス拒否）。追記前バックアップ `wp-config-secrets.php.bak-<stamp>` あり | 運用担当 | **未ローテーション**（CPA_REVIEW_GUIDE §8 の未着手項目、05 §3.7） |
@@ -115,7 +115,7 @@
 | 随時 | POL 補充: BURNER / PVM_CUSTODY が 1 POL 未満で 5 POL を会社 MetaMask から送金（人間が MetaMask で） | DAY_OF_RUNBOOK §1.8 | burn / 出庫が失敗し `pending_burn` へ戻る（会員影響なし） |
 | 随時 | Signer の更新: 旧停止 → 新起動（同時 2 インスタンス禁止） | 02_ONCHAIN §4「v1 の運用制約」 | nonce 重複でウォレット停止 |
 | 随時（障害時）／半年に 1 回（リハ） | Signer 障害復旧: L1 サービス再起動 〜 L4 VM 再構築。SQLite を失ったら未決着 attempt をチェーンで決着させてから再開（二重 burn 防止）。復旧リハは drill VM で年 2 回、§7 に記録 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | burn・出庫が止まる（会員の権利は WP DB に残る）。リハ未実施だと手順書が「使えない紙」になる |
-| 随時（Part A は 2026-09-21 完了） | ~~KMS 化 Part A~~ → **Safe 2-of-3 Part B**（UNI 側の Ledger 2 台の初期化後。新品の Ledger A は 2026-09-30 に調達済み。事前準備は KMS runbook §4.0-b、Sepolia リハ §4.0-c）→ 第三者監査（11 月〜） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §3〜§4 | 控除項目 A-2 / A-5 が残る |
+| 随時（Part A は 2026-09-21 完了） | ~~KMS 化 Part A~~ → **Safe 2-of-3 Part B**（UNI 側の Ledger 2 台の初期化後。Ledger A は 2026-09-30 に調達済み、Ledger B も新品（2026-10-01 に U-14 を改訂、調達待ち）。事前準備は KMS runbook §4.0-b、Sepolia リハ §4.0-c）→ 第三者監査（11 月〜） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §3〜§4 | 控除項目 A-2 / A-5 が残る |
 
 ## 5. 緊急連絡先と意思決定者（連絡先の値は別紙）
 

@@ -856,7 +856,7 @@ Active
 | U-11 | 法務意見書 | 譲渡後に UNI が取得 |
 | U-12 | 未リリース機能（端数購入・割引・紹介/アフィリエイト） | 譲渡前に石川側で完成させる |
 | U-13 | 日程 | UNI の決算は 12 月末。**2026 年内に譲渡を実施**。監査レポートと評価書は並行で進め、12 月中に評価書を受領し次第譲渡。KMS 化・Safe 移行の保守停止の事前周知は不要 |
-| U-14 | Ledger の調達（同日オーナー確定） | Safe 署名者 2・3 の Ledger 2 台は**新品 1 台＋オーナーの既存 Ledger 1 台**とし、既存機も UNI へ譲渡する。既存機はシードをオーナーが知っているため、譲渡時にリセットして高橋代表が再初期化する（推奨、members runbook §4.1） |
+| U-14 | Ledger の調達（同日オーナー確定） | Safe 署名者 2・3 の Ledger 2 台は**新品 1 台＋オーナーの既存 Ledger 1 台**とし、既存機も UNI へ譲渡する。既存機はシードをオーナーが知っているため、譲渡時にリセットして高橋代表が再初期化する（推奨、members runbook §4.1）（2026-10-01 改訂: 2 台とも新品。下の Decision） |
 | U-15 | 運用アカウントの扱い（同日オーナー確定） | UNI 側に休眠の管理者アカウントは作らない。契約終了時に**既存のアカウント（WP 管理者・SSH/FTPS・GCP 等）をそのまま UNI へ譲渡**し、UNI がパスワード・鍵を変更する |
 
 ### Consequences
@@ -938,6 +938,30 @@ DD（買い手側・監査）は委託分の権利帰属を示す資料を求め
 - 12 §1 のタイムラインに「IP 証跡の確定」の段階を追加した。評価人には見せない（12 §7 Q-7、2026-09-30 決定）
 - 14 §3 #9（IP 帰属の証跡）と §2.1 の DECISIONS 行、03 §4 のフェーズ A に反映した。証跡の一覧（草案）は Git 外に置く
 - 08 X-7 で Owner's Pass とまとめて「外部委託で作成」とした旧 ERC1155 3 本は、作成者と費用負担を確かめる対象に含める
+
+### Status
+Active
+
+## Decision: Safe 署名者 3（Ledger B）もオーナーの既存機ではなく新品にする（U-14 の改訂、2026-10-01）
+
+### Context
+2026-09-24 の U-14 で、Safe 2-of-3 の署名者 2・3 の Ledger 2 台は「新品 1 台（Ledger A）＋オーナーの既存 Ledger 1 台（Ledger B）」とし、既存機はリセットして UNI へ譲渡すると決めていた。Ledger A は 2026-09-30 に調達済み。Part B の準備として、署名の照合手順を Ledger の公式仕様に照らして見直したところ、オーナーの既存機（初代 Ledger Nano S）は、予備の署名者として数年しまっておく端末には向かないことが分かった。オーナーが 2026-10-01 に U-14 を改訂した。
+
+### Decision
+| # | 決定 |
+|---|---|
+| U-14（改訂） | Safe 署名者 3（Ledger B・予備）も、Ledger A と同じく**公式ストアの新品の Ledger Nano S Plus** にする。**オーナーの既存機（初代 Nano S）は使わない**（リセット・UNI への譲渡・旧 24 語の廃棄はすべて不要）。B も A と同じく石川が立て替えて購入し、**譲渡日（12 §1 の T）に A・B の代金を UNI へ請求する**。B は 2026-10-01 時点で調達待ち。届いたら未開封のまま初期化の日に高橋代表へ渡し、2 台とも高橋代表が初期化する。金額はこの公開リポジトリには書かない |
+
+### Reason
+- 初代 Nano S は、Ledger の Ethereum アプリ 1.17.0（2025-05-05）で対応が外され（LedgerHQ/app-ethereum の CHANGELOG「Removed: Nano S support」）、1.16.0 までしか入らない
+- そのため、1.18.0（2025-08-05）で足された「clear signing 中も TX hash と EIP-712 の Domain hash・Message hash を表示する」設定（端末の表記は「Transaction hash」）が使えない。Part B の署名では、代表が端末に出る Domain hash・Message hash を、Safe の画面の外で計算した値と照らす
+- Ledger は「2026 年 9 月に Ethereum アプリは `signEIP712HashedMessage` の対応をやめる」と告知しており（developers.ledger.com/docs/news、2026 年第 3 四半期）、初代 Nano S が頼るのはこの旧方式である。予備機は数年しまっておき、Ledger A を失ったときに初めて使うので、そのときに署名できない危険を避ける
+
+### Consequences
+- 旧 U-14 の「既存機をリセットして高橋代表が再初期化する」手順と、Ledger B の機種確認・リセットの手順は不要になった
+- 2026-09-15 の Q-10・R-3 の記述は、members `ops/KEY_MANAGEMENT_MIGRATION.md` §6 の Q-10・R-8 で改訂した（「Ledger は Safe 署名で blind signing が常に必要」「オフラインで初期化」は、今の Ledger の公式仕様と違う）
+- members 側の反映先: `ops/KEY_MANAGEMENT_MIGRATION.md` §4.0-b・§4.0-c・§4.1・§4.4・§4.5・§6、`ops/SEALED_BACKUP_RUNBOOK.md`、`docs/DECISIONS.md` D34、新しい `ops/UNI_LEDGER_SIGNER_GUIDE.md`（高橋代表向けの手引き）。B の金額は購入後に members 側に追記する
+- root 側: 本ファイル U-14 の行に改訂の注記、05 §2・§3.1・§4 の A-2、07 §2 のウォレット行・§3 の Ledger A / B 行・§4 の Part B 行、08 §9 Q-4、12 §1 の T 行（A・B の代金の請求）、14 §2.1 の DECISIONS・05 の行、§2.2 の 07・08・12 の行、§2.3 の鍵管理移行・封緘バックアップの行を同日に更新し、§2.3 に members `ops/UNI_LEDGER_SIGNER_GUIDE.md` の行を足した
 
 ### Status
 Active

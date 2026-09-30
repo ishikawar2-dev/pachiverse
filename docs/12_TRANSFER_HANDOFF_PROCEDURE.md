@@ -27,7 +27,7 @@ Part B 完了後に §3 の Safe 行を確定値で埋め、譲渡契約の締�
 | T-14 日 | 見届け役 | UNI 側の見届け役に **閲覧権限** を付与（GitHub read、GCP Viewer、Safe の閲覧、`ops/OPERATIONS_LOG.md`）。週次記録を一緒に 1 回読む | — |
 | T-7 日 | リハーサル | §4 の受け取り確認を UNI 側が **stg と drill VM** で一度通す（Signer 復旧リハ `ops/SIGNER_RECOVERY_RUNBOOK.md` §7 と同時にやると 1 回で済む） | — |
 | T-1 日 | 凍結 | デプロイ凍結・会員向けお知らせ（必要なら「メンテナンス」ではなく「運営体制変更」の告知）。本番 DB・Signer SQLite・VM のバックアップを取り、ハッシュを記録 | — |
-| **T（譲渡日）** | 契約・IP | 契約締結。IP 移転（09 §8）。コードは GitHub org の所有権移転（§3-1）。Ledger A（Safe 署名者 2。石川が 2026-09-29 に立て替えて購入）の代金を UNI へ請求する（members KEY_MANAGEMENT_MIGRATION §4.1） | 契約は不可逆 |
+| **T（譲渡日）** | 契約・IP | 契約締結。IP 移転（09 §8）。コードは GitHub org の所有権移転（§3-1）。Ledger A・B（Safe 署名者 2・3。いずれも石川が立て替えて購入。A は 2026-09-29 に購入、B は 2026-10-01 の U-14 改訂で新品にし調達待ち）の代金を UNI へ請求する（members KEY_MANAGEMENT_MIGRATION §4.1） | 契約は不可逆 |
 | T | 権限の追加 | §3 の各行の「UNI 側を追加」を実行（削除はまだしない） | — |
 | T+1〜T+3 | 受け取り確認 | §4 を UNI 側運用者（または見届け役）が実施。全部 OK になるまで旧権限を消さない | — |
 | T+3 | **オンチェーン権限** | Safe の署名者構成は変えない（Ledger A / B は最初から UNI 管理。DECISIONS 2026-09-24 U-9）。**会社 MetaMask のシード封緘物を UNI へ引き渡し**、UNI 側端末で復元してアドレス一致を確認（09 §7）。ADMIN 移転済みが前提（Part B） | 鍵の物理移動 |
