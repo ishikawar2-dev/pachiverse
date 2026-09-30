@@ -1,20 +1,22 @@
 # 実装規模の証跡（Git 記録からの抽出）
 
-生成日: 2026-09-30　生成コマンド: `scripts/dev_effort_evidence.sh`（再実行で同じ表が出る）
+生成日: 2026-10-01　生成コマンド: `scripts/dev_effort_evidence.sh`（各リポジトリの HEAD が同じなら §1〜§5 は同じ表が出る。生成日と §6 の CI 実行数は実行時の値）
 
 工数表 v1.2 の付録。**実装物が存在し、稼働し、保守されていることと、その規模（行数・テスト件数・CI 実行）を示す一次データ。工数（人月）や開発期間の証跡ではない。** 再調達原価の本体は外注見積 2〜3 社であり、本表はその見積対象の規模を第三者が確認するために使う。
 Git の履歴は 2026-04 以降に集中している（開発は 2026-01-22 に GitHub を使わずに始め、売買に向けた可視化のため後から段階的に上げたため）。コミット数・稼働日数は履歴の起点を示すだけで、作業量を表さない。
 
 ## 1. リポジトリ別サマリ
 
+追加行・削除行・自作コード行数は、同じ対象パス・除外・拡張子（§7）に限って数える（第三者のコード・生成物・対象パスの外のファイルは含まない）。
+
 | リポジトリ | HEAD | 初回コミット | 最終コミット | コミット数 | 追加行 | 削除行 | 自作コード行数（対象パス、文書 md を含む） |
 |---|---|---|---|---|---|---|---|
-| pachiverse.com（公開サイト + Vercel API） | `2373cc3` | 2026-04-19 | 2026-09-30 | 201 | 42414 | 1140 | 13962 |
-| members.pachiverse.com（会員システム） | `7192633` | 2026-05-29 | 2026-09-30 | 714 | 293655 | 12789 | 162084 |
-| pachiverse-contracts（スマートコントラクト） | `d4f8ae9` | 2026-08-07 | 2026-09-22 | 25 | 14642 | 87 | 4691 |
-| pachiverse-signer（署名サーバ） | `1a82a32` | 2026-08-07 | 2026-09-17 | 24 | 15192 | 323 | 9686 |
-| pvm-art（Generative NFT 制作パイプライン） | `101a035` | 2026-09-15 | 2026-09-15 | 2 | 50089 | 2 | 2679 |
-| pachiverse-world（メタバース、World Foundation） | `ad2ed9b` | 2026-09-05 | 2026-09-11 | 30 | 24606 | 279 | 12346 |
+| pachiverse.com（公開サイト + Vercel API） | `d28198e` | 2026-04-19 | 2026-10-01 | 212 | 14641 | 665 | 13976 |
+| members.pachiverse.com（会員システム） | `42d6803` | 2026-05-29 | 2026-10-01 | 762 | 177732 | 8605 | 168577 |
+| pachiverse-contracts（スマートコントラクト） | `d4f8ae9` | 2026-08-07 | 2026-09-22 | 25 | 4752 | 61 | 4691 |
+| pachiverse-signer（署名サーバ） | `1a82a32` | 2026-08-07 | 2026-09-17 | 24 | 9939 | 253 | 9686 |
+| pvm-art（Generative NFT 制作パイプライン） | `73394cc` | 2026-09-15 | 2026-09-30 | 4 | 2857 | 4 | 2853 |
+| pachiverse-world（メタバース、World Foundation） | `ad2ed9b` | 2026-09-05 | 2026-09-11 | 30 | 12919 | 114 | 12805 |
 
 ### 1.1 作者別のコミット数（マージを除く）
 
@@ -22,13 +24,13 @@ Git の履歴は 2026-04 以降に集中している（開発は 2026-01-22 に 
 
 | リポジトリ | 作者 | コミット数 |
 |---|---|---|
-| pachiverse.com（公開サイト + Vercel API） | ishikawar2-dev | 115 |
-| members.pachiverse.com（会員システム） | ishikawar2-dev | 441 |
+| pachiverse.com（公開サイト + Vercel API） | ishikawar2-dev | 121 |
+| members.pachiverse.com（会員システム） | ishikawar2-dev | 473 |
 | members.pachiverse.com（会員システム） | pachiverse01-ai | 6 |
 | members.pachiverse.com（会員システム） | Claude Fable 5.1 | 4 |
 | pachiverse-contracts（スマートコントラクト） | ishikawar2-dev | 16 |
 | pachiverse-signer（署名サーバ） | ishikawar2-dev | 18 |
-| pvm-art（Generative NFT 制作パイプライン） | ishikawar2-dev | 2 |
+| pvm-art（Generative NFT 制作パイプライン） | ishikawar2-dev | 3 |
 | pachiverse-world（メタバース、World Foundation） | ishikawar2-dev | 29 |
 
 ## 2. 月別コミット数（全リポジトリ合算。履歴の起点を示すだけで作業量ではない）
@@ -40,11 +42,12 @@ Git の履歴は 2026-04 以降に集中している（開発は 2026-01-22 に 
 | 2026-06 | 34 |
 | 2026-07 | 3 |
 | 2026-08 | 28 |
-| 2026-09 | 904 |
+| 2026-09 | 957 |
+| 2026-10 | 8 |
 
 ## 3. コミットのあった暦日（全リポジトリ合算。作業日数ではない）
 
-コミットのあった日: **37 日**（同日に複数リポジトリへコミットしても 1 日と数える）
+コミットのあった日: **38 日**（同日に複数リポジトリへコミットしても 1 日と数える）
 
 ## 4. 自作コードの区分別行数（対象パス、vendor 等除外）
 
@@ -56,16 +59,16 @@ Git の履歴は 2026-04 以降に集中している（開発は 2026-01-22 に 
 | pachiverse.com（公開サイト + Vercel API） | コード | js | 5 | 494 |
 | pachiverse.com（公開サイト + Vercel API） | コード | mjs | 2 | 333 |
 | pachiverse.com（公開サイト + Vercel API） | コード | py | 1 | 162 |
-| pachiverse.com（公開サイト + Vercel API） | コード | sh | 1 | 127 |
+| pachiverse.com（公開サイト + Vercel API） | コード | sh | 1 | 141 |
 | members.pachiverse.com（会員システム） | コード | html | 2 | 28 |
 | members.pachiverse.com（会員システム） | コード | js | 3 | 810 |
-| members.pachiverse.com（会員システム） | コード | php | 141 | 100183 |
+| members.pachiverse.com（会員システム） | コード | php | 141 | 102079 |
 | members.pachiverse.com（会員システム） | コード | py | 12 | 5008 |
-| members.pachiverse.com（会員システム） | コード | sh | 9 | 2459 |
+| members.pachiverse.com（会員システム） | コード | sh | 9 | 2463 |
 | members.pachiverse.com（会員システム） | コード | ts | 1 | 271 |
-| members.pachiverse.com（会員システム） | テスト | php | 112 | 35780 |
+| members.pachiverse.com（会員システム） | テスト | php | 112 | 39266 |
 | members.pachiverse.com（会員システム） | テスト | sh | 1 | 190 |
-| members.pachiverse.com（会員システム） | 文書 | md | 46 | 17355 |
+| members.pachiverse.com（会員システム） | 文書 | md | 47 | 18462 |
 | pachiverse-contracts（スマートコントラクト） | コード | sh | 2 | 416 |
 | pachiverse-contracts（スマートコントラクト） | コード | sol | 8 | 1121 |
 | pachiverse-contracts（スマートコントラクト） | テスト | sol | 9 | 3110 |
@@ -77,27 +80,27 @@ Git の履歴は 2026-04 以降に集中している（開発は 2026-01-22 に 
 | pvm-art（Generative NFT 制作パイプライン） | コード | py | 14 | 2097 |
 | pvm-art（Generative NFT 制作パイプライン） | コード | sh | 1 | 64 |
 | pvm-art（Generative NFT 制作パイプライン） | コード | yaml | 2 | 364 |
-| pvm-art（Generative NFT 制作パイプライン） | 文書 | md | 2 | 154 |
+| pvm-art（Generative NFT 制作パイプライン） | 文書 | md | 5 | 328 |
 | pachiverse-world（メタバース、World Foundation） | コード | py | 1 | 888 |
 | pachiverse-world（メタバース、World Foundation） | コード | ts | 49 | 4797 |
 | pachiverse-world（メタバース、World Foundation） | コード | tsx | 8 | 405 |
 | pachiverse-world（メタバース、World Foundation） | テスト | ts | 10 | 1559 |
-| pachiverse-world（メタバース、World Foundation） | 文書 | md | 30 | 5102 |
+| pachiverse-world（メタバース、World Foundation） | 文書 | md | 31 | 5156 |
 
 ## 5. テスト件数
 
 | リポジトリ | 種別 | 件数 | 数え方 |
 |---|---|---|---|
-| members.pachiverse.com | PHPUnit テストメソッド（Unit + Integration） | 1205 | `grep -rhoE 'function test' tests` |
-| pachiverse-contracts | forge テスト関数（test/invariant/fuzz） | 181 | `grep -rhoE 'function (test|invariant)' test` |
-| pachiverse-signer | テストケース（it/test）／テストファイル数 | 139 / 10 | `grep -rhoE '^\s*(it|test)\(' src scripts test` |
+| members.pachiverse.com | PHPUnit テストメソッド（Unit + Integration） | 1282 | `git grep -hoE 'function test' HEAD -- tests` |
+| pachiverse-contracts | forge テスト関数（test/invariant/fuzz） | 181 | `git grep -hoE 'function (test\|invariant)' HEAD -- test` |
+| pachiverse-signer | テストケース（it/test）／テストファイル数 | 139 / 10 | `git grep -hoE '^[[:space:]]*(it\|test)\(' HEAD -- src scripts test` |
 
 ## 6. CI 実行数（GitHub Actions、取得できた範囲）
 
 | リポジトリ | 実行数 | 備考 |
 |---|---|---|
 | pachiverse.com（公開サイト + Vercel API） | 0 | ishikawar2-dev/pachiverse |
-| members.pachiverse.com（会員システム） | 508 | pachiverse01-ai/pachiverse-members |
+| members.pachiverse.com（会員システム） | 515 | pachiverse01-ai/pachiverse-members |
 | pachiverse-contracts（スマートコントラクト） | 0 | pachiverse01-ai/pachiverse-contracts |
 | pachiverse-signer（署名サーバ） | 0 | pachiverse01-ai/pachiverse-signer |
 | pvm-art（Generative NFT 制作パイプライン） | 0 | pachiverse01-ai/pvm-art |
@@ -109,6 +112,15 @@ Git の履歴は 2026-04 以降に集中している（開発は 2026-01-22 に 
 - **開発は 2026-01-22 に GitHub を使わずに始まり、売買に向けた可視化のため 2026-04 以降に段階的に GitHub へ上げた。** したがってコミット数・コミットのあった暦日は履歴の起点を示すだけで、開発期間や作業量の証跡には**ならない**。members.pachiverse.com の初回コミット以前の初期開発、pvm-art の 2026-09-15 以前の履歴（production.log・INVENTORY_2026-09-05.md に日付あり）も含まれない。
 - 行数は AI 支援開発を含む実装量であり、人手の行数ではない。工数表の人月は「同等物を外注で再調達した場合」の積算であり、本表から逆算するものではない。再調達原価の本体は外注見積 2〜3 社で、本表はその見積対象の規模を示す。
 - 公開サイト / contracts / signer / pvm-art の CI 実行数 0 は GitHub Actions を使っていないため（公開サイトは Vercel のデプロイチェック、contracts は forge をローカル実行、signer は npm test をローカル実行）。pachiverse-world は GitHub Actions を使う。members.pachiverse.com は 2026-09-27 から無料枠の有無にかかわらずローカルの同等検証を優先し、結果を PR コメントに記録している（`scripts/local-ci.sh --comment`）ため、以後の実行数は検証回数を表さない。
+- 行数・追加行・削除行・テスト件数は、各リポジトリの HEAD のコミット済みの中身で数える（作業ツリーの未コミットの変更と未追跡のファイルは数えない）。§1 の追加行・削除行は、全履歴の差分を自作コード行数と同じ対象パス・除外・拡張子に限って合計し、名前の変更は変更後のパスで判定する。
+- 数える拡張子は §1・§4 で共通: php・ts・tsx・js・mjs・sol・py・sh・html・yaml・yml・md。
+- 対象パス（git のパススペックとして渡す。`*.md` などはリポジトリ全体で照合する）と除外（正規表現）は次のとおりで、リポジトリ間で揃えていない（例: 公開サイトは `docs/` を数えず、会員システムは `docs/` を数える。会員システムは同じリポジトリの `wp-content/plugins/uni-login-analytics` と `wp-content/maintenance.php` を含めていない）。
+  - pachiverse.com（公開サイト + Vercel API）: 対象 `api scripts *.html transparency vercel.json`、除外 `^(assets|files|_archive|members-deploy-main)/`
+  - members.pachiverse.com（会員システム）: 対象 `wp-content/plugins/uni_memberpage tests scripts ops docs`、除外 `/vendor/|/node_modules/`
+  - pachiverse-contracts（スマートコントラクト）: 対象 `src test script ops`、除外 `^lib/`
+  - pachiverse-signer（署名サーバ）: 対象 `src scripts schemas test`、除外 `/node_modules/|^dist/`
+  - pvm-art（Generative NFT 制作パイプライン）: 対象 `*.py *.sh *.md prompts art-src/traits.yaml art-src/legends.yaml`、除外 `^out/|^\.venv/`
+  - pachiverse-world（メタバース、World Foundation）: 対象 `apps packages tools content docs *.md`、除外 `/node_modules/|^\.claude/`
 - 出力は生成日と各リポジトリの HEAD に依存する。§1 の HEAD ハッシュを添えて提示する。
 
 ## 8. 開発の時系列（Git 以前を含む、日付付きの一次資料）
