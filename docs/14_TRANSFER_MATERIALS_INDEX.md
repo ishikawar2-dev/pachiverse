@@ -51,7 +51,7 @@
 | デプロイ手順とリリース履歴 | members `ops/DEPLOY_CHECKLIST.md`、`ops/rollback/` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-30 | 本番デプロイは main ベース必須。§6 がリリース履歴 |
 | インシデント対応 | members `ops/INCIDENT_RESPONSE.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-28 | 外部連絡先は §7 |
 | 鍵管理移行（KMS / Safe） | members `ops/KEY_MANAGEMENT_MIGRATION.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | Part A 完了・Part B 未実施・2026-09-30 | §5.3 に Part A の実行記録。Part B は U-9・U-14 の構成で書き直し済み |
-| 封緘バックアップと復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 一部実施（2-2＝PVM_CUSTODY の紙は 2026-09-16 に復旧テスト済み。最優先の 2-1 と 2-1b・2-5・2-6・2-8・2-9 は未、2-3・2-4 は UNI の Ledger 調達後）・2026-09-28 | 秘密の値は書かない。§3.3 が UNI 側 Ledger の初期化手順 |
+| 封緘バックアップと復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 一部実施（2-2＝PVM_CUSTODY の紙は 2026-09-16 に復旧テスト済み。最優先の 2-1 と 2-1b・2-5・2-6・2-8・2-9 は未、2-3・2-4 は UNI 側で Ledger を初期化するとき。Ledger A は 2026-09-30 調達済み）・2026-09-30 | 秘密の値は書かない。§3.3 が UNI 側 Ledger の初期化手順 |
 | Signer 障害復旧 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定（リハーサル実施済み）・2026-09-30 | リハーサル記録は §7（初回 2026-09-27、以後は年 2 回） |
 | 外部死活監視の導入手順 | members `ops/EXTERNAL_UPTIME_MONITORING.md` | 運用引継ぎ | UNI 運用 | 草案（手順のみ・未導入）・2026-09-21 | 導入後の稼働率は OPERATIONS_LOG §3 へ |
 | OT カード移行 runbook | members `ops/OT_MIGRATION_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（値は空欄）・2026-09-28 | 実施日はオーナー判断。設計は §2.5 の 17 |
