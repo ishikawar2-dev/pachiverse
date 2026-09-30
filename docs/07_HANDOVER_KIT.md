@@ -115,7 +115,7 @@
 | 随時 | POL 補充: BURNER / PVM_CUSTODY が 1 POL 未満で 5 POL を会社 MetaMask から送金（人間が MetaMask で） | DAY_OF_RUNBOOK §1.8 | burn / 出庫が失敗し `pending_burn` へ戻る（会員影響なし） |
 | 随時 | Signer の更新: 旧停止 → 新起動（同時 2 インスタンス禁止） | 02_ONCHAIN §4「v1 の運用制約」 | nonce 重複でウォレット停止 |
 | 随時（障害時）／半年に 1 回（リハ） | Signer 障害復旧: L1 サービス再起動 〜 L4 VM 再構築。SQLite を失ったら未決着 attempt をチェーンで決着させてから再開（二重 burn 防止）。復旧リハは drill VM で年 2 回、§7 に記録 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | burn・出庫が止まる（会員の権利は WP DB に残る）。リハ未実施だと手順書が「使えない紙」になる |
-| 随時（Part A は 2026-09-21 完了） | ~~KMS 化 Part A~~ → **Safe 2-of-3 Part B**（UNI 側の Ledger 2 台の調達・初期化後。事前準備は KMS runbook §4.0-b、Sepolia リハ §4.0-c）→ 第三者監査（11 月〜） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §3〜§4 | 控除項目 A-2 / A-5 が残る |
+| 随時（Part A は 2026-09-21 完了） | ~~KMS 化 Part A~~ → **Safe 2-of-3 Part B**（UNI 側の Ledger 2 台の初期化後。新品の Ledger A は 2026-09-30 に調達済み。事前準備は KMS runbook §4.0-b、Sepolia リハ §4.0-c）→ 第三者監査（11 月〜） | KEY_MANAGEMENT_MIGRATION §4、03_TRANSFER_PLAN §3〜§4 | 控除項目 A-2 / A-5 が残る |
 
 ## 5. 緊急連絡先と意思決定者（連絡先の値は別紙）
 
