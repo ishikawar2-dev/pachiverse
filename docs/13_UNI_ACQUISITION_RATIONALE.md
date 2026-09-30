@@ -17,13 +17,13 @@
 
 ### 2.1 取得対象（6 区分。U-1 で当社異論なし）
 
-| # | 対象 | 内容 | 規模の証跡（2026-09-15 時点） | 出典 |
+| # | 対象 | 内容 | 規模の証跡（2026-10-01 時点。CI 回数のみ 2026-09-15 時点） | 出典 |
 |---|---|---|---|---|
-| 1 | 会員サイト members.pachiverse.com | WordPress＋自作プラグイン。会員の保有・PV Coin 台帳・監査ログ・パック開封・出庫・サポート・管理画面 | PHP 68,820 行、PHPUnit 338 件、CI 227 回 | 00_OVERVIEW、04 §4〜§6 |
-| 2 | スマートコントラクト | Polygon 上の ERC721（Machine NFT 500 体）・ERC1155（Mystery Pack）。finalize・freeze 済みで変更不可 | Solidity 611 行、テスト 80 件 | 04 §4〜§5、07 §2 |
-| 3 | 署名サーバ（Signer） | 鍵を持ち TX を署名・送信する唯一の基盤。鍵は Cloud KMS（HSM） | TypeScript 4,775 行、テスト 96 件 | 00_OVERVIEW、07 §3 |
+| 1 | 会員サイト members.pachiverse.com | WordPress＋自作プラグイン。会員の保有・PV Coin 台帳・監査ログ・パック開封・出庫・サポート・管理画面 | PHP 102,079 行（04 §4 の「コード php」141 ファイル。プラグイン `uni_memberpage` と `scripts/` の php で、テストを含まない）、PHPUnit 1,282 件（テストメソッド）、CI 227 回 | 00_OVERVIEW、04 §4〜§6 |
+| 2 | スマートコントラクト | Polygon 上の ERC721（Machine NFT 500 体）・ERC1155（Mystery Pack）。finalize・freeze 済みで変更不可 | Solidity 1,121 行（04 §4 の「コード sol」8 ファイル。うち OT カード `PachiverseOwnerCard` の本体とデプロイスクリプト 510 行は mainnet 未デプロイ）、テスト 181 件（うち OT カード 101 件） | 04 §4〜§5、07 §2 |
+| 3 | 署名サーバ（Signer） | 鍵を持ち TX を署名・送信する唯一の基盤。鍵は Cloud KMS（HSM） | TypeScript 6,652 行（04 §4 の「コード ts」28 ファイル。生成物の ABI 3 ファイル 3,533 行とスキーマ型定義 10 ファイル 432 行を含み、手書きの実装は 15 ファイル 2,687 行）、テスト 139 件 | 00_OVERVIEW、07 §3 |
 | 4 | NFT アート（pvm-art） | Machine NFT 500 体の画像・metadata と生成パイプライン、IPFS 復旧材料 | Python 2,097 行、原本画像 約 10GB | 04 §4、07 §2 |
-| 5 | 公開サイト pachiverse.com | LP・コントラクト一覧・FAQ・Collection Explorer・購読 API | 13,324 行（文書を含む） | 00_OVERVIEW、04 §1 |
+| 5 | 公開サイト pachiverse.com | LP・コントラクト一覧・FAQ・Collection Explorer・購読 API | 13,976 行（04 §1 の自作コード行数。HTML 8 ファイル 12,846 行と API・スクリプト） | 00_OVERVIEW、04 §1 |
 | 6 | メタバース（pachiverse-world） | World Foundation v1.3.1（グレーボックス段階の試作。G1・P1-10 未了） | TypeScript 等 約 6,100 行、テスト 1,559 行 | 04 §4、05 J |
 
 付随して、知識基盤 docs・runbook 群（約 250KB）を引き渡す（07 §2）。

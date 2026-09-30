@@ -2,7 +2,7 @@
 
 作成日: 2026-09-16（初稿・売り手作成）　宛先: 監査会社 3 社の営業・技術担当　位置づけ: [03_TRANSFER_PLAN.md](03_TRANSFER_PLAN.md) フェーズ E（監査準備）の成果物
 
-> 本書は見積依頼のためのスコープ定義であり、契約書ではない。数値（行数・ファイル数・テスト件数）は 2026-09-16 時点のリポジトリ実測値または各 README の記載値で、発注時に再計測する。
+> 本書は見積依頼のためのスコープ定義であり、契約書ではない。数値（行数・ファイル数・テスト件数）は 2026-10-01 時点のリポジトリ実測値（members `42d6803`（プラグインとテストのコードは `5c0848b` と同じ）、signer `1a82a32`、contracts `d4f8ae9`、公開サイト `d28198e`）または各 README の記載値で、発注時に再計測する。
 > 「要確認」と記した箇所はオーナーが埋める（§9 に集約）。本書には秘密の値（鍵・パスワード・API キー・HMAC secret）、個人名、メールアドレス、ホスト名・IP を書かない。第三者へ渡す版では §9 を外す。
 
 ---
@@ -99,39 +99,40 @@ Pachiverse（パチンコ・パチスロ機体をモチーフにした NFT と�
 
 ### 3.1 対象（初回監査・11 月開始）
 
-規模の目安はリポジトリ実測（`wc -l` / `find | wc -l`、2026-09-16）。テスト件数は各 README の記載値を優先し、README に無いものは実測値に「(実測)」を付す。
+規模の目安はリポジトリ実測（`wc -l` / `find | wc -l`、2026-10-01）。テスト件数は各 README の記載値を優先し、README に無いものは実測値に「(実測)」を付す。
 
 | # | 対象 | 内容 | 規模の目安 | 監査の深さ |
 |---|---|---|---|---|
 | S-1 | スマートコントラクト（2 本） | `pachiverse-contracts/src/PachiverseMachines.sol`（ERC721）、`src/PachiverseMysteryPacks.sol`（ERC1155）。Solidity 0.8.24 / OpenZeppelin v5 / Foundry。non-upgradeable、`AccessControl`。Polygon mainnet にデプロイ済み・Verified・finalize / freeze 済み | 本体 2 ファイル 437 行（172 + 265）。テスト 6 ファイル 1,259 行（unit / fuzz / invariant の 3 層）。デプロイスクリプト 4 ファイル 174 行 | 全行の手動レビュー + テストの妥当性評価。デプロイ済みバイトコードとソースの一致確認 |
-| S-2 | コントラクトのテスト | PVM: unit 30 / fuzz 6 / invariant 5（README）。PVPACK: README に件数記載なし、実測 unit 26 / fuzz 5 / invariant 5。2 本合計 80 件（`DEPLOY_PVM_20260909.md`、2026-09-02 時点で全合格）。`foundry.toml`: fuzz runs 512、invariant runs 256 / depth 64 | 上記に含む | テストの網羅性（不変条件の抜け）を評価。追加テストの提案は歓迎するが実装は求めない |
-| S-3 | Signer（署名基盤） | `pachiverse-signer/src/`。TypeScript / viem / Fastify / better-sqlite3。HMAC 認証、request_id 冪等、nonce 予約、chain 三点照合、Receipt Checker、GCP KMS provider | `src/` 実装 15 ファイル 3,119 行（生成物の ABI 3 ファイル 3,533 行・スキーマ型定義 10 ファイルは除外）。テスト 10 ファイル 2,381 行、README 記載 106 件（実測 139 件。README 未記載の kms / receipt / wpClient を含む）。スクリプト 5 ファイル 452 行。JSON Schema 10 ファイル | 全行の手動レビュー。特に `src/service.ts`（556 行）、`src/idempotency/store.ts`（319 行）、`src/auth/hmac.ts`（162 行）、`src/accounts/gcpKms.ts`（363 行）、`src/config/index.ts`（303 行） |
-| S-4 | WP プラグイン: 認証・ゲート | `inc/member-status.php`、`gate.php`、`auth.php`、`login-wp.php`、`system.php`、`hardening.php`、`content-protect.php`、`env.php`、`maintenance.php` | 9 ファイル 3,189 行 | 全行 |
-| S-5 | WP プラグイン: 資産整合性（PV Coin 台帳・NFT 保有 usermeta） | `inc/coin-ledger.php`、`coin-ledger-admin.php`、`items-def.php`、`mypage.php`（会員間 NFT 送信・交換）、`mypage-items.php`、`login-bonus.php`、`admin-item-grant.php`、`inc/gacha/`（8 ファイル） | 16 ファイル 7,773 行 | 全行。CAS / トランザクション境界を重点 |
-| S-6 | WP プラグイン: Pack Reveal | `inc/pack-reveal.php`（単一ファイルとして最大）、`mint-tx.php`、`admin-mint-tx.php` | 3 ファイル 7,200 行 | 開封・割当・burn バッチ・ロック・verify の経路を全行。管理画面の表示部は軽く |
-| S-7 | WP プラグイン: 出庫 | `inc/withdraw-request.php`（旧・アイテム出庫）、`pvm-withdrawal.php`（PVM 出庫申請）、`admin-pvm-withdrawals.php` | 3 ファイル 1,431 行 | 全行。状態遷移と保留残高 |
-| S-8 | WP プラグイン: Signer 連携 | `inc/chain-signer.php`、`chain-signer-auth.php`。HMAC 検証・attempt 状態機械・callback 冪等・payload_hash | 2 ファイル 1,871 行 | 全行。S-3 との契約整合（`docs/schemas/signer-v1/` が正本） |
-| S-9 | WP プラグイン: 監査ログ・レコンサイル | `inc/audit-log*.php`（ハッシュチェーン）、`admin-reconcile*.php`、`reconcile-onchain-fetcher.php`、`polygonscan-client.php` | 12 ファイル 2,888 行 | ハッシュチェーンの改ざん耐性、突合ロジックの正しさ |
-| S-10 | WP プラグイン: 管理画面権限 | `inc/admin-notice.php`（一斉メール）、`admin-member-import.php`（CSV 取込）、`admin-user-list.php`、`admin-log-hub.php`、`member-status-admin.php`、`admin-menu-structure.php`、`admin-dup-check.php`、`admin-login-log.php`、`admin-login-failures.php` | 9 ファイル 11,924 行 | 権限チェック（`current_user_can` / nonce / ロール）の網羅確認を主目的とし、UI 描画部は全行精読を求めない |
-| S-11 | WP プラグイン: サポート受信箱（PII 取扱） | `inc/support.php`（nopriv AJAX 含む）、`support-ai-classify.php`（外部 AI へのマスク）、`support-gsheets.php`、`support-imap-fetch.php`、`support-reply-send.php`、`support-inbox-store.php`、`support-classify.php`、`member-real-name.php` | 8 ファイル 6,028 行 | PII の外部送信経路（AI API・Google Sheets・メール）と認証なし経路を重点 |
+| S-2 | コントラクトのテスト | PVM: unit 30 / fuzz 6 / invariant 5（README。実測は unit 33 / fuzz 6 / invariant 5）。PVPACK: README に件数記載なし、実測 unit 26 / fuzz 5 / invariant 5。2 本合計 80 件（実測。`DEPLOY_PVM_20260909.md`、2026-09-02 時点で全合格）。`foundry.toml`: fuzz runs 512、invariant runs 256 / depth 64 | 上記に含む | テストの網羅性（不変条件の抜け）を評価。追加テストの提案は歓迎するが実装は求めない |
+| S-3 | Signer（署名基盤） | `pachiverse-signer/src/`。TypeScript / viem / Fastify / better-sqlite3。HMAC 認証、request_id 冪等、nonce 予約、chain 三点照合、Receipt Checker、GCP KMS provider | `src/` 実装 15 ファイル 2,687 行（生成物の ABI 3 ファイル 3,533 行・スキーマ型定義 10 ファイル 432 行は除外。OT カードの operation `src/operations/ownerCard.ts` 106 行を含み、§3.4 と重なる）。テスト 11 ファイル 2,381 行（`*.test.ts` 10 本と補助の `helpers.ts`）、README 記載 106 件（実測 139 件。README 未記載の kms / receipt / wpClient を含む）。スクリプト 5 ファイル 653 行。JSON Schema 10 ファイル | 全行の手動レビュー。特に `src/service.ts`（556 行）、`src/idempotency/store.ts`（319 行）、`src/auth/hmac.ts`（162 行）、`src/accounts/gcpKms.ts`（363 行）、`src/config/index.ts`（303 行） |
+| S-4 | WP プラグイン: 認証・ゲート | `inc/member-status.php`、`gate.php`、`auth.php`、`login-wp.php`、`system.php`、`hardening.php`、`content-protect.php`、`env.php`、`maintenance.php` | 9 ファイル 3,617 行 | 全行 |
+| S-5 | WP プラグイン: 資産整合性（PV Coin 台帳・NFT 保有 usermeta） | `inc/coin-ledger.php`、`coin-ledger-admin.php`、`items-def.php`、`mypage.php`（会員間 NFT 送信・交換）、`mypage-items.php`、`login-bonus.php`、`admin-item-grant.php`、`inc/gacha/`（9 ファイル。うち `ad-gam.php` は空） | 16 ファイル 9,075 行 | 全行。CAS / トランザクション境界を重点 |
+| S-6 | WP プラグイン: Pack Reveal | `inc/pack-reveal.php`（単一ファイルとして最大）、`mint-tx.php`、`admin-mint-tx.php` | 3 ファイル 9,095 行 | 開封・割当・burn バッチ・ロック・verify の経路を全行。管理画面の表示部は軽く |
+| S-7 | WP プラグイン: 出庫 | `inc/withdraw-request.php`（旧・アイテム出庫）、`pvm-withdrawal.php`（PVM 出庫申請）、`admin-pvm-withdrawals.php` | 3 ファイル 2,051 行 | 全行。状態遷移と保留残高 |
+| S-8 | WP プラグイン: Signer 連携 | `inc/chain-signer.php`、`chain-signer-auth.php`。HMAC 検証・attempt 状態機械・callback 冪等・payload_hash | 2 ファイル 3,276 行 | 全行。S-3 との契約整合（`docs/schemas/signer-v1/` が正本） |
+| S-9 | WP プラグイン: 監査ログ・レコンサイル | `inc/audit-log*.php`（ハッシュチェーン）、`admin-reconcile*.php`、`reconcile-onchain-fetcher.php`、`polygonscan-client.php` | 11 ファイル 2,750 行 | ハッシュチェーンの改ざん耐性、突合ロジックの正しさ |
+| S-10 | WP プラグイン: 管理画面権限 | `inc/admin-notice.php`（一斉メール）、`support-console.php`（`admin-notice.php` のサポートコンソールの権限 2 レベル・閲覧の監査。2026-09-28 追加）、`admin-member-import.php`（CSV 取込）、`member-import-exclusions.php`（CSV 取込の除外リスト。2026-09-21 追加）、`admin-user-list.php`、`admin-log-hub.php`、`member-status-admin.php`、`admin-menu-structure.php`、`admin-dup-check.php`、`admin-login-log.php`、`admin-login-failures.php` | 11 ファイル 14,112 行 | 権限チェック（`current_user_can` / nonce / ロール）の網羅確認を主目的とし、UI 描画部は全行精読を求めない |
+| S-11 | WP プラグイン: サポート受信箱（PII 取扱） | `inc/support.php`（nopriv AJAX 含む）、`support-ai-classify.php`（外部 AI へのマスク）、`support-gsheets.php`、`support-imap-fetch.php`、`support-reply-send.php`、`support-inbox-store.php`、`support-classify.php`、`member-real-name.php` | 8 ファイル 6,829 行 | PII の外部送信経路（AI API・Google Sheets・メール）と認証なし経路を重点 |
 | S-12 | WP プラグイン: 公開 API | `inc/collection-api.php`（認証なし GET。未 Reveal 情報を出さないこと） | 1 ファイル 229 行 | 全行 |
-| S-13 | WP プラグイン: 本体・REST・メール経路 | `uni-member-mypage.php`（ロード順、702 行）、`inc/mail*.php`、`sc-mail.php`、`admin-sc-mail.php`、`support-inbound.php`（ロード無効・Webhook 残置） | 8 ファイル 3,984 行 | Webhook トークン認証、配信停止トークン、無効化モジュールの露出 |
-| S-14 | WP のテスト・CI | `tests/Unit/`（33 ファイル、実測 253 メソッド）、`tests/Integration/`（15 ファイル、実測 143 メソッド、実 MySQL 8）、PHPStan level 5（baseline 凍結）、GitHub Actions `test.yml` | テスト約 8,000 行 | テストの妥当性評価（設計レビューの補助。テスト追加は求めない） |
+| S-13 | WP プラグイン: 本体・REST・メール経路 | `uni-member-mypage.php`（ロード順、717 行）、`inc/mail*.php`、`sc-mail.php`、`admin-sc-mail.php`、`support-inbound.php`（ロード無効・Webhook 残置） | 8 ファイル 4,358 行 | Webhook トークン認証、配信停止トークン、無効化モジュールの露出 |
+| S-14 | WP のテスト・CI | `tests/Unit/`（61 ファイル、実測 669 メソッド）、`tests/Integration/`（45 ファイル、実測 613 メソッド、実 MySQL 8）、PHPStan level 5（baseline 凍結）、GitHub Actions `test.yml` | `tests/` の php 111 ファイル 38,550 行（Unit・Integration のほか補助 5 ファイルを含む） | テストの妥当性評価（設計レビューの補助。テスト追加は求めない） |
 | S-15 | インフラ設定: GCP（Signer VM・KMS） | VM（e2-micro / Debian 12 / systemd / Caddy 2 リバースプロキシ・Let's Encrypt）、ファイアウォール（tcp 22/80/443）、KMS keyRing / cryptoKey 3 本の IAM（VM サービスアカウントに cryptoKey 単位で `signerVerifier` のみ）、プロジェクトオーナー 2 名、VM スナップショット、`.env` の残置バックアップ | 設定レビュー（コンソール画面共有または `gcloud` 出力の提供） | KMS IAM の最小権限、VM の露出面、平文鍵の残骸（§3.12 未完了分） |
 | S-16 | インフラ設定: 会員サイトホスティング | お名前.com 共用サーバー（固定 IP なし・常駐プロセス不可・WP-Cron はアクセス駆動）、`.htaccess`（設定ファイル・ログ・サービスアカウント JSON の直アクセス拒否）、`/wp-admin/` Basic 認証、SSH / FTPS デプロイ（`scripts/deploy-ssh.sh` / `deploy-files.sh`、G1〜G4 ゲート）、ステージング環境 | 設定レビュー（画面共有・設定ファイル提供） | 本番のみに存在するプラグイン（WP Mail SMTP 等）の棚卸しを含む（要確認 Q-6） |
-| S-17 | 運用手順（デスクレビュー） | `ops/DAY_OF_RUNBOOK_20260909.md`（burn / 出庫 / 緊急停止 / 鍵漏洩時の退避）、`INCIDENT_RESPONSE.md`（§3.8 署名鍵漏洩の初動）、`KEY_MANAGEMENT_MIGRATION.md`（KMS / Safe）、`SEALED_BACKUP_RUNBOOK.md`、`DEPLOY_CHECKLIST.md`、`OPERATIONS_LOG.md`、親 `07_HANDOVER_KIT.md` | runbook 群 約 250KB | 手順の実効性（鍵の所在・バックアップ・復旧・インシデント）を評価 |
+| S-17 | 運用手順（デスクレビュー） | `ops/DAY_OF_RUNBOOK_20260909.md`（burn / 出庫 / 緊急停止 / 鍵漏洩時の退避）、`INCIDENT_RESPONSE.md`（§3.8 署名鍵漏洩の初動）、`KEY_MANAGEMENT_MIGRATION.md`（KMS / Safe）、`SEALED_BACKUP_RUNBOOK.md`、`DEPLOY_CHECKLIST.md`、`OPERATIONS_LOG.md`、親 `07_HANDOVER_KIT.md` | 列挙した members `ops/` の 6 ファイルで約 610KB（608,621 バイト）。親 07 は約 45KB | 手順の実効性（鍵の所在・バックアップ・復旧・インシデント）を評価 |
+| S-19 | WP プラグイン: PP ガチャ（Point Pocket NFT ガチャ） | `inc/pp-gacha/` 一式: `module.php`（テーブル・移行・停止スイッチ）、`draw.php`（抽選）、`prizes.php`（景品在庫・確率設定版）、`tickets.php`（チケットのロット）、`locks.php`（90 日ロック・予約・`GET_LOCK` による直列化）、`redeem.php`（分割参加権 → パックの引き換え）、`rest.php`（Point Pocket からの受信 API 4 本。S-8 と同じ HMAC 認証で用途別の鍵）、`links.php`（会員連携）、`ajax.php`（会員 AJAX）、`ui.php`、`admin.php`、`admin-lineup.php`。別サービス Point Pocket から配られたチケットで、運営の口座が持つ Machine NFT と数量型の資産（パチプロ 3 種・分割参加権 6 種）を抽選で会員に渡す。S-5 の `inc/gacha/`（旧ガチャ）とは別モジュールで、チケットも景品も相互に流用しない。2026-09-17 に本番配置（公開スイッチ OFF）、2026-10-09 に稼働開始予定。設計は members `docs/16_pp_gacha.md` | 12 ファイル 11,309 行。テストは S-14 に含む（`tests/Unit/PpGacha*` 3 ファイル・`tests/Integration/PpGacha*` 11 ファイル、204 メソッド） | 全行。CAS / トランザクション境界とロックの取得順を重点（S-5 にならう） |
 
-規模の合計（コード）: コントラクト 437 行 + Signer 3,119 行 + WP 重点モジュール 約 40,000 行（S-4〜S-13 の合計 40,489 行、本体 702 行を含む）。WP プラグイン全体は `inc/` 115 ファイル 69,831 行（プラグイン全体 71,696 行）で、上記以外の約 31,000 行（ニュース生成 `inc/news/` 1,935 行、ロードマップ、サイトスキン `site-skin.php` 6,017 行、ヘッダ・フッタ、月次レポート等）は**表示・コンテンツ系として対象外**（S-18）。
+規模の合計（コード）: コントラクト 437 行 + Signer 2,687 行 + WP 重点モジュール 約 66,700 行（S-4〜S-13 の 55,392 行と S-19 の 11,309 行の計 66,701 行。本体 717 行を含む）。WP プラグイン全体（`uni_memberpage` の php）は 139 ファイル 102,236 行（うち `inc/` 配下 135 ファイル 100,359 行）。このうち S-行と §3.4 の OT（WP 側 7 ファイル 11,267 行）に入らないのは 48 ファイル 24,268 行で、表示・コンテンツ系（ニュース生成 `inc/news/` 1,935 行、ロードマップ、サイトスキン `site-skin.php` 6,023 行、ヘッダ・フッタ、月次レポート等）は**対象外**（S-18）。残りにはサポートのテンプレート・受信箱の管理画面、死活確認（`inc/healthcheck.php`。K-9 の ping を含む）、監査ログの閲覧画面、ログ出力なども含まれ、初回監査に含めるかは要確認（Q-19）。
 
 ### 3.2 対象外（初回監査）
 
 | # | 対象外 | 理由 | 規模（参考） |
 |---|---|---|---|
 | X-1 | 公開サイト `pachiverse.com` の静的部分（HTML / CSS / JS） | 資産・認証に関与しない静的コンテンツ | HTML 8 ファイル約 12,700 行 |
-| X-2 | 公開サイトの Vercel Functions（`api/subscribe.js` / `subscribers.js` / `collection.js` / `machine-page.js`） | 購読者メールの PII を扱うが会員資産に関与しない。既知問題（レート制限なし・管理トークンのクエリ受付・非定数時間比較）は親 `KNOWN_ISSUES.md` に記載済みで、内製で是正予定。**オプション見積として提示は歓迎**（要確認 Q-7） | JS 4 ファイル 352 行 + mjs 145 行 |
+| X-2 | 公開サイトの Vercel Functions（`api/subscribe.js` / `subscribers.js` / `collection.js` / `machine-page.js`） | 購読者メールの PII を扱うが会員資産に関与しない。レート制限なし・管理トークンのクエリ受付・非定数時間比較は 2026-09-21 に内製で是正した。残る既知問題（配信停止フローなし・本人確認（二重オプトイン）なし）は親 `KNOWN_ISSUES.md` に記載済み。**オプション見積として提示は歓迎**（要確認 Q-7） | JS 4 ファイル 465 行 + 検証スクリプト `scripts/check-collection.mjs` 145 行 |
 | X-3 | `pvm-art`（NFT 画像・メタデータ生成パイプライン、Python） | 生成済み・IPFS 固定済み。運用で再実行しない | Python 14 ファイル約 2,100 行 |
 | X-4 | `pachiverse-world`（メタバース、World Foundation） | 試作段階・未リリース。資産に接続していない | TS / TSX 約 5,200 行 |
-| X-5 | WP プラグインの表示・コンテンツ系モジュール（S-18: `inc/news/`、`site-skin.php`、`header-footer.php`、`home.php`、`roadmap.php`、`admin-monthly-report.php` 等） | 資産・認証に関与しない。ただし S-4 のゲートが全ページに効いているかの確認は S-4 に含む | 約 31,000 行 |
+| X-5 | WP プラグインの表示・コンテンツ系モジュール（S-18: `inc/news/`、`site-skin.php`、`header-footer.php`、`home.php`、`roadmap.php`、`admin-monthly-report.php` 等） | 資産・認証に関与しない。ただし S-4 のゲートが全ページに効いているかの確認は S-4 に含む | 名前を挙げた 6 つで 20 ファイル 11,908 行。S-行・§3.4 に入らない php は全体で 48 ファイル 24,268 行（§3.1 末尾・Q-19） |
 | X-6 | WordPress コア・サードパーティプラグイン（akismet / siteguard / wp-crontrol / cache-clear-onamae / WP Mail SMTP） | 改変していない。バージョン・設定の棚卸しは S-16 に含む | — |
 | X-7 | 旧世代コントラクト 3 本（旧 Packs `0x9f3a…`（退役）、Participation Units `0x852f…`、Access & Companion `0x22ac…`）と Owner's Pass ERC721 `0x1c19…` | 外部委託で作成、ソース管理外、owner 鍵の所在が不明または存在しない。**管理不能であることの事実確認**（mint / pause / URI 変更関数の不在）はデスクレビューとして S-1 に含めてよい（要確認 Q-8） | — |
 | X-8 | 外部サービスの内部（Polygon RPC 事業者、Etherscan API、ブラストエンジン、Anthropic / OpenAI API、Google Sheets、Filebase / Pinata） | 利用側の鍵管理・送信データの範囲のみ S-11 / S-16 で見る | — |
@@ -151,19 +152,19 @@ Pachiverse（パチンコ・パチスロ機体をモチーフにした NFT と�
 | K-6 | サポート担当が WP `editor` ロールで実運用している。2026-09-28 に権限を 2 レベルに分けた（閲覧＝editor、送信・会員更新・除外 CSV・一斉送信＝管理者のみ。閲覧も監査ログに記録。§8 #3）。editor に全桁の閲覧を残す点は**受容リスク**としている | members DECISIONS D36、members KNOWN_ISSUES「受容したリスク」R1・R2 |
 | K-7 | 日次 burn の dispatch は 2026-09-21 から**自動**（Phase 2。手動へ降格したときはメールで通知）。手動の時期（Phase 1）に dispatch 未実施で 5 日滞留した前例あり（放置は安全側） | OPERATIONS_LOG §5.1・I-05 |
 | K-8 | 会員データ（本名・生年月日・電話・メール）を WP DB が保持し、サポート AI 分類に渡す前にマスクする実装が 2026-09-15 に入った | DEPLOY_CHECKLIST 2026-09-15 |
-| K-9 | `wp_ajax_nopriv_*`（未ログインで到達可）が 2 件存在する（初回ログイン案内メールの再発行。氏名 + 生年月日 + 電話の完全一致、失敗 5 回 / IP / 1h ロック） | members 01_ARCHITECTURE |
+| K-9 | `wp_ajax_nopriv_*`（未ログインで到達可）が 3 件存在する。2 件は初回ログイン案内メールの再発行（氏名 + 生年月日 + 電話の完全一致、失敗 5 回 / IP / 1h ロック）。1 件は死活確認の ping `uni_healthcheck_ping`（2026-09-21 追加。サーバー内のループバックからは使い捨てトークン、管理画面からは管理者の nonce で呼ぶ。どちらも無ければ 403。応答は固定の JSON） | members 01_ARCHITECTURE（再発行の 2 件）、`inc/support.php`・`inc/healthcheck.php` |
 | K-10 | Owner's Pass ERC721 のオンチェーン description に利益分配を示唆する英文があり変更不可。法務論点として別途扱う（技術監査の対象外） | 03_TRANSFER_PLAN §5、05 K |
 
 ### 3.4 追加監査（OT カード、12 月予定・別見積）
 
-OT カード（オーナーチケットの ERC721 会員カード方式）は 2026-09-15 に設計が確定し、実装が進行中。**本番デプロイは法務確認の後**で未実施。初回監査の見積とは分けて、次の範囲の追加見積を依頼する。
+OT カード（オーナーチケットの ERC721 会員カード方式）は 2026-09-15 に設計が確定し、実装は Phase 3d-2c まで完了した（2026-09-17。3d-3 以降は未着手）。本番の WP は機能フラグ OFF のまま、**コントラクトの本番デプロイは法務確認の後**で未実施。初回監査の見積とは分けて、次の範囲の追加見積を依頼する。
 
-| 対象 | 内容 | 規模（2026-09-16 時点、実装途中） |
+| 対象 | 内容 | 規模（2026-10-01 時点、実装途中） |
 |---|---|---|
 | `pachiverse-contracts/src/PachiverseOwnerCard.sol` | 移転不可 ERC721 + カード id 間の value 移転。custody から会員へ 1 回だけ release。`transferFrom` / `approve` は常時 revert | 本体 449 行。テスト 3 ファイル 1,851 行（unit 86 / fuzz 6 / invariant 9、README）。デプロイスクリプト 61 行 |
-| Signer の OT operation（4 種） | `ot_mint_batch` / `ot_issue_value` / `ot_release` / `ot_transfer_value`。OT_MINTER / OT_CUSTODY の新規 2 鍵（KMS） | `src/operations/ownerCard.ts` 106 行 + `service.ts` / `config` / `main.ts` の差分。テスト ownerCard 20 + service(OT) 17（README） |
-| WP 側 | `inc/ot-cards.php`（4 テーブル、Signer 連携、受取・移管の状態遷移、WP-CLI）。管理画面は未実装 | 1,985 行（Phase 3a まで）。テスト `OtCardsTest` / `OtCardsIntegrationTest` |
-| 設計書 | members `docs/17_owner_ticket_card_spec.md` v0.2 | 233 行 |
+| Signer の OT operation（4 種） | `ot_mint_batch` / `ot_issue_value` / `ot_release` / `ot_transfer_value`。OT_MINTER / OT_CUSTODY の新規 2 鍵（KMS） | `src/operations/ownerCard.ts` 106 行 + `service.ts` / `config` / `main.ts` の差分。テスト ownerCard 20 + service(OT) 17（README。ownerCard は実測 21） |
+| WP 側 | `inc/ot-cards.php`（4 テーブル、Signer 連携、受取・移管の状態遷移、WP-CLI）、`ot-reconcile.php`（チェーンとの突合）、`ot-migration.php`（移行 `wp uni-ot migrate`）、`ot-issue.php`（付与）、管理画面 `admin-ot-grant.php`（付与の作成）・`admin-ot-requests.php`（承認・却下・送信。`manage_options` のみ）、会員画面 `mypage-ot.php`（移管・受取。機能フラグ OFF の間は出さない） | 7 ファイル 11,267 行（Phase 3d-2c まで。うち `ot-cards.php` 2,858 行）。テスト `tests/Unit/Ot*` 6 ファイル・`tests/Integration/Ot*` 7 ファイル、227 メソッド（S-14 の件数に含む） |
+| 設計書 | members `docs/17_owner_ticket_card_spec.md` v0.3 | 271 行 |
 
 追加監査の観点: value 総量の保存（Σ valueOf == totalValue ≤ maxTotalValue）、release の 1 回性、custody 鍵の裁量（受取前の全 value を custody が動かせる事実と、WP 側の申請・同意記録との紐付け）、既存 3 operation への影響がないこと。
 
@@ -198,12 +199,12 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | VM | OS / Node / 依存パッケージのバージョン、systemd の権限（User=signer）、`.env` のパーミッション、ファイアウォール、SSH 鍵の管理、Caddy の TLS 設定、ログに秘密が出ないこと |
 | 依存 | `npm audit` 相当。viem / fastify / better-sqlite3 / google-auth-library の固定バージョン |
 
-### 4.3 WordPress プラグイン（S-4〜S-14 / S-16）
+### 4.3 WordPress プラグイン（S-4〜S-14 / S-16 / S-19）
 
 | 観点 | 具体的な確認事項 |
 |---|---|
 | 認証 | 会員ステータス判定（`status` / `vb_member` / `uni_member` の 3 メタ）がログイン時・ゲート・AJAX で一貫して効くこと。停止会員の既存セッション遮断（§8 #1 の修正が有効か）。初回パスワード設定・リセットのトークン強度・単回性・TTL。メール変更確認のトークン比較 |
-| 権限 | 管理画面 POST が `current_user_can('manage_options')` + `check_admin_referer()` の両方を通ること。サポートコンソールの 2 レベル（閲覧＝editor、管理＝manage_options）の振り分けが `uni_support_console_ajax_levels()` の表どおりに効くこと（表に無い action は管理扱い。K-6）。`wp_ajax_nopriv_*` 2 件の列挙耐性 |
+| 権限 | 管理画面 POST が `current_user_can('manage_options')` + `check_admin_referer()` の両方を通ること。サポートコンソールの 2 レベル（閲覧＝editor、管理＝manage_options）の振り分けが `uni_support_console_ajax_levels()` の表どおりに効くこと（表に無い action は管理扱い。K-6）。`wp_ajax_nopriv_*` 3 件（再発行 2 件の列挙耐性、ping のトークン検証。K-9） |
 | CAS / トランザクション | PV Coin（`SELECT ... FOR UPDATE` + INSERT のみ台帳）、Pack Reveal（usermeta ロック + inventory 行の条件付き UPDATE + 残高 CAS の三重防御）、ガチャチケット（CAS、2026-09-15 修正）、会員間 NFT 送信・交換（CAS）、出庫申請（−qty / +hold のトランザクション）、attempt の `UNIQUE KEY` による二重 request_id 防止。非 InnoDB フォールバック（K-5）の扱い |
 | 状態機械 | attempt: `created → dispatched → submitted → confirmed | failed`。未決着中の新規 request_id 発行禁止。出庫: `requested → approved → dispatched → submitted → confirmed / failed → approved`。burn: `pending_burn → batched → dispatched → submitted → confirmed / failed`。手動 `failed` 化による二重 burn の運用ガード |
 | 入力検証 | 出庫先アドレス（20 byte、custody / zero / dead 除外、大小文字無視の再確認）、CSV 取込、AJAX パラメータ、REST の引数 |
@@ -211,6 +212,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | XSS / 出力 | 管理画面の `esc_html` / `esc_attr` / `esc_url`。会員向けページのインライン JS（`&` の変換事故の前例あり） |
 | PII | 会員本名・生年月日・電話・メールの保存範囲、外部送信（Anthropic / OpenAI / Google Sheets / メール）前のマスク、ログへの混入、CSV エクスポートの権限、購読者・配信停止トークン |
 | Webhook / REST | ブラストエンジン Event Webhook のクエリトークン認証（fail-closed 化済み。本番トークンの設定は 2026-09-21 に確認済み。SendGrid の受信口は 2026-09-27 に廃止）、配信停止エンドポイント、公開 Collection API の情報露出（未 Reveal の rarity / trait を出さない）、無効化済み `support-inbound.php` の REST ルート残置 |
+| PP ガチャ（S-19） | 抽選の冪等（クライアント採番の UUID を冪等キーにした抽選要求。チケットの消費・景品の移転・在庫の更新・90 日ロットの作成を 1 トランザクションで確定し、失敗したら再抽選しない）。景品の予約と運営口座（景品登録で運営口座の残高を予約し、運営残高・予約・在庫が食い違わないこと。Machine は 1 体 1 行）。Point Pocket との連携の認証（受信 API 4 本の HMAC と `request_id` の冪等台帳、会員連携の claim の失効と回数制限、送信側の鍵）。90 日ロック（受取から 90×24 時間は会員間送信・出庫・引き換えに使えないこと。数量型は `GET_LOCK` → トランザクション → `FOR UPDATE` の順で検査）。非 InnoDB のテーブルがあれば抽選・付与・移転を拒否する fail-closed |
 | 監査ログ | SHA256 ハッシュチェーン（`prev_hash → row_hash`、`hash_ver`）の改ざん耐性、日次自動検証、記録対象の網羅（特権操作が全て記録されるか） |
 | ハードニング | REST ユーザー列挙遮断、XML-RPC 停止、アプリケーションパスワード無効化、セキュリティヘッダ、`DISALLOW_FILE_EDIT`、`.htaccess` の拒否設定、`/wp-admin/` Basic 認証の適用範囲 |
 | デプロイ | main ベース必須（G1）、require 照合（G2）、sha256 照合（G3）、死活（G4）。FTPS デプロイでの部分配置リスク。ロールバック手順 |
@@ -233,10 +235,10 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | 区分 | 資料 | 形式 | 備考 |
 |---|---|---|---|
 | コード | `pachiverse-contracts` / `pachiverse-signer` / `pachiverse-members`（GitHub private リポジトリ） | 監査期間中の read 権限付与、または指定コミットの tarball | HEAD は発注時に固定して通知する |
-| 設計・仕様 | 親 `docs/00_OVERVIEW.md` → `01_ARCHITECTURE.md` → `02_ONCHAIN.md`、members `docs/00_OVERVIEW.md` → `01_ARCHITECTURE.md`、`docs/12_signer_interface_v1.md`、`docs/13_pvm_withdrawal.md`、`docs/schemas/signer-v1/*.json`（契約の正本）、`docs/17_owner_ticket_card_spec.md`（追加監査） | Markdown / JSON | 各リポジトリの README も一次資料 |
+| 設計・仕様 | 親 `docs/00_OVERVIEW.md` → `01_ARCHITECTURE.md` → `02_ONCHAIN.md`、members `docs/00_OVERVIEW.md` → `01_ARCHITECTURE.md`、`docs/12_signer_interface_v1.md`、`docs/13_pvm_withdrawal.md`、`docs/16_pp_gacha.md`（PP ガチャ）、`docs/schemas/signer-v1/*.json`（契約の正本）、`docs/17_owner_ticket_card_spec.md`（追加監査） | Markdown / JSON | 各リポジトリの README も一次資料 |
 | 設計判断の記録 | 親 / members の `DECISIONS.md`（採用しなかった案とその理由を含む） | Markdown | |
 | 既知問題 | 親 / members の `KNOWN_ISSUES.md`、2026-09-07 内部全面レビュー報告書（CRITICAL 3 / HIGH 19 / MEDIUM 約 40）とその対応記録（§8） | Markdown / HTML | 監査会社が既知の指摘を重複報告しないために提供する |
-| テスト | forge テスト（80 件 + OT 101 件）、Signer vitest（139 件）、WP PHPUnit（Unit 253 / Integration 143）、PHPStan level 5、`scripts/local-ci.sh`、Signer `scripts/e2e-anvil.sh`（anvil 通し検証） | 実行手順は各 README / AGENTS.md | CI は GitHub Actions（`test.yml`）。無料枠超過時はローカル同等検証の記録を PR コメントに残す運用 |
+| テスト | forge テスト（80 件 + OT 101 件）、Signer vitest（139 件）、WP PHPUnit（Unit 669 / Integration 613 メソッド）、PHPStan level 5、`scripts/local-ci.sh`、Signer `scripts/e2e-anvil.sh`（anvil 通し検証） | 実行手順は各 README / AGENTS.md | CI は GitHub Actions（`test.yml`）。無料枠超過時はローカル同等検証の記録を PR コメントに残す運用 |
 | runbook | members `ops/`: `RELEASE_RUNBOOK_20260909.md`、`DAY_OF_RUNBOOK_20260909.md`、`DEPLOY_CHECKLIST.md`（リリース履歴付き）、`INCIDENT_RESPONSE.md`、`KEY_MANAGEMENT_MIGRATION.md`（§5.3 実行記録付き）、`SEALED_BACKUP_RUNBOOK.md`、`OPERATIONS_LOG.md`、`CPA_REVIEW_GUIDE.md`（内部統制マップ・ITGC）、`DEVELOPMENT_POLICY.md` | Markdown | 第三者向け版ではホスト名・IP・アカウント名を別紙に外す |
 | 引き継ぎ | 親 `docs/07_HANDOVER_KIT.md`（資産目録・認証情報の所在・運用カレンダー） | Markdown | 同上 |
 | 監査ログ | `wp_uni_audit_log` のエクスポート（SHA256 ハッシュチェーン付き）、日次検証結果 | JSON | 会員 PII を含む列はマスクして提供（要確認 Q-10） |
@@ -272,7 +274,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | 2026-09 下旬 | 本スコープ書の確定、3 社へ見積依頼 | オーナー |
 | 2026-10 上旬 | 見積受領・比較、質疑、1 社選定、NDA・契約 | オーナー |
 | 2026-10 中 | 監査前の前提整備: Safe 2-of-3 移行（Part B）、ステージング環境の整備、対象コミットの固定（KMS 後始末 §3.12 / R-7 は 2026-09-21 に完了） | オーナー |
-| **2026-11-01 〜** | **監査開始**（初回スコープ S-1〜S-17）。想定 4〜6 週 | 監査会社 |
+| **2026-11-01 〜** | **監査開始**（初回スコープ S-1〜S-17・S-19）。想定 4〜6 週 | 監査会社 |
 | 2026-11 中〜下旬 | Critical / High の即時通知 → 売り手側で是正着手 | 双方 |
 | 2026-12 上旬 | 初回レポート（ドラフト）受領 → 是正完了 → 再確認 1 回 | 双方 |
 | 2026-12 中〜下旬 | **最終レポート受領（既存範囲）** | 監査会社 |
@@ -308,9 +310,10 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 ■ 対象と規模（詳細は添付スコープ書 §3）
   - スマートコントラクト 2 本（Solidity 0.8.24 / OpenZeppelin v5、本体 437 行、
     テスト 1,259 行、Polygon mainnet デプロイ済み・変更不可）
-  - 署名基盤（TypeScript 約 3,100 行、テスト約 2,400 行、GCP VM + Cloud KMS）
-  - 会員ポータルの重点モジュール（PHP 約 40,000 行: 認証・台帳・Reveal・出庫・
-    Signer 連携・監査ログ・管理画面権限・サポート受信箱・公開 API）
+  - 署名基盤（TypeScript 約 2,700 行、テスト約 2,400 行、GCP VM + Cloud KMS）
+  - 会員ポータルの重点モジュール（PHP 約 66,700 行: 認証・台帳・Reveal・出庫・
+    Signer 連携・監査ログ・管理画面権限・サポート受信箱・公開 API・
+    外部サービス連携の NFT ガチャ）
   - インフラ設定（GCP KMS IAM / VM、共用レンタルサーバー、デプロイ手順）
   - 運用手順書のデスクレビュー
 
@@ -375,7 +378,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | E-6 | Signer エンドポイントの前段防御なし（K-2） | 設計と実態の差。監査で評価を求める | RELEASE_STATE §2-a |
 | E-7 | 本番のみに存在するプラグイン（WP Mail SMTP 等）がリポジトリにない | 棚卸し未 | members KNOWN_ISSUES 未確認 4 |
 | E-8 | 2026-09-01 資産・認証系レビューの 8 件（tx_hash readonly / sent 時減算 / 台帳 legacy / 緊急停止 path / NFT 送信 CAS / render sync ロック / callback 冪等 / CLI failed ガード） | 9/1 マージ・9/2 本番反映済み | 親 KNOWN_ISSUES「要修正」追記、05 §4 |
-| E-9 | 公開サイト購読 API（レート制限なし・管理トークンのクエリ受付・非定数時間比較・配信停止なし） | 未対応。初回スコープ外（X-2） | 親 KNOWN_ISSUES |
+| E-9 | 公開サイト購読 API（配信停止フローなし・本人確認（二重オプトイン）なし） | レート制限・管理トークンの扱い（Bearer のみ・定数時間比較）は 2026-09-21 に是正済み。配信停止と本人確認は未対応（購読リストへの配信を始める前の前提条件。配信は行っていない）。初回スコープ外（X-2） | 親 KNOWN_ISSUES |
 | E-10 | 2026-09-07 全面レビューの §0 以外の HIGH / MEDIUM 約 50 件 | 個別の対応状況は報告書と PR 履歴で提示（要確認 Q-15） | `~/Downloads` の報告書 |
 
 ---
@@ -402,8 +405,9 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | Q-16 | 3 社の候補 | コントラクト・Web アプリ・クラウドの 3 領域を 1 社で受けられる会社を優先。国内の Web3 監査会社／ 国内の Web アプリ診断会社（コントラクトは提携先）／ 海外のコントラクト専業（日本語レポート不可の場合は除外） | 9 月下旬 |
 | Q-17 | 対象コミットの固定時期 | 監査開始日の前営業日に各リポジトリの main を固定し、監査中のデプロイは是正分のみに限定する運用でよいか | 契約時 |
 | Q-18 | 本書の第三者向け版の作成 | §9 を外し、§3.3 / §8 の内部資料参照（`~/Downloads` 等）を「別途提供」に置換する | 見積依頼前 |
+| Q-19 | S-行・§3.4 に名前の無い WP プラグインの php（48 ファイル 24,268 行、§3.1 末尾）の扱い | 2026-09-16 の初稿はこの残りを「表示・コンテンツ系」としていたが、2026-10-01 に数え直したところ、表示・コンテンツ系（S-18）のほかにサポートのテンプレート・受信箱の管理画面、死活確認（`inc/healthcheck.php`。K-9 の ping）、監査ログの閲覧画面、ログ出力なども入っていた。(a) 表示・コンテンツ系だけを対象外とし、残りを該当する S-行へ足す ／ (b) 残り全体を対象外のままとし、その旨を §3.2 に書く | 見積依頼前 |
 
-要確認: 18 件。
+要確認: 19 件。
 
 ---
 
