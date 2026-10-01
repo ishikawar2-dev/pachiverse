@@ -11,12 +11,12 @@
 ## 工程管理
 ### 工程
 - 作業開始時に工程を「調査／設計／実装／修正／レビュー」で判定し、1 行で宣言する
-- セッション開始時は `docs/handoff.md` を最初に読む
-- 工程順：調査 → 設計 → `/handoff` → `/clear` → 実装 → 型チェック・lint・test → レビュー → 必須指摘のみ修正 → 最終確認 → `/handoff` → `/clear`
+- セッション開始時は `docs/handoff*.md` の 1 行目（タスク名・ブランチ・主な対象ファイル）だけを見て、今回の依頼がそのタスクの続き（同じ機能名・ブランチ・対象ファイルに触れる依頼を含む）のときに、そのファイルの全文を読む（迷ったら読む）
+- 工程順：調査 → 設計 → `/handoff` → `/clear` → 実装 → 型チェック・lint・test → レビュー → 必須指摘のみ修正 → 最終確認 → `/handoff` → `/clear`。~/.claude/CLAUDE.md の「必須のレビュー」の表のどれかに当たるときは、その段を挟む
 - 調査は `researcher` エージェントに委譲する。設計は本体が行い、核心ファイル 1〜3 個は本体が直接読む
-- 設計完了時：`/handoff` 実行後、`docs/handoff.md` を `codex exec --sandbox read-only` でレビューさせる（codex-cli 0.154.0 で確認済み・有効）
+- 設計完了時：`/handoff` 実行後、`docs/handoff.md` を点検させる。Codex を使うのは ~/.claude/CLAUDE.md の必須の段に当たるときだけ（`codex exec -m gpt-6-astra --sandbox read-only … < /dev/null`。出力はログのファイルに残し、冒頭の `model:` が `gpt-6-astra` であることを確かめる）。当たらないときは `reviewer` エージェントかメインが点検する。重要コードのまとまった実装と取り返しのつかない操作は、handoff の点検で代えず、/codex-impl の計画書と Step 3（Codex の計画書レビュー）で行う
 - 実装は `implementer` エージェントに委譲する。差分 10 行未満の修正は本体が直接行ってよい
-- 実装直後に `/handoff` はしない。`reviewer` エージェントに diff を直接渡す
+- 実装直後に `/handoff` はしない。`reviewer` エージェントに差分を直接渡す。差分は基準のコミットからの全変更（`git diff <基準>`）と、`git status --porcelain -uall` で確かめた未追跡のファイルの全文（`git diff` だけではステージ済みの変更と新規ファイルが漏れる）
 - レビュー分類（必須／推奨／不要）をユーザーに提示し、必須のみ `implementer` に修正させる
 - レビュー完了後、`docs/review-log.md` に「修正が必要だった指摘を出したレビュアー」を 1 行記録する
 
