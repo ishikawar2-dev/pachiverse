@@ -71,9 +71,9 @@ Part B 完了後に §3 の Safe 行を確定値で埋め、譲渡契約の締�
 
 | # | 確認 | 合格条件 |
 |---|---|---|
-| 1 | GitHub: 自分のアカウントで members の main に PR を作りマージできる（docs 1 行でよい） | マージ後に `scripts/deploy-ssh.sh --check-only` の G1 が通る |
+| 1 | GitHub: 自分のアカウントで members の main に PR を作りマージできる（docs 1 行でよい） | マージ後に `scripts/deploy-ssh.sh --target stg --check-only <ソースルート> <ファイル>` の G1 が通る（`--target` は必須。付けないと使い方を出して終わる） |
 | 2 | WP: 管理画面にログインし、ヘルスチェック（UNI: 運用 → Healthcheck）を開いて NG が無い。`wp uni-pack-reveal readiness` を SSH から実行 | readiness `ready`、healthcheck の NG 0 |
-| 3 | SSH/FTPS: `scripts/deploy-ssh.sh --target stg --check-only` が自分の鍵で動く | G1〜G3 OK |
+| 3 | SSH/FTPS: `scripts/deploy-ssh.sh --target stg --check-only <ソースルート> <ファイル>` が自分の鍵で動く | G1・G2 OK（`--check-only` は転送しないので、G3・G4 は実際の配置で確かめる） |
 | 4 | GCP: `gcloud compute ssh pachiverse-signer` に入れる。`gcloud kms keys list --keyring pv-signer` が見える。請求先が UNI | healthz 200・KMS 5 鍵が見える |
 | 5 | Vercel: 自分のアカウントで Deployments が見え、`/api/collection` が 200 | 手動 Redeploy をせずに確認 |
 | 6 | IPFS: UNI 側の Filebase から `bafybeiarlh4…`（PVM 画像 CID、`ops/RELEASE_STATE_20260902.md`）が取得できる | ゲートウェイ 2 系統で 200 |
