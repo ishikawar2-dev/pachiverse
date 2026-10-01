@@ -23,7 +23,7 @@ Pachiverse は、役割の異なる 4 つのシステムが疎結合で連携す
                ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ members.pachiverse.com（別 Git リポジトリ・調査対象外）        │
-│  WordPress 6.9.4 + 自作プラグイン uni_memberpage               │
+│  WordPress 7 系 + 自作プラグイン uni_memberpage                │
 │  **業務状態の正本**: 会員・PV Coin 台帳・NFT 保有・Reveal 判断  │
 └──────────────┬──────────────────────────────────────────────┘
                │ signer-v1 契約（HTTP + HMAC-SHA256 認証）
