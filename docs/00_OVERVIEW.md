@@ -36,7 +36,7 @@ Pachiverse は、パチンコ／スロットを題材とした NFT（商品換�
 | スマートコントラクト | Solidity 0.8.24 / Foundry / OpenZeppelin v5 / Polygon（mainnet + Amoy テストネット） |
 | 署名基盤 | TypeScript / Node.js 20+ / Fastify 5 / viem 2 / better-sqlite3 / vitest |
 | アート生成 | Python（Pillow / numpy / pyyaml、`.venv` 固定）+ Seedream（fal.ai）+ Real-ESRGAN |
-| 会員システム | WordPress 6.9.4 + PHP プラグイン（別リポジトリ・調査対象外） |
+| 会員システム | WordPress（7 系。2026-10 時点）+ PHP プラグイン（別リポジトリ・調査対象外） |
 
 ## システム構成概要
 
