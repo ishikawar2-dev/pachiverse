@@ -66,6 +66,7 @@ Part B 完了後に §3 の Safe 行を確定値で埋め、譲渡契約の締�
 | 11 | PVM_CUSTODY の紙（R-1） | 封緘のまま UNI 側へ。`SEALED_BACKUP_RUNBOOK.md` の復旧テスト手順で再導出一致を確認 | #11 | オーナー側の写しは持たない（元から 1 部） | 紛失＝PVM 500 体の最終手段を失う |
 | 12 | 各 SaaS（OpenAI / Anthropic / Google Sheets / Etherscan / RPC） | UNI 側で再契約し、`wp-config-secrets.php` と Signer `.env` の値を差し替え（11 §6） | #12 | 旧キーの失効 | 差し替え順は 11 §5 |
 | 13 | 個人情報を含むローカル資料（`正規データ/`、Downloads の各 xlsx） | 暗号化媒体で 1 部を UNI へ。`10_PII_TRANSFER_MEMO.md` の整理に従う | #13 | オーナー側は保守に必要な範囲だけ残し、満了時に消去（消去証明） | 消去は不可逆 |
+| 14 | 外部死活監視（HetrixTools） | 規約上アカウントの権利は譲れないため移さない。UNI が自分のアカウントを作り、同じ 4 件と期限の警告を作り直し、テスト通知を受け取る（約 15 分。members `ops/EXTERNAL_UPTIME_MONITORING.md` §6） | #12 | オーナー側の監視を止める（止める前に稼働率を写す） | — |
 
 ## 4. 受け取り確認（UNI 側が自分の権限だけで実施できること）
 
@@ -82,7 +83,7 @@ Part B 完了後に §3 の Safe 行を確定値で埋め、譲渡契約の締�
 | 9 | Safe: Safe{Wallet} で ADMIN の Safe を開き、署名者 3 名としきい値 2 を確認。`ops/safe-tx-hash.sh` で任意の TX のハッシュ照合ができる | 一致 |
 | 10 | 会社 MetaMask: 復元した端末のアドレスが `0x502cef…`（07 §8 #7）と一致 | 一致（TX は出さない） |
 | 11 | 紙 R-1: 封緘を開けずに保管場所を記録。開封テストは `SEALED_BACKUP_RUNBOOK.md` の頻度で | 記録あり |
-| 12 | 監視・記録: 外部死活監視の通知先に UNI 側が入っている（`ops/EXTERNAL_UPTIME_MONITORING.md`）。`ops/weekly-ops-readout.sh` を自分の鍵で実行できる | 通知受信・出力取得 |
+| 12 | 監視・記録: UNI が自分の HetrixTools のアカウントで外部死活監視を作り直し、通知を受け取れる（§3 #14、`ops/EXTERNAL_UPTIME_MONITORING.md` §6）。`ops/weekly-ops-readout.sh` を自分の鍵で実行できる | 通知受信・出力取得 |
 | 13 | 復旧: `ops/SIGNER_RECOVERY_RUNBOOK.md` §7 の drill を UNI 側が 1 回通す | 起動ログに `accountProvider gcp-kms`、healthz 200 |
 
 全部 OK になるまで §3 の「削除」列に進まない。1 つでも NG なら、その行の「追加」からやり直す（09 §6 の終了条件と同じ考え方）。

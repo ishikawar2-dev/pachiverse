@@ -54,7 +54,7 @@
 | Ledger 署名者ガイド（高橋代表向け） | members `ops/UNI_LEDGER_SIGNER_GUIDE.md` | 運用引継ぎ | UNI 運用 | 草案（Sepolia の練習で端末の画面の文言を確かめて書き足す）・2026-10-01 | 初期化・保管・署名の照合の手引き。正本は `ops/KEY_MANAGEMENT_MIGRATION.md` §4（食い違えば正本が優先）。24 語と PIN は書かない |
 | 封緘バックアップと復旧テスト | members `ops/SEALED_BACKUP_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 一部実施（2-2＝PVM_CUSTODY の紙は 2026-09-16 に復旧テスト済み。最優先の 2-1 と 2-1b・2-5・2-6・2-8・2-9 は未、2-3・2-4 は UNI 側で Ledger を初期化するとき。Ledger A は 2026-09-30 調達済み、Ledger B も新品（2026-10-01 に U-14 を改訂、調達待ち））・2026-10-01 | 秘密の値は書かない。§3.3 が UNI 側 Ledger の初期化手順 |
 | Signer 障害復旧 | members `ops/SIGNER_RECOVERY_RUNBOOK.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定（リハーサル実施済み）・2026-09-30 | リハーサル記録は §7（初回 2026-09-27、以後は年 2 回） |
-| 外部死活監視の導入手順 | members `ops/EXTERNAL_UPTIME_MONITORING.md` | 運用引継ぎ | UNI 運用 | 草案（手順のみ・未導入）・2026-09-21 | 2026-10-21 に無料枠で入れると決定（登録はオーナー、DECISIONS 2026-10-21 D6）。導入後の稼働率は OPERATIONS_LOG §3 へ |
+| 外部死活監視（設定と手順） | members `ops/EXTERNAL_UPTIME_MONITORING.md` | 運用引継ぎ | UNI 運用 | **導入済み（2026-10-21、HetrixTools の無料枠）**・2026-10-21 改訂 | DECISIONS 2026-10-21 D6。監視 4 件（`members-login`・`signer-healthz`・`site-top`・`collection-api`）。稼働率は OPERATIONS_LOG §3 へ週次で写す。譲渡のときは UNI が自分のアカウントで作り直す（12 §3 #14） |
 | OT カード移行 runbook | members `ops/OT_MIGRATION_RUNBOOK.md` | 運用引継ぎ | UNI 運用 | 草案（値は空欄）・2026-09-28 | 実施日はオーナー判断。設計は §2.5 の 17 |
 | 月次メール・サポート回答方針 | members `ops/SC_MAIL_MONTHLY_RUNBOOK.md`、`docs/14_support_reply_policy.md` | 運用引継ぎ | UNI 運用 | 確定・2026-09-29 / 2026-09-15 | 14 がサポート回答の正本 |
 | Signer I/F・出庫仕様・突合 | members `docs/12_signer_interface_v1.md`・`docs/schemas/signer-v1/`・`13_pvm_withdrawal.md`・`10_reconciliation_runbook.md` | 運用引継ぎ・監査 | UNI 運用・監査/DD | 確定・2026-09-13〜09-30 | schemas が signer-v1 契約の正本 |
@@ -120,7 +120,7 @@
 | 10 | OSS ライセンス一覧・月額ランニングコスト | DD | 監査/DD・UNI 運用 | 運用担当 | 未定 | 07 §8 #16 |
 | 11 | 第三者配布版（07 の §3 等を別紙化、08 の §9 を除外） | DD・監査 | 監査/DD・評価人 | オーナー（08 の版は UNI が監査を発注するときに作る） | 07 の版は評価書の依頼時（評価人が求めた場合）、08 の版は UNI の監査の見積依頼前 | 07 §1、08 冒頭。2026-10-21 に売り手の監査発注が無くなったため、08 の版の期限を「監査発注前」から改めた |
 | 12 | 封緘バックアップの復旧テスト記録 | 運用引継ぎ・DD | UNI 運用・評価人 | 運用担当（Ledger 分は UNI） | Part B と同時 | 03 §4.1 策 2、SEALED_BACKUP_RUNBOOK |
-| 13 | 外部死活監視の稼働率 | 運用引継ぎ・監査 | UNI 運用・監査/DD | 運用担当 | 無料枠での登録（オーナー、D6）の後から記録 | EXTERNAL_UPTIME_MONITORING（Signer 復旧リハーサルの記録は 2026-09-28 に §2 の「Signer 障害復旧」の行へ移した） |
+| 13 | 外部死活監視の稼働率 | 運用引継ぎ・監査 | UNI 運用・監査/DD | 運用担当 | 2026-10-21 導入済み。第 7 週（10/21〜10/27）から OPERATIONS_LOG §3 に週次で記録（それより前の分は無い） | EXTERNAL_UPTIME_MONITORING（Signer 復旧リハーサルの記録は 2026-09-28 に §2 の「Signer 障害復旧」の行へ移した） |
 | 14 | 引き渡し手順書の確定版 | 運用引継ぎ | UNI 運用 | 運用担当 | Part B 完了後・契約日確定後 | 12 冒頭 |
 | 15 | 法務意見書 | DD | UNI 運用 | UNI が取得 | 譲渡後 | U-11。本件の譲渡資料には含めない（03 §1 でスコープ外） |
 

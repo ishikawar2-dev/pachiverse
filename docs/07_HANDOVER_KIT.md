@@ -48,6 +48,7 @@
 | 外部サービス | Google Sheets（サポート受信箱の共有） | スプレッドシート `UNI_SUPPORT_GSHEETS_SPREADSHEET_ID`、サービスアカウント JSON（WP ルート `gsheets-service-account.json`） | 要確認 | シートの所有権移転、サービスアカウントの再発行 | members `docs/00_OVERVIEW.md` |
 | 外部サービス | OpenSea（プロフィール `PachiverseFoundation`、PVM / Packs V2 コレクション） | OpenSea アカウント。コレクション編集権は会社 MetaMask で取得 | 要確認 | アカウント譲渡または Safe 移行後の編集権の再取得 | DAY_OF_RUNBOOK §7.3 |
 | 外部サービス | GitHub Actions（members の CI。無料枠を 9/11 に超過） | `pachiverse01-ai` org | 要確認 | org 移管と同時。課金しない方針 | `ops/OPERATIONS_LOG.md` I-04 |
+| 外部サービス | 外部死活監視 HetrixTools（無料枠。2026-10-21 導入、DECISIONS 2026-10-21 D6）。監視 4 件（`members-login`・`signer-healthz`・`site-top`・`collection-api`）＋証明書・ドメインの期限の警告。通知はメール（運用の受信箱からオーナーへ転送） | HetrixTools のアカウント（会社の運用のメールで登録） | 会社（運用のアカウント） | 規約上アカウントの権利は譲れない → UNI が自分のアカウントで同じ 4 件を作り直す（約 15 分。12 §3 #14） | members `ops/EXTERNAL_UPTIME_MONITORING.md` |
 | ウォレット | 会社ウォレット = ADMIN = PACK_CUSTODY = デプロイ・premint 署名者 | `0x502cef1173c162a39d8b23fa69579d862c2c728a`（MetaMask。同鍵を Foundry keystore `deployer` に取込済）。Pack 1101 / 1202 の custody 保有者（premint 300 / 200、9/14 の burn 64 枚後は 269 / 167。以後は開封分だけ減る）、POL 補充元（9/6 時点 1,325 POL） | 会社（呼称上）。実際の保管者はオーナー | **譲渡・引き継ぎ時の最重要アイテム**（02_ONCHAIN §11）。Safe 2-of-3 化後に ADMIN は Safe へ、PACK_CUSTODY は MetaMask のまま。鍵の引き渡し手順は Part B 完了後に別紙 | DAY_OF_RUNBOOK §0.3、KEY_MANAGEMENT_MIGRATION §1 |
 | ウォレット | PVM_CUSTODY（PVM 500 体の保管・出庫 TX 署名） | `0x3a6cf63047fC81f9B8a3ae3990fE4Af1F091ae49`。鍵は Cloud KMS `pv-signer/pvm-custody` v1（HSM、2026-09-16 移行済み）＋紙 1 部封緘（R-1、2026-09-16 作成・再導出一致） | 会社（用途上） | GCP プロジェクトと紙バックアップの引き渡し。ローテーション（500 体移転）は行わない（オーナー決定 9/15） | 同上、KMS runbook R-1 |
 | ウォレット | BURNER（Pack burn 署名）/ MINTER（finalize 済で実質無用） | `0xcE5cd2929e4f99D5493347962F53A81447fBA688` / `0x8CeAbd264ac7700E71eCAdB286DDc0E62Ff2b575`。鍵は Cloud KMS `pv-signer/burner` / `pv-signer/minter` v1（HSM、2026-09-16 移行済み） | 会社（用途上） | GCP プロジェクトごと。BURNER は Safe 経由で付け替え可能 | 同上 |
@@ -92,6 +93,7 @@
 | IPFS / 生成系のファイル渡しキー | Mac `~/.fal_key` / `~/.pinata_key` / `~/.filebase_keys` / `~/.polygonscan_key` | オーナー | 要確認 |
 | reconcile.ts 用 DB read-only・RPC | members `docs/.env`（Git 管理外、未読） | オーナー | 要確認 |
 | Signer VM の Caddy / Let's Encrypt 証明書 | VM `/etc/caddy/Caddyfile`（自動更新） | — | 自動 |
+| HetrixTools（外部死活監視）のログイン | 所在はオーナーが管理 | オーナー | 2026-10-21 作成。使わない状態が続くと止められることがあるため、90 日に 1 回はログインする（§4） |
 
 ## 4. 運用カレンダー
 
@@ -103,6 +105,9 @@
 | 日次（02:30 cron ほか） | 資産レコンサイル（コイン / NFT スナップショット、PolygonScan 取得）、監査ログハッシュ検証、ニュース生成 09:00/21:00、IMAP 5 分取り込み | members `docs/01_ARCHITECTURE.md`「Cron」、`ops/CPA_REVIEW_GUIDE.md` §6 | WP-Cron はアクセス駆動で時刻保証なし。ヘルスダッシュボードで次回予定を確認 |
 | 日次（要確認: 現状は 9/8 の手動 1 回のみ） | **本番 DB のダンプ取得と Mac 外への保管**（`wp db export` または phpMyAdmin。監査ログ・台帳の INSERT-only 設計のため日次で足りる）。Signer SQLite と VM ディスクのスナップショットも週 1 で取る方針を決める | DAY_OF_RUNBOOK §1.11（9/8 の手順）。**定期化は未**（§8 #15） | DB 喪失時に会員の権利（台帳・保有）を復元できない |
 | 週次（火曜締め → 水曜 12:00） | 稼働・インシデント記録の更新（デプロイ回数・burn・開封・出庫・verify・監査ログ件数） | `ops/OPERATIONS_LOG.md` §0（8 手順） | 譲渡評価・監査向けの稼働証跡に空白が出る |
+| 週次（同上。2026-10-27 締めの第 7 週から） | 外部死活監視の稼働率・停止時間・時刻・原因を HetrixTools の画面から写す（このときのログインで 90 日の条件も満たす） | `ops/OPERATIONS_LOG.md` §0 手順 8、`ops/EXTERNAL_UPTIME_MONITORING.md` §5 | 稼働の第三者の計測が証跡に残らない |
+| 90 日に 1 回（週次の写しで満たす） | HetrixTools へのログイン（無料のアカウントの継続の条件） | `ops/EXTERNAL_UPTIME_MONITORING.md` §2 | 監視のアカウントが止められ、停止に気づけなくなる |
+| 随時（通知が来たとき） | 外部死活監視の通知（停止・復旧・証明書やドメインの期限・ネームサーバーの変更）を受けて初動 | `ops/EXTERNAL_UPTIME_MONITORING.md` §4、`ops/INCIDENT_RESPONSE.md` §1.1 | 停止の発見が会員の問い合わせ頼みに戻る |
 | 週次 | サポート受信箱の未対応確認、Reveal 関連問い合わせ。回答は方針正本に従う | members `docs/14_support_reply_policy.md`、DAY_OF_RUNBOOK §2.3 | 会員対応の遅延 |
 | 週次（火曜締め） | オンチェーン残高の突合（Packs custody 残 = 500 − 焼却数、PVM_CUSTODY 残 = 500 − 出庫数）。読み取りは `ops/weekly-ops-readout.sh <週初> <週末>` に集約（burn バッチ・開封・出庫・監査ログ・メール・PHP 版・監査ログ v2 の確認まで 1 回で出る） | DAY_OF_RUNBOOK §7.2、members `ops/OPERATIONS_LOG.md` §0 | 不整合の見逃し |
 | 月次 | サポーターズ倶楽部 月次メール（文面更新 → テスト送信 → 送信 → 履歴確認、約 30 分） | `ops/SC_MAIL_MONTHLY_RUNBOOK.md` | 会員への利益還元報告が止まる（差出人は VEGAS BANK 事務局） |
