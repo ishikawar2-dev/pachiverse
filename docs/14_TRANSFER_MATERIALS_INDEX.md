@@ -65,7 +65,7 @@
 
 | 資料名 | 所在 | 用途 | 主な読者 | 状態・最終更新日 | 備考 |
 |---|---|---|---|---|---|
-| 稼働・インシデント記録 | members `ops/OPERATIONS_LOG.md` | 監査・時価根拠・DD | 評価人・監査/DD | 週次更新中（第 3 週 9/23〜9/29 を 2026-09-30 に確定、次回 10/7）・2026-09-30 | 9/9 Reveal 以降を記録（遡及記入を含む）。§5.3 に不可逆操作の tx hash。読み取りは `ops/weekly-ops-readout.sh` |
+| 稼働・インシデント記録 | members `ops/OPERATIONS_LOG.md` | 監査・時価根拠・DD | 評価人・監査/DD | 週次更新中（第 4〜6 週 9/30〜10/20 を 2026-10-21 に確定〈members 側はマージ待ち〉、次回 10/28）・2026-10-21 | 9/9 Reveal 以降を記録（遡及記入を含む）。§5.3 に不可逆操作の tx hash。読み取りは `ops/weekly-ops-readout.sh` |
 | 内部統制の地図（CPA 向け） | members `ops/CPA_REVIEW_GUIDE.md` | 監査・DD | 監査/DD・評価人 | 確定・2026-09-28 | 本文の「最終更新」表記は 2026-06-02 のまま。§8 に未着手項目 |
 | 開発ポリシー | members `ops/DEVELOPMENT_POLICY.md` | 監査・DD | 監査/DD | 確定・2026-09-21 | 本文の「最終更新」表記は 2026-06-01 のまま |
 | CI・テストの実行記録 | GitHub Actions（members `test.yml`）、集計は親 `docs/04_DEV_EFFORT_EVIDENCE.md` §5〜§6 | 監査・時価根拠 | 監査/DD・評価人 | 継続・2026-09-27 | 2026-09-27 から無料枠の有無にかかわらずローカル同等検証を優先し、結果を PR コメントに記録する（`scripts/local-ci.sh --comment`） |
