@@ -1,6 +1,6 @@
 # 08_AUDIT_SCOPE — 第三者セキュリティ監査 スコープ書（見積依頼用・初稿）
 
-作成日: 2026-09-16（初稿・売り手作成）　宛先: 監査会社 3 社の営業・技術担当　位置づけ: [03_TRANSFER_PLAN.md](03_TRANSFER_PLAN.md) フェーズ E（監査準備）の成果物
+作成日: 2026-09-16（初稿・売り手作成。2026-10-21 に §3.3 K-11・§3.4・§4.1・§5・§8.2 を追記）　宛先: 監査会社 3 社の営業・技術担当　位置づけ: [03_TRANSFER_PLAN.md](03_TRANSFER_PLAN.md) フェーズ E（監査準備）の成果物
 
 > 本書は見積依頼のためのスコープ定義であり、契約書ではない。数値（行数・ファイル数・テスト件数）は 2026-10-01 時点のリポジトリ実測値（members `42d6803`（プラグインとテストのコードは `5c0848b` と同じ）、signer `1a82a32`、contracts `d4f8ae9`、公開サイト `d28198e`）または各 README の記載値で、発注時に再計測する。
 > 「要確認」と記した箇所はオーナーが埋める（§9 に集約）。本書には秘密の値（鍵・パスワード・API キー・HMAC secret）、個人名、メールアドレス、ホスト名・IP を書かない。第三者へ渡す版では §9 を外す。
@@ -111,7 +111,7 @@ Pachiverse（パチンコ・パチスロ機体をモチーフにした NFT と�
 | S-6 | WP プラグイン: Pack Reveal | `inc/pack-reveal.php`（単一ファイルとして最大）、`mint-tx.php`、`admin-mint-tx.php` | 3 ファイル 9,095 行 | 開封・割当・burn バッチ・ロック・verify の経路を全行。管理画面の表示部は軽く |
 | S-7 | WP プラグイン: 出庫 | `inc/withdraw-request.php`（旧・アイテム出庫）、`pvm-withdrawal.php`（PVM 出庫申請）、`admin-pvm-withdrawals.php` | 3 ファイル 2,051 行 | 全行。状態遷移と保留残高 |
 | S-8 | WP プラグイン: Signer 連携 | `inc/chain-signer.php`、`chain-signer-auth.php`。HMAC 検証・attempt 状態機械・callback 冪等・payload_hash | 2 ファイル 3,276 行 | 全行。S-3 との契約整合（`docs/schemas/signer-v1/` が正本） |
-| S-9 | WP プラグイン: 監査ログ・レコンサイル | `inc/audit-log*.php`（ハッシュチェーン）、`admin-reconcile*.php`、`reconcile-onchain-fetcher.php`、`polygonscan-client.php` | 11 ファイル 2,750 行 | ハッシュチェーンの改ざん耐性、突合ロジックの正しさ |
+| S-9 | WP プラグイン: 監査ログ・レコンサイル | `inc/audit-log*.php`（ハッシュチェーン）、`admin-reconcile*.php`、`reconcile-onchain-fetcher.php`、`polygonscan-client.php` | 11 ファイル 2,750 行 | ハッシュチェーンの改ざん耐性、突合ロジックの正しさ（パックの行の扱いは K-11） |
 | S-10 | WP プラグイン: 管理画面権限 | `inc/admin-notice.php`（一斉メール）、`support-console.php`（`admin-notice.php` のサポートコンソールの権限 2 レベル・閲覧の監査。2026-09-28 追加）、`admin-member-import.php`（CSV 取込）、`member-import-exclusions.php`（CSV 取込の除外リスト。2026-09-21 追加）、`admin-user-list.php`、`admin-log-hub.php`、`member-status-admin.php`、`admin-menu-structure.php`、`admin-dup-check.php`、`admin-login-log.php`、`admin-login-failures.php` | 11 ファイル 14,112 行 | 権限チェック（`current_user_can` / nonce / ロール）の網羅確認を主目的とし、UI 描画部は全行精読を求めない |
 | S-11 | WP プラグイン: サポート受信箱（PII 取扱） | `inc/support.php`（nopriv AJAX 含む）、`support-ai-classify.php`（外部 AI へのマスク）、`support-gsheets.php`、`support-imap-fetch.php`、`support-reply-send.php`、`support-inbox-store.php`、`support-classify.php`、`member-real-name.php` | 8 ファイル 6,829 行 | PII の外部送信経路（AI API・Google Sheets・メール）と認証なし経路を重点 |
 | S-12 | WP プラグイン: 公開 API | `inc/collection-api.php`（認証なし GET。未 Reveal 情報を出さないこと） | 1 ファイル 229 行 | 全行 |
@@ -154,6 +154,7 @@ Pachiverse（パチンコ・パチスロ機体をモチーフにした NFT と�
 | K-8 | 会員データ（本名・生年月日・電話・メール）を WP DB が保持し、サポート AI 分類に渡す前にマスクする実装が 2026-09-15 に入った | DEPLOY_CHECKLIST 2026-09-15 |
 | K-9 | `wp_ajax_nopriv_*`（未ログインで到達可）が 3 件存在する。2 件は初回ログイン案内メールの再発行（氏名 + 生年月日 + 電話の完全一致、失敗 5 回 / IP / 1h ロック）。1 件は死活確認の ping `uni_healthcheck_ping`（2026-09-21 追加。サーバー内のループバックからは使い捨てトークン、管理画面からは管理者の nonce で呼ぶ。どちらも無ければ 403。応答は固定の JSON） | members 01_ARCHITECTURE（再発行の 2 件）、`inc/support.php`・`inc/healthcheck.php` |
 | K-10 | Owner's Pass ERC721 のオンチェーン description に利益分配を示唆する英文があり変更不可。法務論点として別途扱う（技術監査の対象外） | 03_TRANSFER_PLAN §5、05 K |
+| K-11 | 会員サイトの台帳とオンチェーンの突合（S-9）は、**パック（1101・1202）について正本の Pack V2 と PACK_CUSTODY の残高を照合していない**。パックの行は 2026-09-02 に退役した旧 Packs コントラクトを読む作りのまま残っている（PV Coin は台帳どうしの突合で、この件に当たらない。パック以外の品目の行が読むコントラクトの設定値が品目ごとに正しいかは、本番の設定の確認が要り、未確認）。パックのオンチェーン側は、日次 burn のバッチの記録と tx hash（`OPERATIONS_LOG.md` §5.3）で追っている。是正（パックの行を突合から外し、custody の残高と期待残量の一致を日次の検証に足す）は計画済みで未実装（2026-10-21）。2026-10-01 の内部レビュー（§8.2）で判明し、突合の runbook・内部統制の地図の記述は 2026-10-21 に実態へ合わせた | DECISIONS「NFT をカストディアル方式で保管する」、members `ops/CPA_REVIEW_GUIDE.md` §2、members KNOWN_ISSUES |
 
 ### 3.4 追加監査（OT カード、12 月予定・別見積）
 
@@ -166,7 +167,9 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | WP 側 | `inc/ot-cards.php`（4 テーブル、Signer 連携、受取・移管の状態遷移、WP-CLI）、`ot-reconcile.php`（チェーンとの突合）、`ot-migration.php`（移行 `wp uni-ot migrate`）、`ot-issue.php`（付与）、管理画面 `admin-ot-grant.php`（付与の作成）・`admin-ot-requests.php`（承認・却下・送信。`manage_options` のみ）、会員画面 `mypage-ot.php`（移管・受取。機能フラグ OFF の間は出さない） | 7 ファイル 11,267 行（Phase 3d-2c まで。うち `ot-cards.php` 2,858 行）。テスト `tests/Unit/Ot*` 6 ファイル・`tests/Integration/Ot*` 7 ファイル、227 メソッド（S-14 の件数に含む） |
 | 設計書 | members `docs/17_owner_ticket_card_spec.md` v0.3 | 271 行 |
 
-追加監査の観点: value 総量の保存（Σ valueOf == totalValue ≤ maxTotalValue）、release の 1 回性、custody 鍵の裁量（受取前の全 value を custody が動かせる事実と、WP 側の申請・同意記録との紐付け）、既存 3 operation への影響がないこと。
+追加監査の観点: value 総量の保存（Σ valueOf == totalValue ≤ maxTotalValue）、release の 1 回性、custody 鍵の裁量（受取前の全 value を custody が動かせる事実と、WP 側の申請・同意記録との紐付け）、custody 鍵の喪失時の帰結（下記）、既存 3 operation への影響がないこと。
+
+**OT_CUSTODY の鍵の喪失時の帰結（先に開示する）**: `custody` は変更不能（immutable）で、release と受取前のカードの value 移転は custody のアドレスだけが行える。OT_CUSTODY の鍵を失うと、受取前のカードの release と、そのカード間の value 移転が止まり、ADMIN でも戻せない（回復は新しいアドレスへの再デプロイだけで、旧コントラクトの受取前の value はオンチェーンで凍結されたまま残る。受取済みのカードの保有者による移転は止まらない）。移行の直後は全会員分のカードが custody にあるため、影響は受取前の全カードに及ぶ。OT_CUSTODY の鍵は Cloud KMS（HSM）内で生成し、紙の封緘バックアップは取らない決定だった（DECISIONS D-18）。2026-10-01 の内部レビュー（§8.2）を受けて、オーナーは PVM_CUSTODY と同じく紙 1 部の封緘バックアップを取る方針に見直した。D-18 の改訂と紙の作成は OT の mainnet 配置の前に行う予定で、2026-10-21 時点では未実施。
 
 ---
 
@@ -178,9 +181,9 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 |---|---|
 | 権限 | `AccessControl` のロール分離（ADMIN / MINTER / BURNER）が constructor で完結し deployer にロールが残らないこと。デプロイ済みコントラクトの実際のロール保持者の確認（`hasRole` 照会） |
 | 不変条件 | PVM: tokenId 1〜500・総供給 500・二重 mint 不可。PVPACK: tokenId 1101（300）/ 1202（200）のみ・mint 先 custody 固定・burn で mint 枠が戻らない。invariant テストがこれらを固定しているか |
-| 再入 | `_safeMint`（ERC721Receiver コールバック）と `burnBatchFromCustody` の再入経路。v1 では custody が EOA のため発生しないが、将来 custody をコントラクトにした場合の影響 |
+| 再入 | `_safeMint`（ERC721Receiver コールバック）と `burnBatchFromCustody` の再入経路。v1 では custody が EOA のため発生しないが、将来 custody をコントラクトにした場合の影響。**既知（開示）**: PVM の `batchMint` は、受信フックから再入されると発行数の記録 `totalMinted` が実数より小さく上書きされる計数の欠陥をソースに持つ（再入ガードなし。範囲の検査と二重 mint の防止は効くので、tokenId 1〜500・総供給 500・二重 mint 不可の不変条件は壊れない）。配置済み PVM では `finalizeMinting()` が成功している（記録が 500 でなければ通らず、記録は実数を超えない）ので、この欠陥が起きていないことが確定しており、finalize の後は mint の経路が閉じている。本番の premint の宛先も EOA でフックは呼ばれない。コードを再利用する場合だけ意味を持つ。この再入を固定するテストは無い（2026-10-01 の内部レビュー §8.2 で確認） |
 | finalize / freeze | 不可逆操作が実行済みであることのオンチェーン確認と、実行後に MINTER_ROLE を再付与しても mint できないこと |
-| burn の blast radius | BURNER 鍵が漏れても custody 以外の残高に触れられないこと（`from` を引数に取らない設計の検証） |
+| burn の blast radius | BURNER 鍵が漏れても custody 以外の残高に触れられないこと（`from` を引数に取らない設計の検証）。**既知（開示）**: これは BURNER 鍵単独の話で、DEFAULT_ADMIN_ROLE は custody の差し替え（`setCustody`。finalize・freeze の後も呼べる）と BURNER_ROLE の付与ができるため、ADMIN 鍵 1 本で任意のアドレスを custody に指定し、その残高を保有者の承認なしに焼ける。ADMIN の集中（K-4）の具体的な帰結で、緩和は Safe 2-of-3 への移行（Part B）。この筋書きを扱うテストは無い |
 | バイトコード | Verified ソースとデプロイ済みバイトコードの一致、コンパイラ設定（0.8.24、optimizer 200、`bytecode_hash = none`）の妥当性 |
 | 依存 | OpenZeppelin v5 の既知脆弱性の有無、`lib/` の固定バージョン |
 
@@ -237,7 +240,8 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | コード | `pachiverse-contracts` / `pachiverse-signer` / `pachiverse-members`（GitHub private リポジトリ） | 監査期間中の read 権限付与、または指定コミットの tarball | HEAD は発注時に固定して通知する |
 | 設計・仕様 | 親 `docs/00_OVERVIEW.md` → `01_ARCHITECTURE.md` → `02_ONCHAIN.md`、members `docs/00_OVERVIEW.md` → `01_ARCHITECTURE.md`、`docs/12_signer_interface_v1.md`、`docs/13_pvm_withdrawal.md`、`docs/16_pp_gacha.md`（PP ガチャ）、`docs/schemas/signer-v1/*.json`（契約の正本）、`docs/17_owner_ticket_card_spec.md`（追加監査） | Markdown / JSON | 各リポジトリの README も一次資料 |
 | 設計判断の記録 | 親 / members の `DECISIONS.md`（採用しなかった案とその理由を含む） | Markdown | |
-| 既知問題 | 親 / members の `KNOWN_ISSUES.md`、2026-09-07 内部全面レビュー報告書（CRITICAL 3 / HIGH 19 / MEDIUM 約 40）とその対応記録（§8） | Markdown / HTML | 監査会社が既知の指摘を重複報告しないために提供する |
+| 既知問題 | 親 / members の `KNOWN_ISSUES.md`、2026-09-07 内部全面レビュー報告書（CRITICAL 3 / HIGH 19 / MEDIUM 約 40）とその対応記録（§8）、2026-10-01 内部全体レビュー（第 2 回）の既知の一覧（§8.2。members `KNOWN_ISSUES.md`「全体レビュー（2026-10-01）の残り」） | Markdown / HTML | 監査会社が既知の指摘を重複報告しないために提供する。第 2 回の一覧は未修正の欠陥を含むため、NDA の後に第三者版（秘密の値・ホスト名・会員の個人情報を除いた版）で渡す |
+| 全数表（監査の網羅の証跡） | 2026-10-01 の内部レビューで作った 3 表: 入口の全数表（WP プラグインの入口 198 件と、それぞれの権限検査・nonce の有無）、特権操作と監査ログの対応表（特権操作 99 行と、監査ログへの記録の有無）、テストの対応表（本体ファイルごとの対応するテストの有無。対応 0 のファイルを含む） | TSV / Markdown | 件数は 2026-10-01 時点。作成のスクリプトは再実行でき、監査の前に作り直して内部の ID を外した版を提供する。特権操作の表は、監査ログを足す残りの修正の後に「記録あり」の数を更新する。§4.3 の「権限」「監査ログ」と S-14 の確認に使える |
 | テスト | forge テスト（80 件 + OT 101 件）、Signer vitest（139 件）、WP PHPUnit（Unit 669 / Integration 613 メソッド）、PHPStan level 5、`scripts/local-ci.sh`、Signer `scripts/e2e-anvil.sh`（anvil 通し検証） | 実行手順は各 README / AGENTS.md | CI は GitHub Actions（`test.yml`）。無料枠超過時はローカル同等検証の記録を PR コメントに残す運用 |
 | runbook | members `ops/`: `RELEASE_RUNBOOK_20260909.md`、`DAY_OF_RUNBOOK_20260909.md`、`DEPLOY_CHECKLIST.md`（リリース履歴付き）、`INCIDENT_RESPONSE.md`、`KEY_MANAGEMENT_MIGRATION.md`（§5.3 実行記録付き）、`SEALED_BACKUP_RUNBOOK.md`、`OPERATIONS_LOG.md`、`CPA_REVIEW_GUIDE.md`（内部統制マップ・ITGC）、`DEVELOPMENT_POLICY.md` | Markdown | 第三者向け版ではホスト名・IP・アカウント名を別紙に外す |
 | 引き継ぎ | 親 `docs/07_HANDOVER_KIT.md`（資産目録・認証情報の所在・運用カレンダー） | Markdown | 同上 |
@@ -255,7 +259,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 |---|---|
 | レポート形式 | 日本語。PDF + 編集可能な原稿（Markdown または Word）。**公開版（買い手・評価人へ提示可）と非公開版（詳細な再現手順を含む）の 2 部**。公開版には秘密の値・ホスト名・IP・個人名を含めない |
 | 重大度分類 | Critical / High / Medium / Low / Informational の 5 段階。各指摘に CVSS v3.1（または相当）の根拠、影響資産（PVM 500 体 / Pack 残高 / PV Coin 台帳 / 会員 PII / 鍵）、悪用の前提条件、再現手順、推奨対策、**「コントラクトは変更不可」を踏まえた現実的な緩和策** |
-| 既知事項の扱い | §3.3 K-1〜K-10 と §8 の既知事項は「既知・開示済み」として区別して記載する（監査の独立性のため所見自体は省略しない） |
+| 既知事項の扱い | §3.3 K-1〜K-11 と §8（§8.2 を含む）の既知事項は「既知・開示済み」として区別して記載する（監査の独立性のため所見自体は省略しない） |
 | 良い点の記載 | 設計上の強み（fail-closed、鍵の用途分離、冪等設計、監査ログのハッシュチェーン等）も所見として記載する。買い手・評価人向けの資料として「問題がなかった範囲」の明示が必要 |
 | 再確認 | 是正後の**再確認 1 回**を見積に含める（Critical / High の全件と、Medium のうち売り手が是正したもの）。再確認の結果を最終レポートに反映し、「是正済み」「受容（理由付き）」「未対応」を明記する |
 | 中間報告 | Critical / High は発見時点で即時に個別通知（最終レポートを待たない） |
@@ -380,6 +384,23 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | E-8 | 2026-09-01 資産・認証系レビューの 8 件（tx_hash readonly / sent 時減算 / 台帳 legacy / 緊急停止 path / NFT 送信 CAS / render sync ロック / callback 冪等 / CLI failed ガード） | 9/1 マージ・9/2 本番反映済み | 親 KNOWN_ISSUES「要修正」追記、05 §4 |
 | E-9 | 公開サイト購読 API（配信停止フローなし・本人確認（二重オプトイン）なし） | レート制限・管理トークンの扱い（Bearer のみ・定数時間比較）は 2026-09-21 に是正済み。配信停止と本人確認は未対応（購読リストへの配信を始める前の前提条件。配信は行っていない）。初回スコープ外（X-2） | 親 KNOWN_ISSUES |
 | E-10 | 2026-09-07 全面レビューの §0 以外の HIGH / MEDIUM 約 50 件 | 個別の対応状況は報告書と PR 履歴で提示（要確認 Q-15） | `~/Downloads` の報告書 |
+| E-11 | 2026-10-01 内部全体レビュー（第 2 回）で確定した欠陥 148 件 | 是正中。範囲・方法・限界・進み具合は §8.2。未修正分は members KNOWN_ISSUES に一覧で開示し、監査会社には NDA の後に第三者版で渡す | members KNOWN_ISSUES「全体レビュー（2026-10-01）の残り」 |
+
+### 8.2 2026-10-01 内部全体レビュー（第 2 回）の記録
+
+監査の代替ではなく、監査会社が既知の事項を重複して報告しないための一覧として載せる。§6「既知事項の扱い」のとおり、ここに挙げた事項も監査の所見から省かないでよい。
+
+| 項目 | 内容 |
+|---|---|
+| 実施 | 2026-09-30〜10-01。対象は members（`5c0848b`）・signer（`1a82a32`）・contracts（`d4f8ae9`）・公開サイト（`d28198e`）・pachiverse-world・pvm-art の各リポジトリ |
+| 範囲 | 別会社のモデル（OpenAI GPT-6 系）の一次レビュー 24 バッチ（約 6.9 万行。§3.1 の S-1・S-3〜S-7・S-9〜S-13・S-16・S-19 と §3.4 の OT、公開サイトの API。S-8 の 2 ファイルは下の「読まなかったもの」）、Claude Sonnet の一次スキャン 8 バッチ（約 5.2 万行。表示・コンテンツ系、公開サイト、メタバース、アート生成、データ加工のスクリプト）。WP プラグインの入口 198 件は、どのバッチにも読まれなかったものが無いことを全数表（§5）で確かめた |
+| 読まなかったもの | 直前（2026-09-28〜09-30）に差分のレビューを済ませた 11 ファイル（S-8 の 2 ファイル、PVM 出庫・サポーターズ倶楽部メール・本名・受信箱の管理画面・KMS 監視の各ファイル）、一斉メール・サポートコンソール（`admin-notice.php`）の設定画面の描画部（4,360 行。権限・nonce・監査ログは全数表で確認）、テストのコード（約 4.4 万行。対応表だけ作った）、サードパーティ・WordPress コア・生成物 |
+| 方法 | 読むだけ（テストの実行・動的な検証・本番への接続はしない）。一次レビューの指摘を Claude Opus が 1 件ずつコードで検証して「確定・否定・不明」を付け、Claude Fable が横断の不変条件と範囲の漏れを評価した。採否は売り手（オーナー）が決めた |
+| 結果 | 台帳 311 件のうち、確定 148（高 4・中 58・低 86）、否定 98、不明 10（本番の読み取りで決めるもの）、未検証 58（表示系の候補）。確定した欠陥の型の内訳は、第三者版と members の KNOWN_ISSUES（非公開）にある |
+| 処理 | 高・中のすべてと一部の低は 23 の修正の単位に割り当て、重要コードは別会社のモデルの差分レビューと Fable の最終レビューを通してから本番に配置する。2026-10-21 時点で、本番配置済み 10・一部 5・未着手 8。修正しない低と、監査の前に直せない分は、members KNOWN_ISSUES に「全体レビュー（2026-10-01）の残り」として一覧で開示した。コントラクトの開示 3 点は §3.4・§4.1、突合の件は K-11 |
+| 限界 | (1) 売り手が依頼し、採否も売り手が決めた内部のレビューで、第三者の独立性は無い。(2) モデルによる一次レビューと検証で、人手による全行の精読ではない。(3) 一次レビューには高・中だけを書かせたので、低は検証の途中で見つかった分に限られる。(4) 上の「読まなかったもの」と、未検証 58・不明 10 が残る。(5) 本番のデータ・設定は読み取りの依頼で確かめた分だけで、全件は見ていない |
+
+記録の全体（バッチごとの範囲・台帳・検証の根拠）は Git 管理外にあり、未修正の欠陥の詳細を含むため公開しない。監査会社には NDA の後に第三者版で提供する（§5「既知問題」）。
 
 ---
 
@@ -401,7 +422,7 @@ OT カード（オーナーチケットの ERC721 会員カード方式）は 20
 | Q-12 | レポートの真正性担保の形式 | 押印 PDF ／ 電子署名 ／ 監査会社の Web 上での公開証明。評価書の添付資料として会計士・税理士が求める形式を事前ヒアリング（03 §2.4）で確認 | 会計士ヒアリング後 |
 | ~~Q-13~~ | UNI 社側の見届け役（レポート共有先）の指名 | **決定（2026-09-24）: 高橋代表**（親 DECISIONS U-8。03_TRANSFER_PLAN §4.1 策 4 の見届け役と同一） | 済 |
 | ~~Q-14~~ | §0 #3（editor ロールの権限）の方針 | **決定（2026-09-28）: (a) 案 2**。実装・本番配置済み（§8 #3、members DECISIONS D36）。当時の選択肢: (a) 閲覧維持・変更操作を manage_options に限定（案 2）／ (b) サポート専用ロールを新設 ／ (c) 現状維持を「受容」として開示 | 済 |
-| Q-15 | 全面レビューの §0 以外（HIGH / MEDIUM 約 50 件）の対応状況一覧を作るか | 作る（監査会社への重複防止と、評価書での「既知・対応済み」の証跡になる）／ 報告書と PR 履歴の提示で足りるとする | 見積依頼前 |
+| Q-15 | 全面レビューの §0 以外（HIGH / MEDIUM 約 50 件）の対応状況一覧を作るか | 作る（監査会社への重複防止と、評価書での「既知・対応済み」の証跡になる）／ 報告書と PR 履歴の提示で足りるとする。2026-10-21: 第 2 回（2026-10-01）の既知の一覧は §8.2 と members KNOWN_ISSUES に置いた。9/7 の残り約 50 件をこの一覧に合わせるかは未決 | 見積依頼前 |
 | Q-16 | 3 社の候補 | コントラクト・Web アプリ・クラウドの 3 領域を 1 社で受けられる会社を優先。国内の Web3 監査会社／ 国内の Web アプリ診断会社（コントラクトは提携先）／ 海外のコントラクト専業（日本語レポート不可の場合は除外） | 9 月下旬 |
 | Q-17 | 対象コミットの固定時期 | 監査開始日の前営業日に各リポジトリの main を固定し、監査中のデプロイは是正分のみに限定する運用でよいか | 契約時 |
 | Q-18 | 本書の第三者向け版の作成 | §9 を外し、§3.3 / §8 の内部資料参照（`~/Downloads` 等）を「別途提供」に置換する | 見積依頼前 |
