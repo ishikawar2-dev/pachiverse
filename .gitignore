@@ -12,3 +12,9 @@ pvm-art/
 pachiverse-hero-1600x900.png
 members-wt-collection/
 __pycache__/
+pachiverse-world/
+# Git 外の原資料（docs/14 §2.1・§2.6）。*.docx と同じく公開リポジトリに入れない
+/Pachiverse_開発工数表_*.md
+# 工程の作業ファイル（CLAUDE.md の /handoff・レビュー記録）
+docs/handoff.md
+docs/review-log.md
