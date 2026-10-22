@@ -196,16 +196,20 @@
 
 #### 要修正（発見事項、重要度順）
 
-> **2026-09-01 追記: 下記 8 件すべての修正を実装済み（未マージ・未デプロイ）。**
+> **2026-09-07 更新: 下記 8 件はすべて修正済み・main マージ済み・本番反映済み。**
 > - main 共通 5 件（tx_hash readonly / sent 時減算 / coin legacy / 緊急停止 path / NFT 送信 CAS）
->   → members リポジトリの worktree ブランチ `claude/magical-poincare-1094bd`（未コミット）
-> - signer ブランチ限定 3 件（render sync ロック / callback 冪等再適用 / CLI failed ガード）
->   → `fix/signer-audit-hardening` ブランチ（`feat/pack-reveal-signer-integration` から分岐、
->   worktree: `members.pachiverse.com/.claude/worktrees/fix-signer-audit-hardening`、未コミット）
-> - ユニットテストは両側でグリーン（main 側 132 件 / ブランチ側 151 件）。
->   統合テスト（ChainSigner）は docker MySQL 未起動のため未実行。
-> - **sent 時の残高自動減算を入れたため、運用で手動減算していた場合は手順を廃止しないと二重減算になる。**
->   デプロイ前に運用手順の確認が必要。
+>   → members リポジトリ PR #12（`claude/magical-poincare-1094bd`、9/1 マージ）
+> - signer 関連 3 件（render sync ロック / callback 冪等再適用 / CLI failed ガード）
+>   → members リポジトリ PR #13（`fix/signer-audit-hardening`、9/1 マージ）
+> - 本番反映: 9/2 の main `a1b5ec7` 配置時点で両 PR を含む（`ops/RELEASE_STATE_20260902.md` §3）。
+>   以降 9/5 の `d82bc1b` まで配置済み（`members-deploy-main` worktree）。
+> - **sent 時の残高自動減算が有効になっているため、出金の「送付済」操作時に手動で usermeta を減算してはならない**（二重減算になる）。
+> - 以下の各項目は「発見時の内容」として記録を残す。現行コードの該当箇所:
+>   `withdraw-request.php` L354（tx_hash 保護）/ L326-346（sent 時 CAS 減算）、
+>   `coin-ledger.php` L241-259（legacy 経路の台帳 insert 失敗をエラー化）、
+>   `gate.php` L23-26（path 比較）、`mypage.php` の nft_transfer ハンドラ（inventory 付け替え + CAS）、
+>   `pack-reveal.php` L3460（render 側 sync のロック取得）/ L2565-2585（CLI failed の `--onchain-checked` ガード）、
+>   `chain-signer.php` L276-387（callback 再受信時の業務側冪等再適用）。
 
 - **【高】withdraw-request.php: sent の readonly 化が tx_hash に及んでいない。**
   `save_post_withdraw_request` は readonly（current=sent）でも
